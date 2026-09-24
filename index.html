@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FrenzyGoldies — kişisel futbol ve basketbol kart koleksiyonum." />
+  <title>FrenzyGoldies | Card Collection</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#home" class="brand" aria-label="FrenzyGoldies ana sayfa">
+        <span class="brand-mark">FG</span>
+        <span>
+          <strong>FrenzyGoldies</strong>
+          <small>MY CARD COLLECTION</small>
+        </span>
+      </a>
+      <nav class="main-nav">
+        <a href="#home">Ana Sayfa</a>
+        <a href="#collection">Koleksiyon</a>
+        <a href="#featured">Öne Çıkanlar</a>
+      </nav>
+      <button class="nav-toggle" id="navToggle" aria-label="Menüyü aç/kapat">☰</button>
+    </div>
+  </header>
+
+  <main id="home">
+    <section class="hero container">
+      <div class="hero-copy">
+        <div class="eyebrow">MY PERSONAL CARD VAULT</div>
+        <h1>Kart koleksiyonuma<br /><span>hoş geldin.</span></h1>
+        <p>
+          Futbol, NBA, rookie, numbered ve graded kartlarımı tek bir dijital vitrin altında topluyorum.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#collection">Koleksiyonu Gör</a>
+          <a class="btn btn-ghost" href="#featured">Öne Çıkan Kartlar</a>
+        </div>
+      </div>
+      <div class="hero-showcase" id="heroShowcase"></div>
+    </section>
+
+    <section class="stats container" aria-label="Koleksiyon istatistikleri">
+      <div class="stat-card">
+        <span class="stat-value" id="statTotal">0</span>
+        <span class="stat-label">Toplam Kart</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statFootball">0</span>
+        <span class="stat-label">Football</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statBasketball">0</span>
+        <span class="stat-label">Basketball</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statGraded">0</span>
+        <span class="stat-label">Graded</span>
+      </div>
+    </section>
+
+    <section class="section container" id="collection">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">THE VAULT</div>
+          <h2>Koleksiyon</h2>
+        </div>
+        <div class="section-count" id="resultCount">0 kart</div>
+      </div>
+
+      <div class="toolbar">
+        <label class="search-box">
+          <span>⌕</span>
+          <input id="searchInput" type="search" placeholder="Oyuncu, set veya kart no ara..." autocomplete="off" />
+        </label>
+        <div class="filters" id="categoryFilters">
+          <button class="filter active" data-category="all">Tümü</button>
+          <button class="filter" data-category="Football">Football</button>
+          <button class="filter" data-category="Basketball">Basketball</button>
+          <button class="filter" data-category="Rookie">Rookie</button>
+          <button class="filter" data-category="Graded">Graded</button>
+        </div>
+      </div>
+
+      <div class="card-grid" id="cardGrid"></div>
+      <div class="empty-state hidden" id="emptyState">
+        <div class="empty-icon">⌕</div>
+        <h3>Kart bulunamadı</h3>
+        <p>Arama veya filtre seçimini değiştirip tekrar dene.</p>
+      </div>
+    </section>
+
+    <section class="section featured-section" id="featured">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">CURATED PICKS</div>
+            <h2>Öne Çıkan Kartlar</h2>
+          </div>
+          <p class="section-note">Koleksiyonun içinden seçtiğin özel parçalar.</p>
+        </div>
+        <div class="featured-grid" id="featuredGrid"></div>
+      </div>
+    </section>
+
+    <section class="about-strip">
+      <div class="container about-inner">
+        <div>
+          <div class="eyebrow">FRENZYGOLDIES</div>
+          <h2>Her kartın bir hikâyesi var.</h2>
+        </div>
+        <p>
+          Koleksiyonumu zaman içinde büyütüyor, yeni kartları ve özel parçaları bu dijital vitrinde arşivliyorum.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> FrenzyGoldies</span>
+      <span>Built for the collection.</span>
+    </div>
+  </footer>
+
+  <div class="modal hidden" id="cardModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card">
+      <button class="modal-close" id="modalClose" aria-label="Kapat">×</button>
+      <div class="modal-image-wrap">
+        <img id="modalImage" src="" alt="" />
+      </div>
+      <div class="modal-info">
+        <div class="tag-row" id="modalTags"></div>
+        <div class="eyebrow" id="modalCategory"></div>
+        <h2 id="modalTitle"></h2>
+        <p class="modal-subtitle" id="modalSubtitle"></p>
+        <div class="details-grid" id="modalDetails"></div>
+        <p class="modal-note" id="modalNote"></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="cards.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

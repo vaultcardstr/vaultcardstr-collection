@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 1000">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#12151b"/><stop offset="1" stop-color="#244f46"/></linearGradient></defs>
+<rect width="710" height="1000" fill="url(#g)"/>
+<circle cx="560" cy="160" r="220" fill="#d7ff3f" opacity=".10"/>
+<rect x="22" y="22" width="666" height="956" rx="28" fill="none" stroke="#ffffff" stroke-opacity=".15" stroke-width="3"/>
+<text x="55" y="105" fill="#d7ff3f" font-family="Arial" font-weight="800" font-size="27" letter-spacing="5">FRENZYGOLDIES</text>
+<text x="55" y="190" fill="#ffffff" font-family="Arial" font-weight="900" font-size="72">CR7</text>
+<text x="55" y="770" fill="#ffffff" font-family="Arial" font-weight="900" font-size="39">CRISTIANO RONALDO</text>
+<text x="55" y="818" fill="#b8bfca" font-family="Arial" font-size="24">Topps Euro · Captain Green</text>
+<text x="55" y="930" fill="#717987" font-family="Arial" font-size="17" letter-spacing="2">REPLACE WITH YOUR CARD PHOTO</text>
+</svg>
