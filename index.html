@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="FrenzyGoldies — kişisel futbol ve basketbol kart koleksiyonum." />
-  <title>FrenzyGoldies | Card Collection</title>
+  <meta name="description" content="VaultCardsTR — kişisel futbol ve basketbol kart koleksiyonum." />
+  <title>VaultCardsTR | Card Collection</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -14,10 +14,10 @@
 
   <header class="site-header">
     <div class="container header-inner">
-      <a href="#home" class="brand" aria-label="FrenzyGoldies ana sayfa">
+      <a href="#home" class="brand" aria-label="VaultCardsTR ana sayfa">
         <span class="brand-mark">FG</span>
         <span>
-          <strong>FrenzyGoldies</strong>
+          <strong>VaultCardsTR</strong>
           <small>MY CARD COLLECTION</small>
         </span>
       </a>
@@ -25,7 +25,9 @@
         <a href="#home">Ana Sayfa</a>
         <a href="#collection">Koleksiyon</a>
         <a href="#featured">Öne Çıkanlar</a>
+        <a href="#admin" id="adminLink" class="hidden">Admin Panel</a>
       </nav>
+      <button class="nav-login hidden" id="loginBtn">Admin Girişi</button>
       <button class="nav-toggle" id="navToggle" aria-label="Menüyü aç/kapat">☰</button>
     </div>
   </header>
@@ -109,10 +111,41 @@
       </div>
     </section>
 
+
+    <section class="section admin-section hidden" id="adminSection">
+      <div class="section-heading">
+        <div><div class="eyebrow">PRIVATE VAULT</div><h2>Admin Panel</h2><p class="section-note" id="adminEmail"></p></div>
+        <div class="admin-top-actions"><button class="btn btn-primary" id="addCardBtn">+ Yeni Kart</button><button class="btn btn-ghost" id="importDemoBtn">Demo Kartları Aktar</button><button class="btn btn-ghost" id="logoutBtn">Çıkış</button></div>
+      </div>
+      <div class="admin-form hidden" id="adminForm">
+        <div class="admin-form-head"><h3 id="adminFormTitle">Yeni Kart Ekle</h3><button class="modal-close" id="cancelAdminForm">×</button></div>
+        <form id="cardEditorForm" class="form-grid">
+          <label>Oyuncu *<input id="player" required></label>
+          <label>Takım<input id="team"></label>
+          <label>Kategori<select id="category"><option>Football</option><option>Basketball</option></select></label>
+          <label>Yıl<input id="year"></label>
+          <label>Set<input id="set_name"></label>
+          <label>Card No.<input id="card_number"></label>
+          <label>Parallel<input id="parallel" value="Base"></label>
+          <label>Condition<input id="condition" value="Raw"></label>
+          <label>Grade<input id="grade" value="—"></label>
+          <label>Alış fiyatı (TL)<input id="purchase_price" type="number" min="0" step="0.01" placeholder="600"></label>
+          <label>Tahmini değer (TL)<input id="estimated_value" type="number" min="0" step="0.01" placeholder="1000"></label>
+          <label>Alındığı tarih<input id="acquired_date" type="date"></label>
+          <label class="file-field">Kart fotoğrafı *<input id="image" type="file" accept="image/*"></label>
+          <label class="wide">Not<textarea id="note" rows="3"></textarea></label>
+          <label class="check"><input id="rookie" type="checkbox"> Rookie</label>
+          <label class="check"><input id="featured" type="checkbox"> Öne çıkar</label>
+          <div class="wide form-actions"><button class="btn btn-primary" type="submit">Kaydet</button><button class="btn btn-ghost" type="button" id="cancelAdminForm2">İptal</button></div>
+        </form>
+      </div>
+      <div class="admin-list" id="adminList"></div>
+    </section>
+
     <section class="about-strip">
       <div class="container about-inner">
         <div>
-          <div class="eyebrow">FRENZYGOLDIES</div>
+          <div class="eyebrow">VAULTCARDSTR</div>
           <h2>Her kartın bir hikâyesi var.</h2>
         </div>
         <p>
@@ -124,7 +157,7 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <span>© <span id="year"></span> FrenzyGoldies</span>
+      <span>© <span id="year"></span> VaultCardsTR</span>
       <span>Built for the collection.</span>
     </div>
   </footer>
@@ -147,6 +180,30 @@
     </div>
   </div>
 
+  <div class="modal hidden" id="loginModal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-login-close></div>
+    <div class="login-card">
+      <button class="modal-close" id="loginCloseBtn" aria-label="Kapat">×</button>
+      <div class="eyebrow">PRIVATE VAULT</div><h2>Admin Girişi</h2><p>Sadece senin kart ekleme, düzenleme ve silme panelin.</p>
+      <form id="loginForm"><label>E-posta<input id="loginEmail" type="email" required autocomplete="email"></label><label>Şifre<input id="loginPassword" type="password" required autocomplete="current-password"></label><button class="btn btn-primary" type="submit">Giriş Yap</button></form>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="setupModal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-setup-close></div>
+    <div class="login-card setup-card">
+      <button class="modal-close" id="setupCloseBtn" aria-label="Kapat">×</button>
+      <div class="eyebrow">ONE-TIME SETUP</div><h2>Canlı kart ekleme</h2>
+      <p>Site şu an demo modunda. Site üzerinden fotoğraf yüklemek için Supabase bağlantısını bir kez kuracağız.</p>
+      <ol><li>Supabase'te ücretsiz proje oluştur.</li><li><code>supabase.sql</code> dosyasını SQL Editor'da çalıştır.</li><li><code>config.js</code> içine Project URL ve browser-safe Publishable/Anon key'i koy.</li><li>Dosyaları GitHub'a tekrar yükle.</li></ol>
+      <p class="section-note">Service role / secret key'i asla <code>config.js</code> içine koyma.</p>
+      <button class="btn btn-primary" id="setupCloseAction">Tamam</button>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
   <script src="cards.js"></script>
   <script src="app.js"></script>
 </body>
