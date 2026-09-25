@@ -27,7 +27,19 @@ function fallbackImage(card) {
 function escapeSvg(v) { return String(v ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&apos;"); }
 
 function normalizeCard(c) {
-  return { ...c, set: c.set_name ?? c.set ?? "", image: c.image_url ?? c.image ?? "", grade: c.grade || "—", purchase_price: c.purchase_price ?? null, estimated_value: c.estimated_value ?? null, acquired_date: c.acquired_date ?? null, price: c.estimated_value != null ? `${c.estimated_value} TL` : "Collection", acquired: c.acquired_date || "—" };
+  return {
+    ...c,
+    set: c.set_name ?? c.set ?? "",
+    image_front: c.image_front_url ?? c.image_url ?? c.image ?? "",
+    image_back: c.image_back_url ?? "",
+    image: c.image_front_url ?? c.image_url ?? c.image ?? "",
+    grade: c.grade || "—",
+    purchase_price: c.purchase_price ?? null,
+    estimated_value: c.estimated_value ?? null,
+    acquired_date: c.acquired_date ?? null,
+    price: c.estimated_value != null ? `${c.estimated_value} TL` : "Collection",
+    acquired: c.acquired_date || "—"
+  };
 }
 
 async function initSupabase() {
@@ -109,13 +121,48 @@ function renderHero() {
 function renderAll() { renderStats(); renderHero(); renderCollection(); renderFeatured(); renderAdminList(); updateAuthUI(); }
 
 function openModal(id) {
-  const c = cards.find(x => Number(x.id) === Number(id)); if (!c) return;
-  $("#modalImage").src = c.image; $("#modalImage").alt = `${c.player} kartı`; $("#modalImage").onerror = () => $("#modalImage").src = fallbackImage(c);
-  $("#modalTags").innerHTML = cardTags(c); $("#modalCategory").textContent = `${c.category} · ${c.year}`; $("#modalTitle").textContent = c.player; $("#modalSubtitle").textContent = c.team || "";
-  const details = [["Set", c.set], ["Card No.", c.card_number], ["Parallel", c.parallel], ["Condition", c.condition], ["Grade", c.grade], ["Acquired", c.acquired], ["Purchase price", c.purchase_price != null ? `${c.purchase_price} TL` : "—"], ["Estimated value", c.estimated_value != null ? `${c.estimated_value} TL` : "—"]];
-  $("#modalDetails").innerHTML = details.map(([a,b]) => `<div class="detail"><span>${escapeHtml(a)}</span><strong>${escapeHtml(b)}</strong></div>`).join("");
+  const c = cards.find(x => Number(x.id) === Number(id));
+  if (!c) return;
+
+  $("#modalImage").src = c.image_front || c.image;
+  $("#modalImage").alt = `${c.player} kartı`;
+  $("#modalImage").onerror = () => $("#modalImage").src = fallbackImage(c);
+
+  const backWrap = $("#modalBackWrap");
+
+  if (c.image_back) {
+    backWrap.classList.remove("hidden");
+    $("#modalBackImage").src = c.image_back;
+    $("#modalBackImage").alt = `${c.player} kartı arka yüzü`;
+    $("#modalBackImage").onerror = () => backWrap.classList.add("hidden");
+  } else {
+    backWrap.classList.add("hidden");
+    $("#modalBackImage").removeAttribute("src");
+  }
+
+  $("#modalTags").innerHTML = cardTags(c);
+  $("#modalCategory").textContent = `${c.category} · ${c.year}`;
+  $("#modalTitle").textContent = c.player;
+  $("#modalSubtitle").textContent = c.team || "";
+
+  const details = [
+    ["Set", c.set],
+    ["Card No.", c.card_number],
+    ["Parallel", c.parallel],
+    ["Condition", c.condition],
+    ["Grade", c.grade],
+    ["Acquired", c.acquired],
+    ["Purchase price", c.purchase_price != null ? `${c.purchase_price} TL` : "—"],
+    ["Estimated value", c.estimated_value != null ? `${c.estimated_value} TL` : "—"]
+  ];
+
+  $("#modalDetails").innerHTML = details
+    .map(([a,b]) => `<div class="detail"><span>${escapeHtml(a)}</span><strong>${escapeHtml(b)}</strong></div>`)
+    .join("");
+
   $("#modalNote").textContent = c.note || "";
-  $("#cardModal").classList.remove("hidden"); document.body.style.overflow = "hidden";
+  $("#cardModal").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
 }
 function closeModal() { $("#cardModal").classList.add("hidden"); document.body.style.overflow = ""; }
 
@@ -153,38 +200,143 @@ function openAdminForm(card = null) {
   const fields = ["player","team","category","year","set_name","card_number","parallel","condition","grade","purchase_price","estimated_value","acquired_date","note"];
   fields.forEach(f => { $("#"+f).value = card?.[f] ?? ""; });
   $("#category").value = card?.category || "Football";
-  $("#rookie").checked = !!card?.rookie; $("#featured").checked = !!card?.featured; $("#image").value = "";
+  $("#rookie").checked = !!card?.rookie; $("#featured").checked = !!card?.featured; $("#imageFront").value = "";
+$("#imageBack").value = ""; = "";
   $("#adminForm").classList.remove("hidden"); window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 }
 function closeAdminForm() { $("#adminForm").classList.add("hidden"); state.editingId = null; }
 
+async function uploadCardImage(file) {
+  if (!file) return "";
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Lütfen bir görsel seç.");
+  }
+
+  if (file.size > 6 * 1024 * 1024) {
+    throw new Error("Fotoğraf 6 MB'dan küçük olsun.");
+  }
+
+  const ext = (file.name.split(".").pop() || "jpg")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+
+  const path = `${crypto.randomUUID()}.${ext}`;
+
+  const { error: uploadError } = await supabaseClient
+    .storage
+    .from("card-images")
+    .upload(path, file, {
+      cacheControl: "31536000",
+      contentType: file.type,
+      upsert: false
+    });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabaseClient
+    .storage
+    .from("card-images")
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+}
+
 async function saveCard(e) {
   e.preventDefault();
+
   if (!currentUser) return showToast("Önce admin girişi yap.", true);
-  const file = $("#image").files[0];
-  let imageUrl = state.editingId ? cards.find(c => Number(c.id) === Number(state.editingId))?.image : "";
-  if (!state.editingId && !file) return showToast("Yeni kart için fotoğraf seçmelisin.", true);
-  if (file) {
-    if (!file.type.startsWith("image/")) return showToast("Lütfen bir görsel seç.", true);
-    if (file.size > 6 * 1024 * 1024) return showToast("Fotoğraf 6 MB'dan küçük olsun.", true);
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-    const path = `${crypto.randomUUID()}.${ext}`;
-    const { error: uploadError } = await supabaseClient.storage.from("card-images").upload(path, file, { cacheControl: "31536000", contentType: file.type, upsert: false });
-    if (uploadError) return showToast(uploadError.message, true);
-    const { data } = supabaseClient.storage.from("card-images").getPublicUrl(path);
-    imageUrl = data.publicUrl;
+
+  const frontFile = $("#imageFront").files[0];
+  const backFile = $("#imageBack").files[0];
+
+  const existingCard = state.editingId
+    ? cards.find(c => Number(c.id) === Number(state.editingId))
+    : null;
+
+  let frontUrl = existingCard?.image_front || existingCard?.image || "";
+  let backUrl = existingCard?.image_back || "";
+
+  if (!state.editingId && !frontFile) {
+    return showToast("Yeni kart için ön yüz fotoğrafı seçmelisin.", true);
   }
+
+  try {
+    if (frontFile) {
+      frontUrl = await uploadCardImage(frontFile);
+    }
+
+    if (backFile) {
+      backUrl = await uploadCardImage(backFile);
+    }
+  } catch (error) {
+    return showToast(error.message, true);
+  }
+
   const purchaseRaw = $("#purchase_price").value.trim();
   const estimatedRaw = $("#estimated_value").value.trim();
-  const payload = { player: $("#player").value.trim(), team: $("#team").value.trim(), category: $("#category").value, year: $("#year").value.trim(), set_name: $("#set_name").value.trim(), card_number: $("#card_number").value.trim(), parallel: $("#parallel").value.trim() || "Base", condition: $("#condition").value.trim() || "Raw", grade: $("#grade").value.trim() || "—", purchase_price: purchaseRaw ? Number(purchaseRaw) : null, estimated_value: estimatedRaw ? Number(estimatedRaw) : null, acquired_date: $("#acquired_date").value || null, rookie: $("#rookie").checked, numbered: !!$("#parallel").value.trim().match(/\d+\/\d+|\d+\s*\/?\s*\d+/), graded: !!$("#grade").value.trim() && $("#grade").value.trim() !== "—", featured: $("#featured").checked, image_url: imageUrl, note: $("#note").value.trim(), status: "Collection" };
-  if (!payload.player || !payload.image_url) return showToast("Oyuncu ve fotoğraf gerekli.", true);
-  if (Number.isNaN(payload.purchase_price) || Number.isNaN(payload.estimated_value)) return showToast("Fiyat alanlarını sayı olarak gir.", true);
+
+  const payload = {
+    player: $("#player").value.trim(),
+    team: $("#team").value.trim(),
+    category: $("#category").value,
+    year: $("#year").value.trim(),
+    set_name: $("#set_name").value.trim(),
+    card_number: $("#card_number").value.trim(),
+    parallel: $("#parallel").value.trim() || "Base",
+    condition: $("#condition").value.trim() || "Raw",
+    grade: $("#grade").value.trim() || "—",
+    purchase_price: purchaseRaw ? Number(purchaseRaw) : null,
+    estimated_value: estimatedRaw ? Number(estimatedRaw) : null,
+    acquired_date: $("#acquired_date").value || null,
+    rookie: $("#rookie").checked,
+    numbered: !!$("#parallel").value.trim().match(/\d+\/\d+|\d+\s*\/?\s*\d+/),
+    graded: !!$("#grade").value.trim() && $("#grade").value.trim() !== "—",
+    featured: $("#featured").checked,
+    image_url: frontUrl,
+    image_front_url: frontUrl,
+    image_back_url: backUrl,
+    note: $("#note").value.trim(),
+    status: "Collection"
+  };
+
+  if (!payload.player || !payload.image_front_url) {
+    return showToast("Oyuncu ve ön yüz fotoğrafı gerekli.", true);
+  }
+
+  if (
+    Number.isNaN(payload.purchase_price) ||
+    Number.isNaN(payload.estimated_value)
+  ) {
+    return showToast("Fiyat alanlarını sayı olarak gir.", true);
+  }
+
   let result;
-  if (state.editingId) result = await supabaseClient.from("cards").update(payload).eq("id", state.editingId);
-  else result = await supabaseClient.from("cards").insert(payload);
-  if (result.error) return showToast(result.error.message, true);
-  showToast(state.editingId ? "Kart güncellendi." : "Kart koleksiyona eklendi.");
-  closeAdminForm(); await loadCards(); renderAll();
+
+  if (state.editingId) {
+    result = await supabaseClient
+      .from("cards")
+      .update(payload)
+      .eq("id", state.editingId);
+  } else {
+    result = await supabaseClient
+      .from("cards")
+      .insert(payload);
+  }
+
+  if (result.error) {
+    return showToast(result.error.message, true);
+  }
+
+  showToast(
+    state.editingId
+      ? "Kart güncellendi."
+      : "Kart koleksiyona eklendi."
+  );
+
+  closeAdminForm();
+  await loadCards();
+  renderAll();
 }
 
 async function deleteCard(id) {
