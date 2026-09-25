@@ -160,8 +160,8 @@ function openModal(id) {
     ["Condition", c.condition],
     ["Grade", c.grade],
     ["Acquired", c.acquired],
-    ["Purchase price", c.purchase_price != null ? `${c.purchase_price} TL` : "—"],
-    ["Estimated value", c.estimated_value != null ? `${c.estimated_value} TL` : "—"]
+    ["Purchase price", c.purchase_price != null ? `${c.purchase_price} USD` : "—"],
+    ["Estimated value", c.estimated_value != null ? `${c.estimated_value} USD` : "—"]
   ];
 
   $("#modalDetails").innerHTML = details
