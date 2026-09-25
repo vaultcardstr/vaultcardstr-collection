@@ -37,7 +37,7 @@ function normalizeCard(c) {
     purchase_price: c.purchase_price ?? null,
     estimated_value: c.estimated_value ?? null,
     acquired_date: c.acquired_date ?? null,
-    price: c.estimated_value != null ? `${c.estimated_value} TL` : "Collection",
+    price: c.estimated_value != null ? `${c.estimated_value} USD` : "Collection",
     acquired: c.acquired_date || "—"
   };
 }
