@@ -175,6 +175,24 @@ function openModal(id) {
     .join("");
 
   $("#modalNote").textContent = c.note || "";
+  let dolapButton = $("#dolapButton");
+
+if (!dolapButton) {
+  dolapButton = document.createElement("a");
+  dolapButton.id = "dolapButton";
+  dolapButton.className = "btn btn-primary";
+  dolapButton.textContent = "Dolap İlanına Git";
+  dolapButton.target = "_blank";
+  dolapButton.rel = "noopener noreferrer";
+  $("#modalNote").insertAdjacentElement("afterend", dolapButton);
+}
+
+if (c.for_sale && c.dolap_url) {
+  dolapButton.href = c.dolap_url;
+  dolapButton.classList.remove("hidden");
+} else {
+  dolapButton.classList.add("hidden");
+}
   $("#cardModal").classList.remove("hidden");
   document.body.style.overflow = "hidden";
 }
