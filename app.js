@@ -84,8 +84,7 @@ function matches(card) {
 }
 
 function cardMarkup(card) {
-  return `<article class="card-item" data-id="${escapeHtml(card.id)}" tabindex="0"><div class="card-image"><img src="${escapeHtml(card.image)}" alt="${escapeHtml(card.player)} kartı" loading="lazy" data-fallback="${escapeHtml(fallbackImage(card))}"></div><div class="card-body"><div class="tag-row">${cardTags(card)}</div><h3>${escapeHtml(card.player)}</h3><p>${escapeHtml(card.set)} · ${escapeHtml(card.year)}</p></div></article>`;
-}
+  return `<article class="card-item" data-id="${escapeHtml(card.id)}" tabindex="0"><div class="card-image">${card.for_sale ? `<span class="sale-badge">SATILIK</span>` : ""}<img src="${escapeHtml(card.image)}" alt="${escapeHtml(card.player)} kartı" loading="lazy" data-fallback="${escapeHtml(fallbackImage(card))}"></div><div class="card-body"><div class="tag-row">${cardTags(card)}</div><h3>${escapeHtml(card.player)}</h3><p>${escapeHtml(card.set)} · ${escapeHtml(card.year)}</p></div></article>`;
 
 function bindCardClicks(scope = document) {
   scope.querySelectorAll(".card-item").forEach(el => {
