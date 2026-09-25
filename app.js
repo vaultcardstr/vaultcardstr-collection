@@ -124,20 +124,28 @@ function openModal(id) {
   const c = cards.find(x => Number(x.id) === Number(id));
   if (!c) return;
 
-  $("#modalImage").src = c.image_front || c.image;
-  $("#modalImage").alt = `${c.player} kartı`;
-  $("#modalImage").onerror = () => $("#modalImage").src = fallbackImage(c);
+  const frontImage = $("#modalImage");
+  const backImage = $("#modalBackImage");
+  const nextButton = $("#modalImageNext");
 
-  const backWrap = $("#modalBackWrap");
+  frontImage.src = c.image_front || c.image;
+  frontImage.alt = `${c.player} kartı`;
+  frontImage.classList.remove("hidden");
+
+  frontImage.onerror = () => {
+    frontImage.src = fallbackImage(c);
+  };
 
   if (c.image_back) {
-    backWrap.classList.remove("hidden");
-    $("#modalBackImage").src = c.image_back;
-    $("#modalBackImage").alt = `${c.player} kartı arka yüzü`;
-    $("#modalBackImage").onerror = () => backWrap.classList.add("hidden");
+    backImage.src = c.image_back;
+    backImage.alt = `${c.player} kartı arka yüzü`;
+    backImage.classList.add("hidden");
+    nextButton.classList.remove("hidden");
+    nextButton.textContent = "→";
   } else {
-    backWrap.classList.add("hidden");
-    $("#modalBackImage").removeAttribute("src");
+    backImage.removeAttribute("src");
+    backImage.classList.add("hidden");
+    nextButton.classList.add("hidden");
   }
 
   $("#modalTags").innerHTML = cardTags(c);
@@ -165,7 +173,27 @@ function openModal(id) {
   document.body.style.overflow = "hidden";
 }
 function closeModal() { $("#cardModal").classList.add("hidden"); document.body.style.overflow = ""; }
+let showingBackImage = false;
 
+$("#modalImageNext").addEventListener("click", () => {
+  const frontImage = $("#modalImage");
+  const backImage = $("#modalBackImage");
+  const nextButton = $("#modalImageNext");
+
+  if (backImage.classList.contains("hidden")) {
+    frontImage.classList.add("hidden");
+    backImage.classList.remove("hidden");
+    nextButton.textContent = "←";
+    nextButton.setAttribute("aria-label", "Kartın ön yüzünü göster");
+    showingBackImage = true;
+  } else {
+    backImage.classList.add("hidden");
+    frontImage.classList.remove("hidden");
+    nextButton.textContent = "→";
+    nextButton.setAttribute("aria-label", "Kartın arka yüzünü göster");
+    showingBackImage = false;
+  }
+});
 function updateAuthUI() {
   const adminLink = $("#adminLink"); const loginBtn = $("#loginBtn");
   if (!liveMode) { adminLink.classList.add("hidden"); loginBtn.classList.remove("hidden"); loginBtn.textContent = "Site Kurulumu"; return; }
