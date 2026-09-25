@@ -332,6 +332,8 @@ async function saveCard(e) {
     image_front_url: frontUrl,
     image_back_url: backUrl,
     note: $("#note").value.trim(),
+    for_sale: $("#forSale").checked,
+dolap_url: $("#dolapUrl").value.trim(),
     status: "Collection"
   };
 
