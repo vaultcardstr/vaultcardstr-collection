@@ -222,7 +222,13 @@ $("#modalImageNext").addEventListener("click", () => {
 function updateAuthUI() {
   const adminLink = $("#adminLink"); const loginBtn = $("#loginBtn");
   if (!liveMode) { adminLink.classList.add("hidden"); loginBtn.classList.remove("hidden"); loginBtn.textContent = "Site Kurulumu"; return; }
-  loginBtn.classList.remove("hidden"); loginBtn.textContent = currentUser ? "Admin" : "Admin Girişi";
+  const adminMode = new URLSearchParams(location.search).get("admin") === "1";
+if (currentUser || adminMode) {
+  loginBtn.classList.remove("hidden");
+  loginBtn.textContent = currentUser ? "Admin" : "Admin Girişi";
+} else {
+  loginBtn.classList.add("hidden");
+}
   adminLink.classList.toggle("hidden", !currentUser);
   if (currentUser) $("#adminEmail").textContent = currentUser.email || "Giriş yapıldı";
 }
