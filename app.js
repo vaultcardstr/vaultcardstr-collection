@@ -229,7 +229,7 @@ function openAdminForm(card = null) {
   fields.forEach(f => { $("#"+f).value = card?.[f] ?? ""; });
   $("#category").value = card?.category || "Football";
   $("#rookie").checked = !!card?.rookie; $("#featured").checked = !!card?.featured; $("#imageFront").value = "";
-$("#imageBack").value = ""; = "";
+$("#imageBack").value = "";
   $("#adminForm").classList.remove("hidden"); window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 }
 function closeAdminForm() { $("#adminForm").classList.add("hidden"); state.editingId = null; }
