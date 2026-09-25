@@ -167,9 +167,20 @@
     <div class="modal-backdrop" data-close-modal></div>
     <div class="modal-card">
       <button class="modal-close" id="modalClose" aria-label="Kapat">×</button>
-      <div class="modal-image-wrap">
-        <img id="modalImage" src="" alt="" />
-      </div>
+    <div class="modal-image-wrap">
+  <img id="modalImage" src="" alt="" />
+
+  <img id="modalBackImage" src="" alt="" class="hidden" />
+
+  <button
+    class="modal-image-next"
+    id="modalImageNext"
+    type="button"
+    aria-label="Kartın arka yüzünü göster"
+  >
+    →
+  </button>
+</div>
       <div class="modal-info">
         <div class="tag-row" id="modalTags"></div>
         <div class="eyebrow" id="modalCategory"></div>
