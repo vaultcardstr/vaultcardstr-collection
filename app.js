@@ -112,6 +112,13 @@ function renderStats() {
   $("#statFootball").textContent = cards.filter(c => c.category === "Football").length;
   $("#statBasketball").textContent = cards.filter(c => c.category === "Basketball").length;
   $("#statGraded").textContent = cards.filter(c => c.grade !== "—").length;
+
+  const totalEstimatedValue = cards.reduce((total, card) => {
+    return total + (Number(card.estimated_value) || 0);
+  }, 0);
+
+  $("#statEstimatedValue").textContent =
+    `$${totalEstimatedValue.toLocaleString("en-US")}`;
 }
 function renderHero() {
   const picks = cards.filter(c => c.featured).slice(0, 3);
