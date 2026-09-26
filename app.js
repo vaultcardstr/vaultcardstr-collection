@@ -121,9 +121,35 @@ function renderStats() {
     `$${totalEstimatedValue.toLocaleString("en-US")}`;
 }
 function renderHero() {
-  const picks = cards.filter(c => c.featured).slice(0, 3);
-  $("#heroShowcase").innerHTML = picks.map(c => `<div class="showcase-card"><img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.player)}" data-fallback="${escapeHtml(fallbackImage(c))}"></div>`).join("");
-  $("#heroShowcase").querySelectorAll("img[data-fallback]").forEach(img => img.addEventListener("error", () => img.src = img.dataset.fallback, { once: true }));
+  const shuffled = [...cards].sort(() => Math.random() - 0.5);
+  const picks = shuffled.slice(0, 3);
+
+  $("#heroShowcase").innerHTML = picks.map(c => `
+    <div class="showcase-card" data-id="${escapeHtml(c.id)}" tabindex="0">
+      <img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.player)} kartı" data-fallback="${escapeHtml(fallbackImage(c))}">
+    </div>
+  `).join("");
+
+  $("#heroShowcase").querySelectorAll(".showcase-card").forEach(card => {
+    card.addEventListener("click", () => {
+      openModal(Number(card.dataset.id));
+    });
+
+    card.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openModal(Number(card.dataset.id));
+      }
+    });
+  });
+
+  $("#heroShowcase").querySelectorAll("img[data-fallback]").forEach(img => {
+    img.addEventListener("error", () => {
+      if (img.src !== img.dataset.fallback) {
+        img.src = img.dataset.fallback;
+      }
+    }, { once: true });
+  });
 }
 function renderAll() { renderStats(); renderHero(); renderCollection(); renderFeatured(); renderAdminList(); updateAuthUI(); }
 
