@@ -480,67 +480,68 @@ function handleHash() {
 
 document.addEventListener("DOMContentLoaded", init);
 
-const vaultbotInput = document.getElementById("vaultbotInput");
-const vaultbotSend = document.getElementById("vaultbotSend");
-const vaultbotMessages = document.getElementById("vaultbotMessages");
+document.addEventListener("DOMContentLoaded", () => {
+  const vaultbotInput = document.getElementById("vaultbotInput");
+  const vaultbotSend = document.getElementById("vaultbotSend");
+  const vaultbotMessages = document.getElementById("vaultbotMessages");
+  const vaultbotToggle = document.getElementById("vaultbotToggle");
+  const vaultbotPanel = document.getElementById("vaultbotPanel");
+  const vaultbotClose = document.getElementById("vaultbotClose");
 
-async function sendVaultBotMessage() {
-  const message = vaultbotInput.value.trim();
+  async function sendVaultBotMessage() {
+    const message = vaultbotInput.value.trim();
 
-  if (!message) return;
-
-  vaultbotMessages.innerHTML += `
-    <div class="vaultbot-message user">
-      ${message}
-    </div>
-  `;
-
-  vaultbotInput.value = "";
-  vaultbotSend.disabled = true;
-  vaultbotSend.textContent = "Thinking...";
-
-  try {
-    const { data, error } = await supabaseClient.functions.invoke("vaultbot", {
-      body: { message }
-    });
-
-    if (error) throw error;
+    if (!message) return;
 
     vaultbotMessages.innerHTML += `
-      <div class="vaultbot-message bot">
-        ${data.reply}
+      <div class="vaultbot-message user">
+        ${message}
       </div>
     `;
-  } catch (error) {
-    console.error("VaultBot error:", error);
 
-    vaultbotMessages.innerHTML += `
-      <div class="vaultbot-message bot">
-        Sorry, VaultBot is temporarily unavailable.
-      </div>
-    `;
+    vaultbotInput.value = "";
+    vaultbotSend.disabled = true;
+    vaultbotSend.textContent = "Thinking...";
+
+    try {
+      const { data, error } = await supabaseClient.functions.invoke("vaultbot", {
+        body: { message }
+      });
+
+      if (error) throw error;
+
+      vaultbotMessages.innerHTML += `
+        <div class="vaultbot-message bot">
+          ${data.reply}
+        </div>
+      `;
+    } catch (error) {
+      console.error("VaultBot error:", error);
+
+      vaultbotMessages.innerHTML += `
+        <div class="vaultbot-message bot">
+          Sorry, VaultBot is temporarily unavailable.
+        </div>
+      `;
+    }
+
+    vaultbotSend.disabled = false;
+    vaultbotSend.textContent = "Send";
   }
 
-  vaultbotSend.disabled = false;
-  vaultbotSend.textContent = "Send";
-}
+  vaultbotSend.addEventListener("click", sendVaultBotMessage);
 
-vaultbotSend.addEventListener("click", sendVaultBotMessage);
+  vaultbotInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      sendVaultBotMessage();
+    }
+  });
 
-vaultbotInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    sendVaultBotMessage();
-  }
-});
+  vaultbotToggle.addEventListener("click", () => {
+    vaultbotPanel.classList.toggle("open");
+  });
 
-const vaultbotToggle = document.getElementById("vaultbotToggle");
-const vaultbotPanel = document.getElementById("vaultbotPanel");
-const vaultbotClose = document.getElementById("vaultbotClose");
-
-vaultbotToggle.addEventListener("click", () => {
-  vaultbotPanel.classList.toggle("open");
-});
-
-vaultbotClose.addEventListener("click", () => {
-  vaultbotPanel.classList.remove("open");
+  vaultbotClose.addEventListener("click", () => {
+    vaultbotPanel.classList.remove("open");
+  });
 });
