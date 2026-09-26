@@ -233,15 +233,21 @@
   <script src="config.js"></script>
   <script src="cards.js"></script>
   <script src="app.js"></script>
-  <!-- VaultBot -->
-<section class="vaultbot-section">
+ <!-- VaultBot Floating Assistant -->
+<button id="vaultbotToggle" class="vaultbot-floating">
+  🤖
+</button>
+
+<section id="vaultbotPanel" class="vaultbot-panel">
   <div class="vaultbot-box">
+
     <div class="vaultbot-header">
       <div>
         <span class="vaultbot-label">AI CARD ASSISTANT</span>
         <h2>VaultBot 🤖</h2>
-        <p>Ask anything about sports trading cards.</p>
       </div>
+
+      <button id="vaultbotClose" class="vaultbot-close">×</button>
     </div>
 
     <div id="vaultbotMessages" class="vaultbot-messages">
@@ -257,11 +263,11 @@
         placeholder="Ask VaultBot something..."
         maxlength="500"
       >
+
       <button id="vaultbotSend" class="btn btn-primary">
         Send
       </button>
     </div>
+
   </div>
 </section>
-</body>
-</html>
