@@ -544,4 +544,47 @@ document.addEventListener("DOMContentLoaded", () => {
   vaultbotClose.addEventListener("click", () => {
     vaultbotPanel.classList.remove("open");
   });
+    const aiEstimateBtn = document.getElementById("aiEstimateBtn");
+
+  if (aiEstimateBtn) {
+    aiEstimateBtn.addEventListener("click", async () => {
+      aiEstimateBtn.disabled = true;
+      aiEstimateBtn.textContent = "🤖 Thinking...";
+
+      try {
+        const cardData = {
+          player: document.getElementById("player")?.value.trim(),
+          category: document.getElementById("category")?.value,
+          year: document.getElementById("year")?.value.trim(),
+          set: document.getElementById("set_name")?.value.trim(),
+          card_number: document.getElementById("card_number")?.value.trim(),
+          parallel: document.getElementById("parallel")?.value.trim(),
+          condition: document.getElementById("condition")?.value.trim(),
+          grade: document.getElementById("grade")?.value.trim()
+        };
+
+        const { data, error } = await supabaseClient.functions.invoke("vaultbot", {
+          body: {
+            mode: "estimate",
+            card: cardData
+          }
+        });
+
+        if (error) throw error;
+
+        if (!data?.estimated_value) {
+          throw new Error("No estimated value returned.");
+        }
+
+        document.getElementById("estimated_value").value = data.estimated_value;
+
+      } catch (error) {
+        console.error("AI estimate error:", error);
+        alert("AI estimated value could not be calculated.");
+      }
+
+      aiEstimateBtn.disabled = false;
+      aiEstimateBtn.textContent = "🤖 AI Value";
+    });
+  }
 });
