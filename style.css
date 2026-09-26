@@ -290,3 +290,150 @@ code { color:#d7ff3f; }
   border-radius: inherit;
   display: block;
 }
+
+/* VaultBot Floating Assistant */
+
+.vaultbot-floating {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(255, 157, 46, 0.45);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff9d2e, #ff6b1a);
+  color: #111;
+  font-size: 27px;
+  cursor: pointer;
+  z-index: 9999;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.vaultbot-floating:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.55);
+}
+
+.vaultbot-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 94px;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  z-index: 9998;
+  display: none;
+}
+
+.vaultbot-panel.open {
+  display: block;
+}
+
+.vaultbot-box {
+  background: #11100e;
+  border: 1px solid rgba(255, 157, 46, 0.25);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.65);
+}
+
+.vaultbot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vaultbot-label {
+  display: block;
+  color: #ff9d2e;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  margin-bottom: 5px;
+}
+
+.vaultbot-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.vaultbot-close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.vaultbot-messages {
+  height: 280px;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vaultbot-message {
+  max-width: 85%;
+  padding: 10px 13px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.vaultbot-message.bot {
+  align-self: flex-start;
+  background: #1d1b18;
+  color: #f5f5f5;
+}
+
+.vaultbot-message.user {
+  align-self: flex-end;
+  background: #ff9d2e;
+  color: #111;
+}
+
+.vaultbot-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+
+.vaultbot-input-row input {
+  min-width: 0;
+  flex: 1;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: #0a0a0a;
+  color: #fff;
+  outline: none;
+}
+
+.vaultbot-input-row input:focus {
+  border-color: #ff9d2e;
+}
+
+.vaultbot-input-row .btn {
+  flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+  .vaultbot-floating {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .vaultbot-panel {
+    right: 16px;
+    bottom: 88px;
+    width: calc(100vw - 32px);
+  }
+}
