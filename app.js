@@ -479,3 +479,56 @@ function handleHash() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
+const vaultbotInput = document.getElementById("vaultbotInput");
+const vaultbotSend = document.getElementById("vaultbotSend");
+const vaultbotMessages = document.getElementById("vaultbotMessages");
+
+async function sendVaultBotMessage() {
+  const message = vaultbotInput.value.trim();
+
+  if (!message) return;
+
+  vaultbotMessages.innerHTML += `
+    <div class="vaultbot-message user">
+      ${message}
+    </div>
+  `;
+
+  vaultbotInput.value = "";
+  vaultbotSend.disabled = true;
+  vaultbotSend.textContent = "Thinking...";
+
+  try {
+    const { data, error } = await supabaseClient.functions.invoke("vaultbot", {
+      body: { message }
+    });
+
+    if (error) throw error;
+
+    vaultbotMessages.innerHTML += `
+      <div class="vaultbot-message bot">
+        ${data.reply}
+      </div>
+    `;
+  } catch (error) {
+    console.error("VaultBot error:", error);
+
+    vaultbotMessages.innerHTML += `
+      <div class="vaultbot-message bot">
+        Sorry, VaultBot is temporarily unavailable.
+      </div>
+    `;
+  }
+
+  vaultbotSend.disabled = false;
+  vaultbotSend.textContent = "Send";
+}
+
+vaultbotSend.addEventListener("click", sendVaultBotMessage);
+
+vaultbotInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    sendVaultBotMessage();
+  }
+});
