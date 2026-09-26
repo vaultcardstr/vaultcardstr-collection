@@ -532,3 +532,15 @@ vaultbotInput.addEventListener("keydown", (event) => {
     sendVaultBotMessage();
   }
 });
+
+const vaultbotToggle = document.getElementById("vaultbotToggle");
+const vaultbotPanel = document.getElementById("vaultbotPanel");
+const vaultbotClose = document.getElementById("vaultbotClose");
+
+vaultbotToggle.addEventListener("click", () => {
+  vaultbotPanel.classList.toggle("open");
+});
+
+vaultbotClose.addEventListener("click", () => {
+  vaultbotPanel.classList.remove("open");
+});
