@@ -136,7 +136,15 @@
           <label>Condition<input id="condition" value="Raw"></label>
           <label>Grade<input id="grade" value="—"></label>
           <label>Alış fiyatı (TL)<input id="purchase_price" type="number" min="0" step="0.01" placeholder="600"></label>
-          <label>Tahmini değer (TL)<input id="estimated_value" type="number" min="0" step="0.01" placeholder="1000"></label>
+         <label>
+  Tahmini değer (USD)
+  <div style="display:flex; gap:8px; align-items:center;">
+    <input id="estimated_value" type="number" min="0" step="0.01" placeholder="Otomatik hesaplanabilir">
+    <button type="button" class="btn btn-ghost" id="aiEstimateBtn">
+      🤖 AI Value
+    </button>
+  </div>
+</label>
           <label class="check">
   <input id="forSale" type="checkbox">
   Satılık
