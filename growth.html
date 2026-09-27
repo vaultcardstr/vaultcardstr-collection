@@ -1,1 +1,550 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Collection Growth | VaultCardsTR</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(255,157,46,.12), transparent 35%),
+        #090909;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 24px 0;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(9,9,9,.85);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: white;
+      font-weight: 800;
+      font-size: 20px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,157,46,.4);
+    }
+
+    .brand-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .back-link {
+      color: rgba(255,255,255,.7);
+      text-decoration: none;
+      font-size: 14px;
+      transition: .2s;
+    }
+
+    .back-link:hover {
+      color: #ff9d2e;
+    }
+
+    main {
+      padding: 70px 0;
+    }
+
+    .eyebrow {
+      color: #ff9d2e;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 6vw, 58px);
+      line-height: 1;
+    }
+
+    .intro {
+      margin-top: 16px;
+      color: rgba(255,255,255,.58);
+      font-size: 16px;
+    }
+
+    .growth-card {
+      margin-top: 40px;
+      padding: 28px;
+      border-radius: 24px;
+      background: linear-gradient(
+        145deg,
+        rgba(255,255,255,.055),
+        rgba(255,255,255,.02)
+      );
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 30px 80px rgba(0,0,0,.35);
+    }
+
+    .growth-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .growth-label {
+      display: block;
+      color: rgba(255,255,255,.45);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      margin-bottom: 8px;
+    }
+
+    #growthTotal {
+      display: block;
+      font-size: 48px;
+      line-height: 1;
+    }
+
+    .growth-badge {
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: rgba(255,157,46,.12);
+      color: #ff9d2e;
+      border: 1px solid rgba(255,157,46,.25);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .chart-wrap {
+      margin-top: 35px;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    #growthChart {
+      width: 100%;
+      min-width: 650px;
+      height: 360px;
+      display: block;
+    }
+
+    .status {
+      margin-top: 18px;
+      color: rgba(255,255,255,.45);
+      font-size: 13px;
+    }
+
+    footer {
+      padding: 30px 0 50px;
+      color: rgba(255,255,255,.35);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        padding: 45px 0;
+      }
+
+      .growth-card {
+        padding: 20px;
+        border-radius: 18px;
+      }
+
+      .growth-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      #growthTotal {
+        font-size: 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container nav">
+
+    <a href="index.html" class="brand">
+      <span class="brand-mark">
+        <img src="logo.jpeg" alt="VaultCardsTR">
+      </span>
+
+      <span>VaultCardsTR</span>
+    </a>
+
+    <a href="index.html" class="back-link">
+      ← Back to Collection
+    </a>
+
+  </div>
+</header>
+
+<main>
+  <div class="container">
+
+    <div class="eyebrow">COLLECTION JOURNEY</div>
+
+    <h1>Collection Growth</h1>
+
+    <p class="intro">
+      Track how the VaultCardsTR collection has grown over time.
+    </p>
+
+    <section class="growth-card">
+
+      <div class="growth-header">
+
+        <div>
+          <span class="growth-label">TOTAL CARDS</span>
+          <strong id="growthTotal">0</strong>
+        </div>
+
+        <div class="growth-badge">
+          📈 Collection Growth
+        </div>
+
+      </div>
+
+      <div class="chart-wrap">
+        <svg
+          id="growthChart"
+          viewBox="0 0 900 360"
+          preserveAspectRatio="none">
+        </svg>
+      </div>
+
+      <div id="growthStatus" class="status">
+        Loading collection data...
+      </div>
+
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  VaultCardsTR · Collection Growth
+</footer>
+
+
+<script>
+  const SUPABASE_URL =
+    "https://cigyrtxmovuvkvwirehe.supabase.co";
+
+  const SUPABASE_ANON_KEY =
+    "BURAYA_ANON_KEY_GELECEK";
+
+
+  async function loadGrowthData() {
+
+    const totalElement =
+      document.getElementById("growthTotal");
+
+    const chart =
+      document.getElementById("growthChart");
+
+    const status =
+      document.getElementById("growthStatus");
+
+
+    try {
+
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/cards?select=id,created_at,acquired_at&order=created_at.asc`,
+        {
+          headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        }
+      );
+
+
+      if (!response.ok) {
+        throw new Error("Cards could not be loaded.");
+      }
+
+
+      const cards = await response.json();
+
+
+      totalElement.textContent = cards.length;
+
+
+      if (!cards.length) {
+
+        status.textContent =
+          "No cards found in the collection.";
+
+        return;
+      }
+
+
+      /*
+        Use acquired_at when available.
+        If it is missing, use created_at.
+
+        This prevents the graph from being blank
+        for cards that don't have acquired_at.
+      */
+
+      const dates = cards
+        .map(card => {
+
+          const date =
+            card.acquired_at ||
+            card.created_at;
+
+          return date
+            ? new Date(date)
+            : null;
+
+        })
+        .filter(date =>
+          date &&
+          !isNaN(date.getTime())
+        )
+        .sort((a, b) => a - b);
+
+
+      if (!dates.length) {
+
+        status.textContent =
+          "There is not enough date information to create the graph.";
+
+        return;
+      }
+
+
+      const dailyCounts = {};
+
+
+      dates.forEach(date => {
+
+        const key =
+          date.toISOString().slice(0, 10);
+
+        dailyCounts[key] =
+          (dailyCounts[key] || 0) + 1;
+
+      });
+
+
+      let cumulative = 0;
+
+
+      const points = Object.entries(dailyCounts)
+        .map(([date, count]) => {
+
+          cumulative += count;
+
+          return {
+            date,
+            count: cumulative
+          };
+
+        });
+
+
+      const width = 900;
+      const height = 360;
+      const paddingX = 45;
+      const paddingY = 40;
+
+
+      const maxValue =
+        Math.max(
+          ...points.map(point => point.count),
+          1
+        );
+
+
+      function x(index) {
+
+        if (points.length === 1) {
+          return width / 2;
+        }
+
+        return (
+          paddingX +
+          index *
+          (
+            (width - paddingX * 2) /
+            (points.length - 1)
+          )
+        );
+
+      }
+
+
+      function y(value) {
+
+        return (
+          height -
+          paddingY -
+          (
+            value / maxValue
+          ) *
+          (
+            height -
+            paddingY * 2
+          )
+        );
+
+      }
+
+
+      const linePoints =
+        points
+          .map((point, index) =>
+            `${x(index)},${y(point.count)}`
+          )
+          .join(" ");
+
+
+      const circles =
+        points
+          .map((point, index) => `
+            <circle
+              cx="${x(index)}"
+              cy="${y(point.count)}"
+              r="5"
+              fill="#ff9d2e"
+            />
+          `)
+          .join("");
+
+
+      const labels =
+        points
+          .map((point, index) => {
+
+            const date =
+              new Date(point.date);
+
+            return `
+              <text
+                x="${x(index)}"
+                y="${height - 10}"
+                text-anchor="middle"
+                fill="rgba(255,255,255,.5)"
+                font-size="11"
+              >
+                ${date.getDate()}/${date.getMonth() + 1}
+              </text>
+            `;
+
+          })
+          .join("");
+
+
+      const gridLines = [0, .25, .5, .75, 1]
+        .map(value => {
+
+          const yy =
+            height -
+            paddingY -
+            value *
+            (height - paddingY * 2);
+
+          const number =
+            Math.round(value * maxValue);
+
+          return `
+            <line
+              x1="${paddingX}"
+              y1="${yy}"
+              x2="${width - paddingX}"
+              y2="${yy}"
+              stroke="rgba(255,255,255,.08)"
+            />
+
+            <text
+              x="8"
+              y="${yy + 4}"
+              fill="rgba(255,255,255,.4)"
+              font-size="11"
+            >
+              ${number}
+            </text>
+          `;
+
+        })
+        .join("");
+
+
+      chart.innerHTML = `
+
+        ${gridLines}
+
+        <polyline
+          points="${linePoints}"
+          fill="none"
+          stroke="#ff9d2e"
+          stroke-width="4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        ${circles}
+
+        ${labels}
+
+      `;
+
+
+      status.textContent =
+        `Showing ${points.length} day${points.length === 1 ? "" : "s"} of collection growth.`;
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      status.textContent =
+        "Collection data could not be loaded.";
+
+    }
+
+  }
+
+
+  loadGrowthData();
+
+</script>
+
+</body>
+</html>
