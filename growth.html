@@ -259,14 +259,13 @@
   VaultCardsTR · Collection Growth
 </footer>
 
-
+<script src="config.js"></script>
 <script>
   const SUPABASE_URL =
     "https://cigyrtxmovuvkvwirehe.supabase.co";
 
-  const SUPABASE_ANON_KEY =
-    "BURAYA_ANON_KEY_GELECEK";
-
+ const SUPABASE_ANON_KEY =
+  window.FG_CONFIG.SUPABASE_KEY;
 
   async function loadGrowthData() {
 
