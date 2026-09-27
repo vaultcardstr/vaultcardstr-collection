@@ -66,6 +66,7 @@ async function loadCards() {
   }
   cards = (data || []).map(normalizeCard);
   renderAll();
+  renderCollectionGrowth();
 }
 
 function cardTags(card) {
@@ -699,4 +700,4 @@ function renderCollectionGrowth() {
   `;
 }
 
-renderCollectionGrowth();
+
