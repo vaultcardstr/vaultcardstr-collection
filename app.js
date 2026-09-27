@@ -588,3 +588,115 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+function renderCollectionGrowth() {
+  const chart = document.getElementById("growthChart");
+  const total = document.getElementById("growthTotal");
+
+  if (!chart || !total || !Array.isArray(cards)) return;
+
+  total.textContent = cards.length;
+
+  const datedCards = cards
+    .filter(card => card.acquired_at)
+    .map(card => ({
+      date: new Date(card.acquired_at),
+      id: card.id
+    }))
+    .filter(card => !isNaN(card.date.getTime()))
+    .sort((a, b) => a.date - b.date);
+
+  if (!datedCards.length) {
+    chart.innerHTML = "";
+    return;
+  }
+
+  const dailyCounts = {};
+
+  datedCards.forEach(card => {
+    const key = card.date.toISOString().slice(0, 10);
+    dailyCounts[key] = (dailyCounts[key] || 0) + 1;
+  });
+
+  let cumulative = 0;
+
+  const points = Object.entries(dailyCounts).map(([date, count]) => {
+    cumulative += count;
+
+    return {
+      date,
+      count: cumulative
+    };
+  });
+
+  const width = 900;
+  const height = 320;
+  const padding = 35;
+
+  const maxValue = Math.max(...points.map(p => p.count), 1);
+
+  const x = index => {
+    if (points.length === 1) return width / 2;
+    return padding + index * ((width - padding * 2) / (points.length - 1));
+  };
+
+  const y = value =>
+    height - padding -
+    (value / maxValue) * (height - padding * 2);
+
+  const linePoints = points
+    .map((point, index) => `${x(index)},${y(point.count)}`)
+    .join(" ");
+
+  const circles = points
+    .map((point, index) => `
+      <circle
+        cx="${x(index)}"
+        cy="${y(point.count)}"
+        r="5"
+        fill="#ff9d2e"
+      />
+    `)
+    .join("");
+
+  const labels = points
+    .map((point, index) => {
+      const date = new Date(point.date);
+
+      return `
+        <text
+          x="${x(index)}"
+          y="${height - 8}"
+          text-anchor="middle"
+          fill="rgba(255,255,255,.55)"
+          font-size="11"
+        >
+          ${date.getDate()}/${date.getMonth() + 1}
+        </text>
+      `;
+    })
+    .join("");
+
+  chart.innerHTML = `
+    <line
+      x1="${padding}"
+      y1="${height - padding}"
+      x2="${width - padding}"
+      y2="${height - padding}"
+      stroke="rgba(255,255,255,.12)"
+    />
+
+    <polyline
+      points="${linePoints}"
+      fill="none"
+      stroke="#ff9d2e"
+      stroke-width="4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    ${circles}
+    ${labels}
+  `;
+}
+
+renderCollectionGrowth();
