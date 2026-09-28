@@ -313,18 +313,18 @@ const SUPABASE_ANON_KEY =
 
 
       /*
-        Use acquired_at when available.
+        Use acquired_date when available.
         If it is missing, use created_at.
 
         This prevents the graph from being blank
-        for cards that don't have acquired_at.
+        for cards that don't have acquired_date.
       */
 
       const dates = cards
         .map(card => {
 
           const date =
-            card.acquired_at ||
+            card.acquired_date ||
             card.created_at;
 
           return date
