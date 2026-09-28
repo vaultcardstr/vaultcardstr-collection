@@ -152,7 +152,7 @@ function renderHero() {
     }, { once: true });
   });
 }
-function renderAll() { renderStats(); renderHero(); renderCollection(); renderFeatured(); renderAdminList(); updateAuthUI(); }
+function renderAll() { renderStats(); renderHero(); renderCollection(); renderAdminList(); updateAuthUI(); }
 
 function openModal(id) {
   const c = cards.find(x => Number(x.id) === Number(id));
