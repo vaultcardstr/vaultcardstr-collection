@@ -142,46 +142,7 @@ function bindCardClicks(scope = document) {
   });
   scope.querySelectorAll("img[data-fallback]").forEach(img => img.addEventListener("error", () => { if (img.src !== img.dataset.fallback) img.src = img.dataset.fallback; }, { once: true }));
 }
-async function renderUsers() {
-  const { data: profiles, error } = await supabaseClient
-    .from("profiles")
-    .select("id, username, avatar_url, created_at")
-    .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  const grid = $("#cardGrid");
-
-  grid.innerHTML = profiles.map(profile => `
-    <article class="user-card" data-user-id="${escapeHtml(profile.id)}">
-      <div class="user-avatar">
-        ${
-          profile.avatar_url
-            ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(profile.username || "Kullanıcı")}">`
-            : `<span>👤</span>`
-        }
-      </div>
-
-      <div class="user-card-body">
-        <h3>${escapeHtml(profile.username || "Kullanıcı")}</h3>
-        <p>VaultCardstr Koleksiyonu</p>
-        <button class="btn btn-primary view-user-collection">
-          Koleksiyonu Gör →
-        </button>
-      </div>
-    </article>
-  `).join("");
-
-  grid.querySelectorAll(".view-user-collection").forEach(button => {
-    button.addEventListener("click", (e) => {
-      const userId = e.target.closest(".user-card").dataset.userId;
-      location.hash = `user/${userId}`;
-    });
-  });
-}
 async function renderUserCollection(userId) {
   const { data: userCards, error } = await supabaseClient
     .from("cards")
