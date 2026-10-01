@@ -442,8 +442,31 @@
 
     <h2>Profil Ayarları</h2>
 
-    <p>Kullanıcı adını buradan değiştirebilirsin.</p>
+   <p>Kullanıcı adını buradan değiştirebilirsin.</p>
 
+<div class="profile-photo-section">
+  <label>Profil Fotoğrafı</label>
+
+  <div class="profile-photo-preview">
+    <img
+      id="profilePhotoPreview"
+      src=""
+      alt="Profil Fotoğrafı"
+    >
+    <span id="profilePhotoPlaceholder">👤</span>
+  </div>
+
+  <input
+    id="profilePhotoInput"
+    type="file"
+    accept="image/png,image/jpeg,image/webp"
+  >
+
+  <small>
+    JPG, PNG veya WebP · Maksimum 5 MB
+  </small>
+</div>
+    
     <form id="profileSettingsForm">
 
       <label>
