@@ -560,6 +560,16 @@ function init() {
   $("#navToggle").onclick = () => $(".main-nav").classList.toggle("open");
   $$(".main-nav a").forEach(x => x.onclick = () => $(".main-nav").classList.remove("open"));
   $("#loginBtn").onclick = openLogin; $("#loginForm").onsubmit = login; $("#loginCloseBtn").onclick = closeLogin; $$('[data-login-close]').forEach(x => x.onclick = closeLogin);
+  $("#signupBtn").onclick = openSignup;
+$("#signupForm").onsubmit = signup;
+$("#signupCloseBtn").onclick = closeSignup;
+
+$$('[data-signup-close]').forEach(x => x.onclick = closeSignup);
+
+$("#backToLoginBtn").onclick = () => {
+  closeSignup();
+  openLogin();
+};
   $("#logoutBtn").onclick = logout; $("#addCardBtn").onclick = () => openAdminForm(); $("#cancelAdminForm").onclick = closeAdminForm; $("#cancelAdminForm2").onclick = closeAdminForm; $("#cardEditorForm").onsubmit = saveCard; $("#importDemoBtn").onclick = importDemo; $("#setupCloseBtn").onclick = closeSetup; $("#setupCloseAction").onclick = closeSetup; $$('[data-setup-close]').forEach(x => x.onclick = closeSetup);
   window.addEventListener("hashchange", handleHash); handleHash();
   document.addEventListener("keydown", e => { if (e.key === "Escape") { closeModal(); closeLogin(); closeSetup(); } });
