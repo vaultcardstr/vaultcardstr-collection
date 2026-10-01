@@ -41,6 +41,10 @@
     📦 Koleksiyonum
   </button>
 
+    <button type="button" id="profileSettingsBtn">
+  ⚙️ Profil Ayarları
+</button> 
+
   <button type="button" id="accountLogoutBtn">
     🚪 Çıkış Yap
   </button>
@@ -418,6 +422,47 @@
         Giriş Yap
       </button>
     </div>
+
+  </div>
+
+</div>
+      <div class="modal hidden" id="profileSettingsModal" role="dialog" aria-modal="true">
+
+  <div class="modal-backdrop" data-profile-settings-close></div>
+
+  <div class="login-card">
+
+    <button
+      class="modal-close"
+      id="profileSettingsCloseBtn"
+      aria-label="Kapat"
+    >×</button>
+
+    <div class="eyebrow">VAULTCARDSTR ACCOUNT</div>
+
+    <h2>Profil Ayarları</h2>
+
+    <p>Kullanıcı adını buradan değiştirebilirsin.</p>
+
+    <form id="profileSettingsForm">
+
+      <label>
+        Kullanıcı Adı
+        <input
+          id="profileUsername"
+          type="text"
+          required
+          minlength="3"
+          maxlength="20"
+          autocomplete="username"
+        >
+      </label>
+
+      <button class="btn btn-primary" type="submit">
+        Değişiklikleri Kaydet
+      </button>
+
+    </form>
 
   </div>
 
