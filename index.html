@@ -327,7 +327,75 @@
   </div>
 
 </div>
+<div class="modal hidden" id="signupModal" role="dialog" aria-modal="true">
 
+  <div class="modal-backdrop" data-signup-close></div>
+
+  <div class="login-card">
+
+    <button class="modal-close" id="signupCloseBtn" aria-label="Kapat">×</button>
+
+    <div class="eyebrow">VAULTCARDSTR ACCOUNT</div>
+
+    <h2>Kayıt Ol</h2>
+
+    <p>Kendi koleksiyonunu oluşturmak için ücretsiz hesabını oluştur.</p>
+
+    <form id="signupForm">
+
+      <label>
+        E-posta
+        <input
+          id="signupEmail"
+          type="email"
+          required
+          autocomplete="email"
+        >
+      </label>
+
+      <label>
+        Şifre
+        <input
+          id="signupPassword"
+          type="password"
+          required
+          minlength="6"
+          autocomplete="new-password"
+        >
+      </label>
+
+      <label>
+        Şifre Tekrar
+        <input
+          id="signupPasswordConfirm"
+          type="password"
+          required
+          minlength="6"
+          autocomplete="new-password"
+        >
+      </label>
+
+      <button class="btn btn-primary" type="submit">
+        Kayıt Ol
+      </button>
+
+    </form>
+
+    <div style="margin-top:16px; text-align:center;">
+      <span style="opacity:.7;">Zaten hesabın var mı?</span>
+      <button
+        type="button"
+        class="btn btn-ghost"
+        id="backToLoginBtn"
+        style="margin-top:10px; width:100%;"
+      >
+        Giriş Yap
+      </button>
+    </div>
+
+  </div>
+
+</div>
   <div class="modal hidden" id="setupModal" role="dialog" aria-modal="true">
     <div class="modal-backdrop" data-setup-close></div>
     <div class="login-card setup-card">
