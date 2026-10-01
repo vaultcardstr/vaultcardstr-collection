@@ -174,6 +174,90 @@ function renderCollection() {
   $("#emptyState").classList.toggle("hidden", filtered.length > 0);
   bindCardClicks($("#cardGrid"));
 }
+async function renderUsers() {
+  const { data: profiles, error: profileError } = await supabaseClient
+    .from("profiles")
+    .select("id, username, avatar_url, created_at")
+    .order("created_at", { ascending: false });
+
+  if (profileError) {
+    console.error(profileError);
+    return;
+  }
+
+  const { data: allCards, error: cardError } = await supabaseClient
+    .from("cards")
+    .select("owner_id, category");
+
+  if (cardError) {
+    console.error(cardError);
+    return;
+  }
+
+  const grid = $("#userGrid");
+
+  if (!grid) return;
+
+  grid.innerHTML = profiles.map(profile => {
+    const userCards = allCards.filter(
+      card => card.owner_id === profile.id
+    );
+
+    const footballCount = userCards.filter(
+      card => card.category === "Football"
+    ).length;
+
+    const basketballCount = userCards.filter(
+      card => card.category === "Basketball"
+    ).length;
+
+    return `
+      <article class="user-card" data-user-id="${escapeHtml(profile.id)}">
+        <div class="user-avatar">
+          ${
+            profile.avatar_url
+              ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(profile.username || "Kullanıcı")}">`
+              : `<span>👤</span>`
+          }
+        </div>
+
+        <div class="user-card-body">
+          <h3>${escapeHtml(profile.username || "Kullanıcı")}</h3>
+
+          <p>VaultCardstr Koleksiyonu</p>
+
+          <div class="user-stats">
+            <div class="user-stat">
+              <strong>${userCards.length}</strong>
+              <span>Kart</span>
+            </div>
+
+            <div class="user-stat">
+              <strong>${footballCount}</strong>
+              <span>Football</span>
+            </div>
+
+            <div class="user-stat">
+              <strong>${basketballCount}</strong>
+              <span>Basketball</span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary view-user-collection">
+            Koleksiyonu Gör →
+          </button>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  grid.querySelectorAll(".view-user-collection").forEach(button => {
+    button.addEventListener("click", e => {
+      const userId = e.target.closest(".user-card").dataset.userId;
+      location.hash = `user/${userId}`;
+    });
+  });
+}
 function renderFeatured() {
   const featured = cards.filter(c => c.featured).slice(0, 4);
   $("#featuredGrid").innerHTML = featured.map(cardMarkup).join("");
