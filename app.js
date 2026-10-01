@@ -594,15 +594,18 @@ $("#backToLoginBtn").onclick = () => {
   openLogin();
 };
   $("#logoutBtn").onclick = logout; $("#addCardBtn").onclick = () => openAdminForm(); $("#cancelAdminForm").onclick = closeAdminForm; $("#cancelAdminForm2").onclick = closeAdminForm; $("#cardEditorForm").onsubmit = saveCard; $("#importDemoBtn").onclick = importDemo; $("#setupCloseBtn").onclick = closeSetup; $("#setupCloseAction").onclick = closeSetup; $$('[data-setup-close]').forEach(x => x.onclick = closeSetup);
-  $("#accountLogoutBtn").onclick = () => {
-  $("#accountMenu").classList.add("hidden");
-  logout();
-};
+ document.addEventListener("click", (e) => {
+  if (e.target.closest("#accountLogoutBtn")) {
+    $("#accountMenu").classList.add("hidden");
+    logout();
+    return;
+  }
 
-$("#myCollectionBtn").onclick = () => {
-  $("#accountMenu").classList.add("hidden");
-  location.hash = "collection";
-};
+  if (e.target.closest("#myCollectionBtn")) {
+    $("#accountMenu").classList.add("hidden");
+    location.hash = "collection";
+  }
+});
   window.addEventListener("hashchange", handleHash); handleHash();
   document.addEventListener("keydown", e => { if (e.key === "Escape") { closeModal(); closeLogin(); closeSetup(); } });
 }
