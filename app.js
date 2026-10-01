@@ -182,6 +182,30 @@ async function renderUsers() {
     });
   });
 }
+async function renderUserCollection(userId) {
+  const { data: userCards, error } = await supabaseClient
+    .from("cards")
+    .select("*")
+    .eq("owner_id", userId)
+    .order("id", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const grid = $("#cardGrid");
+
+  grid.innerHTML = userCards
+    .map(card => cardMarkup(normalizeCard(card)))
+    .join("");
+
+  $("#resultCount").textContent = `${userCards.length} kart`;
+
+  $("#emptyState").classList.toggle("hidden", userCards.length > 0);
+
+  bindCardClicks($("#cardGrid"));
+}
 function renderCollection() {
   const filtered = cards.filter(matches);
   $("#cardGrid").innerHTML = filtered.map(cardMarkup).join("");
@@ -245,10 +269,13 @@ function renderAll() {
   const h = location.hash.replace("#", "");
 
   if (h === "collection") {
-    renderCollection();
-  } else {
-    renderUsers();
-  }
+  renderCollection();
+} else if (h.startsWith("user/")) {
+  const userId = h.split("/")[1];
+  renderUserCollection(userId);
+} else {
+  renderUsers();
+}
 
   renderAdminList();
   updateAuthUI();
