@@ -889,3 +889,48 @@ code { color:#d7ff3f; }
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(255,157,46,.18);
 }
+.account-menu {
+  padding: 12px;
+  min-width: 230px;
+}
+
+.account-menu-email {
+  padding: 8px 10px 12px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  opacity: .75;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.account-menu button {
+  width: 100%;
+  display: block;
+  padding: 11px 14px;
+  margin: 5px 0;
+  border: 1px solid rgba(255,157,46,.35);
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: all .22s ease;
+}
+
+.account-menu button:hover {
+  background: transparent;
+  border-color: #ff9d2e;
+  color: #ff9d2e;
+  transform: translateX(3px);
+}
+
+#accountLogoutBtn {
+  border-color: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.75);
+}
+
+#accountLogoutBtn:hover {
+  border-color: #ff9d2e;
+  color: #ff9d2e;
+}
