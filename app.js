@@ -382,7 +382,7 @@ async function login(e) {
   const email = $("#loginEmail").value.trim(), password = $("#loginPassword").value;
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if (error) { showToast(error.message, true); return; }
-  closeLogin(); location.hash = "admin"; showToast("Admin girişi başarılı.");
+  closeLogin(); location.hash = "admin"; showToast("Giriş başarılı.");
 }
 async function logout() { await supabaseClient.auth.signOut(); location.hash = "home"; showToast("Çıkış yapıldı."); }
 
