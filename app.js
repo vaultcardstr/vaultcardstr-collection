@@ -426,6 +426,64 @@ function openSignup() {
 function closeSignup() {
   $("#signupModal").classList.add("hidden");
 }
+function openProfileSettings() {
+  if (!currentUser) return;
+
+  $("#profileUsername").value = "";
+  $("#profileSettingsModal").classList.remove("hidden");
+
+  supabaseClient
+    .from("profiles")
+    .select("username")
+    .eq("id", currentUser.id)
+    .single()
+    .then(({ data, error }) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      $("#profileUsername").value = data?.username || "";
+    });
+}
+
+function closeProfileSettings() {
+  $("#profileSettingsModal").classList.add("hidden");
+}
+async function saveProfileSettings(e) {
+  e.preventDefault();
+
+  if (!currentUser) return;
+
+  const username = $("#profileUsername").value.trim();
+
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+    showToast(
+      "Kullanıcı adı 3-20 karakter olmalı ve sadece harf, rakam veya _ içerebilir.",
+      true
+    );
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("profiles")
+    .update({ username })
+    .eq("id", currentUser.id);
+
+  if (error) {
+    if (error.code === "23505") {
+      showToast("Bu kullanıcı adı zaten kullanılıyor.", true);
+    } else {
+      console.error(error);
+      showToast("Kullanıcı adı güncellenemedi.", true);
+    }
+    return;
+  }
+
+  $("#accountEmail").textContent = username;
+  closeProfileSettings();
+  showToast("Kullanıcı adın güncellendi.");
+}
 
 async function signup(e) {
   e.preventDefault();
@@ -674,6 +732,13 @@ function init() {
   $("#loginBtn").onclick = openLogin; $("#loginForm").onsubmit = login; $("#loginCloseBtn").onclick = closeLogin; $$('[data-login-close]').forEach(x => x.onclick = closeLogin);
   $("#signupBtn").onclick = openSignup;
 $("#signupForm").onsubmit = signup;
+  $("#profileSettingsBtn").onclick = openProfileSettings;
+  $("#profileSettingsForm").onsubmit = saveProfileSettings;
+$("#profileSettingsCloseBtn").onclick = closeProfileSettings;
+
+$$('[data-profile-settings-close]').forEach(
+  x => x.onclick = closeProfileSettings
+);
 $("#signupCloseBtn").onclick = closeSignup;
 
 $$('[data-signup-close]').forEach(x => x.onclick = closeSignup);
