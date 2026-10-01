@@ -429,7 +429,11 @@ function closeSignup() {
 
 async function signup(e) {
   e.preventDefault();
-
+const username = $("#signupUsername").value.trim();
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+  showToast("Kullanıcı adı 3-20 karakter olmalı ve sadece harf, rakam veya _ içerebilir.", true);
+  return;
+}
   const email = $("#signupEmail").value.trim();
   const password = $("#signupPassword").value;
   const passwordConfirm = $("#signupPasswordConfirm").value;
@@ -445,9 +449,14 @@ async function signup(e) {
   }
 
   const { error } = await supabaseClient.auth.signUp({
-    email,
-    password
-  });
+  email,
+  password,
+  options: {
+    data: {
+      username
+    }
+  }
+});
 
   if (error) {
     showToast(error.message, true);
