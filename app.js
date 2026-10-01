@@ -142,7 +142,46 @@ function bindCardClicks(scope = document) {
   });
   scope.querySelectorAll("img[data-fallback]").forEach(img => img.addEventListener("error", () => { if (img.src !== img.dataset.fallback) img.src = img.dataset.fallback; }, { once: true }));
 }
+async function renderUsers() {
+  const { data: profiles, error } = await supabaseClient
+    .from("profiles")
+    .select("id, username, avatar_url, created_at")
+    .order("created_at", { ascending: false });
 
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const grid = $("#cardGrid");
+
+  grid.innerHTML = profiles.map(profile => `
+    <article class="user-card" data-user-id="${escapeHtml(profile.id)}">
+      <div class="user-avatar">
+        ${
+          profile.avatar_url
+            ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(profile.username || "Kullanıcı")}">`
+            : `<span>👤</span>`
+        }
+      </div>
+
+      <div class="user-card-body">
+        <h3>${escapeHtml(profile.username || "Kullanıcı")}</h3>
+        <p>VaultCardstr Koleksiyonu</p>
+        <button class="btn btn-primary view-user-collection">
+          Koleksiyonu Gör →
+        </button>
+      </div>
+    </article>
+  `).join("");
+
+  grid.querySelectorAll(".view-user-collection").forEach(button => {
+    button.addEventListener("click", (e) => {
+      const userId = e.target.closest(".user-card").dataset.userId;
+      location.hash = `user/${userId}`;
+    });
+  });
+}
 function renderCollection() {
   const filtered = cards.filter(matches);
   $("#cardGrid").innerHTML = filtered.map(cardMarkup).join("");
@@ -199,7 +238,21 @@ function renderHero() {
     }, { once: true });
   });
 }
-function renderAll() { renderStats(); renderHero(); renderCollection(); renderAdminList(); updateAuthUI(); }
+function renderAll() {
+  renderStats();
+  renderHero();
+
+  const h = location.hash.replace("#", "");
+
+  if (h === "collection") {
+    renderCollection();
+  } else {
+    renderUsers();
+  }
+
+  renderAdminList();
+  updateAuthUI();
+}
 
 function openModal(id) {
   const c = cards.find(x => Number(x.id) === Number(id));
@@ -612,6 +665,9 @@ $("#backToLoginBtn").onclick = () => {
 
 function handleHash() {
   const h = location.hash.replace("#", "");
+  
+  renderAll();
+  
   if (h === "admin" && currentUser && currentUser.app_metadata?.role === "admin") { $("#adminSection").classList.remove("hidden"); setTimeout(() => $("#adminSection").scrollIntoView({ behavior: "smooth" }), 50); }
   else if (h === "setup" && !liveMode) showSetup();
   else if (h === "home" || h === "collection" || h === "featured" || !h) { $("#adminSection").classList.add("hidden"); }
