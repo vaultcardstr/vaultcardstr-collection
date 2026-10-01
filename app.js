@@ -36,6 +36,10 @@ function normalizeCard(c) {
     grade: c.grade || "—",
     purchase_price: c.purchase_price ?? null,
     estimated_value: c.estimated_value ?? null,
+    is_numbered: c.is_numbered ?? false,
+numbering: c.numbering ?? "",
+is_autograph: c.is_autograph ?? false,
+is_relic: c.is_relic ?? false,
     acquired_date: c.acquired_date ?? null,
     price: c.estimated_value != null ? `${c.estimated_value} USD` : "Collection",
     acquired: c.acquired_date || "—"
@@ -71,9 +75,25 @@ async function loadCards() {
 
 function cardTags(card) {
   let out = `<span class="tag">${escapeHtml(card.category)}</span>`;
-  if (card.rookie) out += `<span class="tag accent">RC</span>`;
-  if (card.grade && card.grade !== "—") out += `<span class="tag">${escapeHtml(card.grade)}</span>`;
-  if (card.parallel && card.parallel !== "Base") out += `<span class="tag">${escapeHtml(card.parallel)}</span>`;
+
+  if (card.rookie)
+    out += `<span class="tag accent">RC</span>`;
+
+  if (card.grade && card.grade !== "—")
+    out += `<span class="tag">${escapeHtml(card.grade)}</span>`;
+
+  if (card.parallel && card.parallel !== "Base")
+    out += `<span class="tag">${escapeHtml(card.parallel)}</span>`;
+
+  if (card.is_numbered)
+    out += `<span class="tag accent">NUMBERED${card.numbering ? ` · ${escapeHtml(card.numbering)}` : ""}</span>`;
+
+  if (card.is_autograph)
+    out += `<span class="tag accent">AUTOGRAPH</span>`;
+
+  if (card.is_relic)
+    out += `<span class="tag accent">RELIC</span>`;
+
   return out;
 }
 
