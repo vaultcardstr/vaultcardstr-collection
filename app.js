@@ -330,7 +330,11 @@ function showToast(message, error = false) {
 
 function openLogin() {
   if (!liveMode) { location.hash = "setup"; $("#setupModal").classList.remove("hidden"); return; }
-  if (currentUser) { location.hash = "admin"; return; }
+  if (currentUser) {
+  $("#accountEmail").textContent = currentUser.email || "Hesabım";
+  $("#accountMenu").classList.toggle("hidden");
+  return;
+}
   $("#loginModal").classList.remove("hidden");
 }
 function closeLogin() { $("#loginModal").classList.add("hidden"); }
