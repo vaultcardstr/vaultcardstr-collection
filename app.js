@@ -99,8 +99,35 @@ function cardTags(card) {
 
 function matches(card) {
   const q = state.query.trim().toLowerCase();
-  const categoryMatch = state.category === "all" || card.category === state.category || (state.category === "Rookie" && card.rookie) || (state.category === "Graded" && card.grade !== "—");
-  const text = [card.player, card.team, card.category, card.year, card.set, card.card_number, card.parallel, card.condition, card.grade, card.price, card.status].join(" ").toLowerCase();
+
+  const categoryMatch =
+    state.category === "all" ||
+    card.category === state.category ||
+    (state.category === "Rookie" && card.rookie) ||
+    (state.category === "Graded" && card.grade && card.grade !== "—") ||
+    (state.category === "Numbered" && (card.is_numbered || card.numbered)) ||
+    (state.category === "Autograph" && card.is_autograph) ||
+    (state.category === "Relic" && card.is_relic) ||
+    (state.category === "For Sale" && card.for_sale);
+
+  const text = [
+    card.player,
+    card.team,
+    card.category,
+    card.year,
+    card.set,
+    card.card_number,
+    card.parallel,
+    card.condition,
+    card.grade,
+    card.numbering,
+    card.is_autograph ? "autograph" : "",
+    card.is_relic ? "relic" : "",
+    card.for_sale ? "for sale" : "",
+    card.price,
+    card.status
+  ].join(" ").toLowerCase();
+
   return categoryMatch && (!q || text.includes(q));
 }
 
