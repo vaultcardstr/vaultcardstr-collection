@@ -357,7 +357,18 @@
     <p>Kendi koleksiyonunu oluşturmak için ücretsiz hesabını oluştur.</p>
 
     <form id="signupForm">
-
+<label>
+  Kullanıcı Adı
+  <input
+    id="signupUsername"
+    type="text"
+    required
+    minlength="3"
+    maxlength="20"
+    autocomplete="username"
+    placeholder="Örn. vaultcollector"
+  >
+</label>
       <label>
         E-posta
         <input
