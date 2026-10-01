@@ -317,6 +317,48 @@ function openLogin() {
   $("#loginModal").classList.remove("hidden");
 }
 function closeLogin() { $("#loginModal").classList.add("hidden"); }
+function openSignup() {
+  $("#loginModal").classList.add("hidden");
+  $("#signupModal").classList.remove("hidden");
+}
+
+function closeSignup() {
+  $("#signupModal").classList.add("hidden");
+}
+
+async function signup(e) {
+  e.preventDefault();
+
+  const email = $("#signupEmail").value.trim();
+  const password = $("#signupPassword").value;
+  const passwordConfirm = $("#signupPasswordConfirm").value;
+
+  if (password !== passwordConfirm) {
+    showToast("Şifreler eşleşmiyor.", true);
+    return;
+  }
+
+  if (password.length < 6) {
+    showToast("Şifre en az 6 karakter olmalı.", true);
+    return;
+  }
+
+  const { error } = await supabaseClient.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    showToast(error.message, true);
+    return;
+  }
+
+  closeSignup();
+
+  showToast(
+    "Kayıt başarılı! E-posta doğrulaması gerekiyorsa gelen kutunu kontrol et."
+  );
+}
 
 async function login(e) {
   e.preventDefault();
