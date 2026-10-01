@@ -596,7 +596,7 @@ $("#backToLoginBtn").onclick = () => {
 
 function handleHash() {
   const h = location.hash.replace("#", "");
-  if (h === "admin" && currentUser) { $("#adminSection").classList.remove("hidden"); setTimeout(() => $("#adminSection").scrollIntoView({ behavior: "smooth" }), 50); }
+  if (h === "admin" && currentUser && currentUser.app_metadata?.role === "admin") { $("#adminSection").classList.remove("hidden"); setTimeout(() => $("#adminSection").scrollIntoView({ behavior: "smooth" }), 50); }
   else if (h === "setup" && !liveMode) showSetup();
   else if (h === "home" || h === "collection" || h === "featured" || !h) { $("#adminSection").classList.add("hidden"); }
 }
