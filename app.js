@@ -495,13 +495,50 @@ function openProfileSettings() {
 function closeProfileSettings() {
   $("#profileSettingsModal").classList.add("hidden");
 }
+async function uploadAvatar(file) {
+  if (!file) return "";
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Lütfen bir görsel seç.");
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("Profil fotoğrafı 5 MB'dan küçük olmalı.");
+  }
+
+  const ext = (file.name.split(".").pop() || "jpg")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+
+  const path = `${currentUser.id}/${crypto.randomUUID()}.${ext}`;
+
+  const { error: uploadError } = await supabaseClient
+    .storage
+    .from("avatars")
+    .upload(path, file, {
+      cacheControl: "31536000",
+      contentType: file.type,
+      upsert: false
+    });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  const { data } = supabaseClient
+    .storage
+    .from("avatars")
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+}
 async function saveProfileSettings(e) {
   e.preventDefault();
 
   if (!currentUser) return;
 
   const username = $("#profileUsername").value.trim();
-
+const avatarFile = $("#profilePhotoInput").files[0];
   if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
     showToast(
       "Kullanıcı adı 3-20 karakter olmalı ve sadece harf, rakam veya _ içerebilir.",
@@ -509,10 +546,23 @@ async function saveProfileSettings(e) {
     );
     return;
   }
+let avatarUrl = "";
 
+if (avatarFile) {
+  try {
+    avatarUrl = await uploadAvatar(avatarFile);
+  } catch (error) {
+    console.error(error);
+    showToast(error.message || "Profil fotoğrafı yüklenemedi.", true);
+    return;
+  }
+}
   const { error } = await supabaseClient
     .from("profiles")
-    .update({ username })
+    .update({
+  username,
+  ...(avatarUrl ? { avatar_url: avatarUrl } : {})
+})
     .eq("id", currentUser.id);
 
   if (error) {
@@ -778,6 +828,18 @@ function init() {
   $("#signupBtn").onclick = openSignup;
 $("#signupForm").onsubmit = signup;
   $("#profileSettingsBtn").onclick = openProfileSettings;
+  $("#profilePhotoInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  const preview = $("#profilePhotoPreview");
+  const placeholder = $("#profilePhotoPlaceholder");
+
+  preview.src = URL.createObjectURL(file);
+  preview.style.display = "block";
+  placeholder.style.display = "none";
+});
   $("#profileSettingsForm").onsubmit = saveProfileSettings;
 $("#profileSettingsCloseBtn").onclick = closeProfileSettings;
 
