@@ -30,7 +30,7 @@
         <a href="growth.html">📈 Collection Growth</a>
         <a href="#admin" id="adminLink" class="hidden">Admin Panel</a>
       </nav>
-      <button class="nav-login hidden" id="loginBtn">Admin Girişi</button>
+     <button class="nav-login hidden" id="loginBtn">Giriş Yap</button>
       <button class="nav-toggle" id="navToggle" aria-label="Menüyü aç/kapat">☰</button>
     </div>
   </header>
@@ -271,13 +271,62 @@
   </div>
 
   <div class="modal hidden" id="loginModal" role="dialog" aria-modal="true">
-    <div class="modal-backdrop" data-login-close></div>
-    <div class="login-card">
-      <button class="modal-close" id="loginCloseBtn" aria-label="Kapat">×</button>
-      <div class="eyebrow">PRIVATE VAULT</div><h2>Admin Girişi</h2><p>Sadece senin kart ekleme, düzenleme ve silme panelin.</p>
-      <form id="loginForm"><label>E-posta<input id="loginEmail" type="email" required autocomplete="email"></label><label>Şifre<input id="loginPassword" type="password" required autocomplete="current-password"></label><button class="btn btn-primary" type="submit">Giriş Yap</button></form>
+
+  <div class="modal-backdrop" data-login-close></div>
+
+  <div class="login-card">
+
+    <button class="modal-close" id="loginCloseBtn" aria-label="Kapat">×</button>
+
+    <div class="eyebrow">VAULTCARDSTR ACCOUNT</div>
+
+    <h2>Giriş Yap</h2>
+
+    <p>Koleksiyonunu yönetmek için hesabına giriş yap.</p>
+
+    <form id="loginForm">
+
+      <label>
+        E-posta
+        <input
+          id="loginEmail"
+          type="email"
+          required
+          autocomplete="email"
+        >
+      </label>
+
+      <label>
+        Şifre
+        <input
+          id="loginPassword"
+          type="password"
+          required
+          autocomplete="current-password"
+        >
+      </label>
+
+      <button class="btn btn-primary" type="submit">
+        Giriş Yap
+      </button>
+
+    </form>
+
+    <div style="margin-top:16px; text-align:center;">
+      <span style="opacity:.7;">Hesabın yok mu?</span>
+      <button
+        type="button"
+        class="btn btn-ghost"
+        id="signupBtn"
+        style="margin-top:10px; width:100%;"
+      >
+        Kayıt Ol
+      </button>
     </div>
+
   </div>
+
+</div>
 
   <div class="modal hidden" id="setupModal" role="dialog" aria-modal="true">
     <div class="modal-backdrop" data-setup-close></div>
