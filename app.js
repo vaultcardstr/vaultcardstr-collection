@@ -547,8 +547,10 @@ async function deleteCard(id) {
 function renderAdminList() {
   const box = $("#adminList"); if (!box) return;
   if (!currentUser) { box.innerHTML = ""; return; }
-  box.innerHTML = cards.map(c => `<div class="admin-row"><img src="${escapeHtml(c.image)}" alt=""><div><strong>${escapeHtml(c.player)}</strong><small>${escapeHtml(c.set)} · ${escapeHtml(c.year)}</small></div><div class="admin-actions"><button class="small-btn edit-btn" data-id="${c.id}">Düzenle</button><button class="small-btn danger delete-btn" data-id="${c.id}">Sil</button></div></div>`).join("");
-  box.querySelectorAll(".edit-btn").forEach(b => b.onclick = () => openAdminForm(cards.find(c => Number(c.id) === Number(b.dataset.id))));
+  const isAdmin = currentUser.app_metadata?.role === "admin";
+const myCards = isAdmin ? cards : cards.filter(c => c.owner_id === currentUser.id);
+  box.innerHTML = myCards.map(c => `<div class="admin-row"><img src="${escapeHtml(c.image)}" alt=""><div><strong>${escapeHtml(c.player)}</strong><small>${escapeHtml(c.set)} · ${escapeHtml(c.year)}</small></div><div class="admin-actions"><button class="small-btn edit-btn" data-id="${c.id}">Düzenle</button><button class="small-btn danger delete-btn" data-id="${c.id}">Sil</button></div></div>`).join("");
+  box.querySelectorAll(".edit-btn").forEach(b => b.onclick = () => openAdminForm(myCards.find(c => Number(c.id) === Number(b.dataset.id))));
   box.querySelectorAll(".delete-btn").forEach(b => b.onclick = () => deleteCard(Number(b.dataset.id)));
 }
 
