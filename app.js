@@ -155,7 +155,7 @@ async function renderUserCollection(userId) {
     return;
   }
 
-  const grid = $("#cardGrid");
+ const grid = $("#userGrid");
 
   grid.innerHTML = userCards
     .map(card => cardMarkup(normalizeCard(card)))
