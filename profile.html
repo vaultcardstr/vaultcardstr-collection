@@ -790,23 +790,55 @@ supabaseClient.auth.getUser().then(({ data }) => {
 
         <section>
 
-          <div class="collection-heading">
+  <div class="collection-heading">
+    <div>
+      <div class="eyebrow">
+        COLLECTION
+      </div>
 
-            <div>
-              <div class="eyebrow">
-                COLLECTION
-              </div>
+      <h2>
+        ${escapeHtml(profile.username || "Koleksiyoner")}'in Koleksiyonu
+      </h2>
+    </div>
 
-              <h2>
-                ${escapeHtml(profile.username || "Koleksiyoner")}'in Koleksiyonu
-              </h2>
-            </div>
+    <div style="
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    ">
 
-            <span class="collection-count">
-              ${userCards.length} KART
-            </span>
+      <span class="collection-count">
+        ${userCards.length} KART
+      </span>
 
-          </div>
+      ${
+        userId === currentUserId
+          ? `
+            <button
+              type="button"
+              id="addCardBtn"
+              style="
+                border:0;
+                border-radius:12px;
+                padding:11px 16px;
+                background:linear-gradient(135deg,#ff9d2e,#ffb45f);
+                color:#111;
+                font-size:12px;
+                font-weight:900;
+                cursor:pointer;
+                box-shadow:0 10px 25px rgba(255,157,46,.15);
+              "
+            >
+              + Kart Ekle
+            </button>
+          `
+          : ""
+      }
+
+    </div>
+
+  </div>
 
 
           <div class="profile-card-grid">
@@ -816,6 +848,200 @@ supabaseClient.auth.getUser().then(({ data }) => {
         </section>
 
       `;
+      const addCardBtn = content.querySelector("#addCardBtn");
+
+if (addCardBtn) {
+  addCardBtn.addEventListener("click", () => {
+    const addBox = document.createElement("div");
+
+    addBox.className = "profile-edit-overlay";
+
+    addBox.innerHTML = `
+      <div class="profile-edit-modal">
+        <div class="profile-edit-header">
+          <div>
+            <div class="eyebrow">NEW CARD</div>
+            <h3>Kart Ekle</h3>
+          </div>
+
+          <button type="button" class="profile-edit-close">×</button>
+        </div>
+
+        <form id="newCardForm" style="padding:24px;">
+
+  <div id="newCardFormGrid" style="
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+  ">
+
+    <label>
+      Oyuncu *
+      <input id="ncPlayer" required placeholder="Örn. Cooper Flagg">
+    </label>
+
+    <label>
+      Takım
+      <input id="ncTeam" placeholder="Örn. Dallas Mavericks">
+    </label>
+
+    <label>
+      Kategori
+      <select id="ncCategory">
+        <option value="Football">Football</option>
+        <option value="Basketball">Basketball</option>
+        <option value="Baseball">Baseball</option>
+        <option value="American Football">American Football</option>
+        <option value="Hockey">Hockey</option>
+        <option value="Tennis">Tennis</option>
+        <option value="F1 / Motorsport">F1 / Motorsport</option>
+        <option value="Other">Other</option>
+      </select>
+    </label>
+
+    <label>
+      Yıl
+      <input id="ncYear" placeholder="Örn. 2026">
+    </label>
+
+    <label>
+      Set
+      <input id="ncSetName" placeholder="Örn. Panini Prizm">
+    </label>
+
+    <label>
+      Card No.
+      <input id="ncCardNumber" placeholder="Örn. 47">
+    </label>
+
+    <label>
+      Parallel
+      <input id="ncParallel" value="Base" placeholder="Örn. Silver">
+    </label>
+
+    <label>
+      Condition
+      <input id="ncCondition" value="Raw">
+    </label>
+
+    <label>
+      Grade
+      <input id="ncGrade" value="—" placeholder="Örn. PSA 10">
+    </label>
+
+    <label>
+      Alış fiyatı (TL)
+      <input id="ncPurchasePrice" type="number" min="0" step="0.01" placeholder="600">
+    </label>
+
+    <label>
+      Tahmini değer (USD)
+      <input id="ncEstimatedValue" type="number" min="0" step="0.01" placeholder="150">
+    </label>
+
+    <label>
+      Alındığı tarih
+      <input id="ncAcquiredDate" type="date">
+    </label>
+
+    <label class="check">
+      <input id="ncRookie" type="checkbox">
+      Rookie
+    </label>
+
+    <label class="check">
+      <input id="ncNumbered" type="checkbox">
+      Numbered
+    </label>
+
+    <label id="ncSerialWrap" style="display:none;">
+      Seri Numarası
+      <input id="ncSerialNumber" placeholder="Örn. 05/25 veya 12/99">
+    </label>
+
+    <label class="check">
+      <input id="ncAutograph" type="checkbox">
+      Autograph
+    </label>
+
+    <label class="check">
+      <input id="ncForSale" type="checkbox">
+      Satılık
+    </label>
+
+    <label id="ncDolapWrap" style="grid-column:1 / -1;">
+      Dolap İlan Linki
+      <input id="ncDolapUrl" type="url" placeholder="https://dolap.com/...">
+    </label>
+
+    <label style="grid-column:1 / -1;">
+      Kart ön yüzü *
+      <input id="ncImageFront" type="file" accept="image/*" required>
+    </label>
+
+    <label style="grid-column:1 / -1;">
+      Kart arka yüzü
+      <input id="ncImageBack" type="file" accept="image/*">
+    </label>
+
+    <label style="grid-column:1 / -1;">
+      Not
+      <textarea id="ncNote" rows="4" placeholder="Kart hakkında not..."></textarea>
+    </label>
+
+  </div>
+
+  <div style="
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+  ">
+    <button
+      type="button"
+      class="btn btn-ghost"
+      id="newCardCancel"
+    >
+      İptal
+    </button>
+
+    <button
+      type="submit"
+      class="btn btn-primary"
+    >
+      Kartı Kaydet
+    </button>
+  </div>
+
+</form>
+      </div>
+    `;
+
+    document.body.appendChild(addBox);
+    const newNumberedCheckbox = addBox.querySelector("#ncNumbered");
+const newSerialWrap = addBox.querySelector("#ncSerialWrap");
+const newSerialInput = addBox.querySelector("#ncSerialNumber");
+
+newNumberedCheckbox.addEventListener("change", () => {
+  newSerialWrap.style.display =
+    newNumberedCheckbox.checked ? "" : "block";
+
+  if (!newNumberedCheckbox.checked) {
+    newSerialInput.value = "";
+  }
+});
+
+    addBox.querySelector(".profile-edit-close").addEventListener("click", () => {
+      addBox.remove();
+    });
+
+    addBox.addEventListener("click", (event) => {
+      if (event.target === addBox) {
+        addBox.remove();
+      }
+    });
+  });
+}
             content.querySelectorAll(".profile-delete-btn").forEach(button => {
         button.addEventListener("click", async (event) => {
           event.stopPropagation();
