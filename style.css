@@ -1424,3 +1424,49 @@ code { color:#d7ff3f; }
     flex-direction: column;
   }
 }
+.profile-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.profile-card-actions button {
+  flex: 1;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform .2s ease,
+    background .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.profile-edit-btn {
+  background: rgba(255,157,46,.12);
+  color: #ffb45f;
+  border-color: rgba(255,157,46,.28) !important;
+}
+
+.profile-edit-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255,157,46,.22);
+  border-color: rgba(255,157,46,.55) !important;
+  box-shadow: 0 8px 20px rgba(255,157,46,.12);
+}
+
+.profile-delete-btn {
+  background: rgba(255,70,70,.08);
+  color: #ff8585;
+  border-color: rgba(255,70,70,.22) !important;
+}
+
+.profile-delete-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255,70,70,.16);
+  border-color: rgba(255,70,70,.45) !important;
+  box-shadow: 0 8px 20px rgba(255,70,70,.10);
+}
