@@ -949,9 +949,13 @@ $("#backToLoginBtn").onclick = () => {
   }
 
   if (e.target.closest("#myCollectionBtn")) {
-    $("#accountMenu").classList.add("hidden");
-    location.hash = "collection";
-  }
+  $("#accountMenu").classList.add("hidden");
+
+  if (!currentUser) return;
+
+  window.location.href =
+    `profile.html?user=${encodeURIComponent(currentUser.id)}`;
+}
 });
   window.addEventListener("hashchange", handleHash); handleHash();
   document.addEventListener("keydown", e => { if (e.key === "Escape") { closeModal(); closeLogin(); closeSetup(); } });
