@@ -1251,7 +1251,7 @@ document.addEventListener("click", async (e) => {
   modalTitle.textContent = card.player || "Kart";
 
   modalSubtitle.textContent =
-    `${card.set || ""} · ${card.year || ""}`;
+    `${card.set_name || ""} · ${card.year || ""}`;
 
   modalCategory.textContent =
     card.category || "";
@@ -1268,7 +1268,7 @@ document.addEventListener("click", async (e) => {
   modalDetails.innerHTML = `
   <div class="detail">
     <span>SET</span>
-    <strong>${card.set || "—"}</strong>
+    <strong>${card.set_name || "—"}</strong>
   </div>
 
   <div class="detail">
