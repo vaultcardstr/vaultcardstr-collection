@@ -670,26 +670,46 @@ document.addEventListener("click", async (e) => {
   `;
 
   modalDetails.innerHTML = `
-    <div>
-      <strong>Kart</strong>
-      <span>${card.card_number || "—"}</span>
-    </div>
+  <div class="detail">
+    <span>SET</span>
+    <strong>${card.set || "—"}</strong>
+  </div>
 
-    <div>
-      <strong>Yıl</strong>
-      <span>${card.year || "—"}</span>
-    </div>
+  <div class="detail">
+    <span>CARD NO.</span>
+    <strong>${card.card_number || "—"}</strong>
+  </div>
 
-    <div>
-      <strong>Tahmini Değer</strong>
-      <span>$${Number(card.estimated_value || 0).toLocaleString("en-US")}</span>
-    </div>
+  <div class="detail">
+    <span>PARALLEL</span>
+    <strong>${card.parallel || "—"}</strong>
+  </div>
 
-    <div>
-      <strong>Alış Fiyatı</strong>
-      <span>${card.purchase_price || "—"} TL</span>
-    </div>
-  `;
+  <div class="detail">
+    <span>CONDITION</span>
+    <strong>${card.condition || "—"}</strong>
+  </div>
+
+  <div class="detail">
+    <span>GRADE</span>
+    <strong>${card.grade || "—"}</strong>
+  </div>
+
+  <div class="detail">
+    <span>ACQUIRED</span>
+    <strong>${card.acquired_date || "—"}</strong>
+  </div>
+
+  <div class="detail">
+    <span>PURCHASE PRICE</span>
+    <strong>${card.purchase_price ? `${card.purchase_price} TL` : "—"}</strong>
+  </div>
+
+  <div class="detail">
+    <span>ESTIMATED VALUE</span>
+    <strong>$${Number(card.estimated_value || 0).toLocaleString("en-US")}</strong>
+  </div>
+`;
 
   modalNote.textContent =
     card.notes || "";
