@@ -1021,6 +1021,21 @@ if (addCardBtn) {
     const newNumberedCheckbox = addBox.querySelector("#ncNumbered");
 const newSerialWrap = addBox.querySelector("#ncSerialWrap");
 const newSerialInput = addBox.querySelector("#ncSerialNumber");
+  const newForSaleCheckbox = addBox.querySelector("#ncForSale");
+const newDolapWrap = addBox.querySelector("#ncDolapWrap");
+
+newForSaleCheckbox.addEventListener("change", () => {
+  newDolapWrap.style.display =
+    newForSaleCheckbox.checked ? "" : "block";
+
+  if (!newForSaleCheckbox.checked) {
+    addBox.querySelector("#ncDolapUrl").value = "";
+  }
+});
+
+addBox.querySelector("#newCardCancel").addEventListener("click", () => {
+  addBox.remove();
+});  
 
 newNumberedCheckbox.addEventListener("change", () => {
   newSerialWrap.style.display =
