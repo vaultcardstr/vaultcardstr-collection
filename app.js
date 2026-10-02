@@ -465,7 +465,7 @@ function renderHero() {
 
   $("#heroShowcase").innerHTML = picks.map(c => `
     <div class="showcase-card" data-id="${escapeHtml(c.id)}" tabindex="0">
-      <img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.player)} kartı" data-fallback="${escapeHtml(fallbackImage(c))}">
+      <img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.player)} kartı" loading="eager" fetchpriority="high" decoding="async" data-fallback="${escapeHtml(fallbackImage(c))}">
     </div>
   `).join("");
 
