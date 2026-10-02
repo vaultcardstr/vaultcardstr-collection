@@ -1183,28 +1183,24 @@ supabaseClient.auth.getUser().then(({ data }) => {
     const profileSearch = content.querySelector("#profileSearch");
 const filterButtons = content.querySelectorAll(".profile-filter-btn");
 
+const profileSearch = content.querySelector("#profileSearch");
+const filterButtons = content.querySelectorAll(".profile-filter-btn");
+
 let activeFilter = "";
 
 function applyProfileFilters() {
-  const query = profileSearch
-    ? profileSearch.value.trim().toLocaleLowerCase("tr-TR")
-    : "";
+  const query = (profileSearch?.value || "")
+    .trim()
+    .toLocaleLowerCase("tr-TR");
 
-  const profileCards = content.querySelectorAll(".profile-card-item");
-
-  profileCards.forEach((cardElement) => {
-    const cardId = cardElement.dataset.id;
-
+  content.querySelectorAll(".profile-card").forEach((cardElement) => {
     const card = userCards.find(
-      (item) => String(item.id) === String(cardId)
+      (item) => String(item.id) === String(cardElement.dataset.id)
     );
 
-    if (!card) {
-      cardElement.style.display = "none";
-      return;
-    }
+    if (!card) return;
 
-    const searchableText = [
+    const text = [
       card.player,
       card.team,
       card.category,
@@ -1215,108 +1211,40 @@ function applyProfileFilters() {
       card.condition,
       card.grade,
       card.serial_number,
-      card.note,
-      card.rookie ? "rookie" : "",
-      card.serial_number ? "numbered" : "",
-      card.autograph ? "autograph" : "",
-      card.for_sale ? "satılık" : ""
+      card.note
     ]
       .filter(Boolean)
       .join(" ")
       .toLocaleLowerCase("tr-TR");
 
-    let matchesSearch = true;
-    let matchesFilter = true;
+    let show = !query || text.includes(query);
 
-    if (query) {
-      matchesSearch = searchableText.includes(query);
-    }
+    if (activeFilter === "rookie") show = show && !!card.rookie;
+    if (activeFilter === "numbered") show = show && !!card.serial_number;
+    if (activeFilter === "autograph") show = show && !!card.autograph;
+    if (activeFilter === "football") show = show && card.category === "Football";
+    if (activeFilter === "basketball") show = show && card.category === "Basketball";
+    if (activeFilter === "sale") show = show && !!card.for_sale;
 
-    if (activeFilter === "rookie") {
-      matchesFilter = !!card.rookie;
-    }
-
-    if (activeFilter === "numbered") {
-      matchesFilter = !!card.serial_number;
-    }
-
-    if (activeFilter === "autograph") {
-      matchesFilter = !!card.autograph;
-    }
-
-    if (activeFilter === "football") {
-      matchesFilter =
-        String(card.category || "").toLowerCase() === "football";
-    }
-
-    if (activeFilter === "basketball") {
-      matchesFilter =
-        String(card.category || "").toLowerCase() === "basketball";
-    }
-
-    if (activeFilter === "sale") {
-      matchesFilter = !!card.for_sale;
-    }
-
-    cardElement.style.display =
-      matchesSearch && matchesFilter
-        ? ""
-        : "none";
+    cardElement.style.display = show ? "" : "none";
   });
 }
 
-if (profileSearch) {
-  profileSearch.addEventListener("input", () => {
-    applyProfileFilters();
-  });
-}
+profileSearch?.addEventListener("input", applyProfileFilters);
 
 filterButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const filter = button.dataset.filter;
 
-    if (activeFilter === filter) {
-      activeFilter = "";
-      button.classList.remove("active");
-    } else {
-      activeFilter = filter;
+    activeFilter = activeFilter === filter ? "" : filter;
 
-      filterButtons.forEach((btn) => {
-        btn.classList.remove("active");
-      });
-
-      button.classList.add("active");
-    }
+    filterButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.filter === activeFilter);
+    });
 
     applyProfileFilters();
   });
 });
-      const searchableText = [
-        card.player,
-        card.team,
-        card.category,
-        card.year,
-        card.set_name,
-        card.card_number,
-        card.parallel,
-        card.condition,
-        card.grade,
-        card.serial_number,
-        card.note,
-        card.rookie ? "rookie" : "",
-        card.autograph ? "autograph" : "",
-        card.for_sale ? "satılık" : ""
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLocaleLowerCase("tr-TR");
-
-      cardElement.style.display =
-        !query || searchableText.includes(query)
-          ? ""
-          : "none";
-    });
-}
       const addCardBtn = content.querySelector("#addCardBtn");
 
 if (addCardBtn) {
