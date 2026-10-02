@@ -677,8 +677,9 @@ function closeProfileSettings() {
 async function uploadAvatar(file) {
   if (!file) return "";
 
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Lütfen bir görsel seç.");
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error("Sadece JPG, PNG veya WEBP görseller yükleyebilirsin.");
   }
 
   if (file.size > 5 * 1024 * 1024) {
