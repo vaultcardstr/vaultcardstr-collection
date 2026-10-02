@@ -571,29 +571,41 @@
     loadProfile();
   </script>
 
- <div class="modal hidden" id="cardModal" role="dialog" aria-modal="true">
-  <div class="modal-backdrop" data-modal-close></div>
+<div class="modal hidden" id="cardModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-backdrop" data-close-modal></div>
 
   <div class="modal-card">
-    <button class="modal-close" id="modalCloseBtn" aria-label="Kapat">×</button>
+    <button class="modal-close" id="modalClose" aria-label="Kapat">×</button>
 
-    <div class="modal-media">
+    <div class="modal-image-wrap">
       <img id="modalImage" src="" alt="">
+      <img id="modalBackImage" src="" alt="" class="hidden">
+
+      <button
+        class="modal-image-next"
+        id="modalImageNext"
+        type="button"
+        aria-label="Kartın arka yüzünü göster"
+      >
+        →
+      </button>
     </div>
 
-    <div class="modal-content">
+    <div class="modal-info">
       <div class="tag-row" id="modalTags"></div>
-      <h2 id="modalTitle"></h2>
-      <p id="modalMeta"></p>
-      <p id="modalNote"></p>
 
-      <div class="modal-actions">
-        <button class="btn btn-ghost hidden" id="modalBackBtn">← Arka Yüz</button>
-        <button class="btn btn-ghost hidden" id="modalFrontBtn">Ön Yüz →</button>
-      </div>
+      <div class="eyebrow" id="modalCategory"></div>
+
+      <h2 id="modalTitle"></h2>
+
+      <p class="modal-subtitle" id="modalSubtitle"></p>
+
+      <div class="details-grid" id="modalDetails"></div>
+
+      <p class="modal-note" id="modalNote"></p>
     </div>
   </div>
-</div> 
+</div>
 
   <script src="app.js"></script>
 
