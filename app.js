@@ -5,7 +5,12 @@ let supabaseClient = null;
 let liveMode = false;
 let currentUser = null;
 let cards = [];
+
+let collectorProfiles = [];
+let collectorCards = [];
+
 const state = { query: "", category: "all", editingId: null };
+
 
 function configured() {
   return window.FG_CONFIG &&
@@ -260,32 +265,75 @@ function renderCollection() {
   $("#emptyState").classList.toggle("hidden", filtered.length > 0);
   bindCardClicks($("#cardGrid"));
 }
-async function renderUsers() {
-  const { data: profiles, error: profileError } = await supabaseClient
-    .from("profiles")
-    .select("id, username, avatar_url, created_at")
-    .order("created_at", { ascending: false });
+async function renderUsers(searchTerm = "") {
 
-  if (profileError) {
-    console.error(profileError);
-    return;
-  }
-
-  const { data: allCards, error: cardError } = await supabaseClient
-    .from("cards")
-    .select("owner_id, category");
-
-  if (cardError) {
-    console.error(cardError);
-    return;
-  }
+  if (!supabaseClient) return;
 
   const grid = $("#userGrid");
 
   if (!grid) return;
 
-  grid.innerHTML = profiles.map(profile => {
-    const userCards = allCards.filter(
+  // Koleksiyonerleri yalnızca gerektiğinde Supabase'den çek
+  if (!collectorProfiles.length) {
+
+    const { data: profiles, error: profileError } = await supabaseClient
+      .from("profiles")
+      .select("id, username, avatar_url, created_at")
+      .order("created_at", { ascending: false });
+
+    if (profileError) {
+      console.error(profileError);
+      return;
+    }
+
+    collectorProfiles = profiles || [];
+  }
+
+  // Kart verilerini yalnızca gerektiğinde çek
+  if (!collectorCards.length) {
+
+    const { data: allCards, error: cardError } = await supabaseClient
+      .from("cards")
+      .select("owner_id, category");
+
+    if (cardError) {
+      console.error(cardError);
+      return;
+    }
+
+    collectorCards = allCards || [];
+  }
+
+  // Toplam koleksiyoner sayısı
+  $("#collectorCount").textContent = collectorProfiles.length;
+
+  const query = searchTerm.trim().toLowerCase();
+
+  // Arama
+  const filteredProfiles = collectorProfiles.filter(profile => {
+
+    const username = String(profile.username || "").toLowerCase();
+
+    return !query || username.includes(query);
+  });
+
+  // Sonuç yoksa
+  if (!filteredProfiles.length) {
+
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="empty-icon">⌕</div>
+        <h3>Koleksiyoner bulunamadı</h3>
+        <p>Farklı bir kullanıcı adı deneyebilirsin.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  grid.innerHTML = filteredProfiles.map(profile => {
+
+    const userCards = collectorCards.filter(
       card => card.owner_id === profile.id
     );
 
@@ -299,20 +347,32 @@ async function renderUsers() {
 
     return `
       <article class="user-card" data-user-id="${escapeHtml(profile.id)}">
+
         <div class="user-avatar">
+
           ${
             profile.avatar_url
-              ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(profile.username || "Kullanıcı")}">`
+              ? `
+                <img
+                  src="${escapeHtml(profile.avatar_url)}"
+                  alt="${escapeHtml(profile.username || "Kullanıcı")}"
+                >
+              `
               : `<span>👤</span>`
           }
+
         </div>
 
         <div class="user-card-body">
-          <h3>${escapeHtml(profile.username || "Kullanıcı")}</h3>
 
-          <p>VaultCardstr Koleksiyonu</p>
+          <h3>
+            ${escapeHtml(profile.username || "Kullanıcı")}
+          </h3>
+
+          <p>VaultCardstr Collector</p>
 
           <div class="user-stats">
+
             <div class="user-stat">
               <strong>${userCards.length}</strong>
               <span>Kart</span>
@@ -327,22 +387,38 @@ async function renderUsers() {
               <strong>${basketballCount}</strong>
               <span>Basketball</span>
             </div>
+
           </div>
 
-          <button class="btn btn-primary view-user-collection">
+          <button
+            class="btn btn-primary view-user-collection"
+            type="button"
+          >
             Koleksiyonu Gör →
           </button>
+
         </div>
+
       </article>
     `;
+
   }).join("");
 
+  // Koleksiyona git
   grid.querySelectorAll(".view-user-collection").forEach(button => {
+
     button.addEventListener("click", e => {
-      const userId = e.target.closest(".user-card").dataset.userId;
-    window.location.href = `profile.html?user=${encodeURIComponent(userId)}`;
+
+      const userId =
+        e.currentTarget.closest(".user-card").dataset.userId;
+
+      window.location.href =
+        `profile.html?user=${encodeURIComponent(userId)}`;
+
     });
+
   });
+
 }
 function renderFeatured() {
   const featured = cards.filter(c => c.featured).slice(0, 4);
@@ -923,6 +999,13 @@ function init() {
   initSupabase().then(() => renderAll());
 
   $("#searchInput").oninput = e => { state.query = e.target.value; renderCollection(); };
+  const collectorSearch = $("#collectorSearch");
+
+if (collectorSearch) {
+  collectorSearch.oninput = e => {
+    renderUsers(e.target.value);
+  };
+}
   $$("#categoryFilters .filter").forEach(b => b.onclick = () => { $$("#categoryFilters .filter").forEach(x => x.classList.remove("active")); b.classList.add("active"); state.category = b.dataset.category; renderCollection(); });
   $("#modalClose").onclick = closeModal; $$('[data-close-modal]').forEach(x => x.onclick = closeModal);
   $("#navToggle").onclick = () => $(".main-nav").classList.toggle("open");
