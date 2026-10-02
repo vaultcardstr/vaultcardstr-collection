@@ -351,9 +351,14 @@
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("user");
     let currentUserId = null;
-    supabaseClient.auth.getUser().then(({ data }) => {
+   loadProfile();
+
+supabaseClient.auth.getUser().then(({ data }) => {
   currentUserId = data.user?.id || null;
-  loadProfile();
+
+  if (currentUserId) {
+    loadProfile();
+  }
 });
     
 
