@@ -217,7 +217,7 @@
 
     <div class="eyebrow">COLLECTION JOURNEY</div>
 
-    <h1>Collection Growth</h1>
+    <h1 id="growthTitle">Collection Growth</h1>
 
     <p class="intro">
       Track how the VaultCardsTR collection has grown over time.
@@ -278,15 +278,41 @@ const SUPABASE_ANON_KEY =
     const status =
       document.getElementById("growthStatus");
 
+    const titleElement =
+      document.getElementById("growthTitle");
+
 
     try {
 
+      if (userId) {
+        const profileResponse = await fetch(
+          SUPABASE_URL + "/rest/v1/profiles?id=eq." + encodeURIComponent(userId) + "&select=username",
+          {
+            headers: {
+              "apikey": SUPABASE_ANON_KEY,
+              "Authorization": "Bearer " + SUPABASE_ANON_KEY
+            }
+          }
+        );
+
+        if (profileResponse.ok) {
+          const profiles = await profileResponse.json();
+          if (profiles[0]?.username) {
+            titleElement.textContent = profiles[0].username + "'s Collection Growth";
+          }
+        }
+      }
+
+      const cardsUrl = userId
+        ? SUPABASE_URL + "/rest/v1/cards?select=id,acquired_date,created_at&owner_id=eq." + encodeURIComponent(userId) + "&order=acquired_date.asc"
+        : SUPABASE_URL + "/rest/v1/cards?select=id,acquired_date,created_at&order=acquired_date.asc";
+
       const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/cards?select=id,acquired_date&order=acquired_date.asc`,
+        cardsUrl,
         {
           headers: {
             "apikey": SUPABASE_ANON_KEY,
-            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+            "Authorization": "Bearer " + SUPABASE_ANON_KEY
           }
         }
       );
