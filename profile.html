@@ -970,6 +970,15 @@ supabaseClient.auth.getUser().then(({ data }) => {
 
                 <label class="check">
   <input
+    id="peAutograph"
+    type="checkbox"
+    ${card.autograph ? "checked" : ""}
+  >
+  Autograph
+</label>
+
+                <label class="check">
+  <input
     id="peNumbered"
     type="checkbox"
     ${card.serial_number ? "checked" : ""}
@@ -1069,9 +1078,10 @@ numberedCheckbox.addEventListener("change", () => {
               purchase_price: Number(editBox.querySelector("#pePurchasePrice").value) || 0,
               estimated_value: Number(editBox.querySelector("#peEstimatedValue").value) || 0,
               note: editBox.querySelector("#peNote").value.trim(),
-              rookie: editBox.querySelector("#peRookie").checked,
-              serial_number: editBox.querySelector("#peSerialNumber").value.trim(),
-              for_sale: editBox.querySelector("#peForSale").checked,
+             rookie: editBox.querySelector("#peRookie").checked,
+autograph: editBox.querySelector("#peAutograph").checked,
+serial_number: editBox.querySelector("#peSerialNumber").value.trim(),
+for_sale: editBox.querySelector("#peForSale").checked,,
               dolap_url: editBox.querySelector("#peDolapUrl").value.trim()
             };
 
