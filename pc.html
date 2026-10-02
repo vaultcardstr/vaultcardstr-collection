@@ -19,6 +19,29 @@
     .pc-manager-form{display:grid;grid-template-columns:1.4fr 1fr .7fr auto;gap:9px;margin-top:22px}
     .pc-manager-form input{min-width:0;height:44px;padding:0 12px;border-radius:11px;border:1px solid rgba(255,255,255,.1);background:#0d0f14;color:#fff;outline:none}
     .pc-manager-form input:focus{border-color:rgba(255,157,46,.55)}
+    .pc-manager-form button[type="submit"]{
+      height:44px;
+      padding:0 18px;
+      border:1px solid rgba(255,157,46,.65);
+      border-radius:11px;
+      background:linear-gradient(135deg,#ffad3d,#ff8f16);
+      color:#111;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:-.01em;
+      cursor:pointer;
+      box-shadow:0 8px 22px rgba(255,157,46,.16);
+      transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+      white-space:nowrap;
+    }
+    .pc-manager-form button[type="submit"]:hover{
+      transform:translateY(-1px);
+      filter:brightness(1.05);
+      box-shadow:0 10px 28px rgba(255,157,46,.25);
+    }
+    .pc-manager-form button[type="submit"]:active{
+      transform:translateY(0);
+    }
     .pc-manager-list{display:grid;gap:9px;margin-top:22px}
     .pc-manager-item{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:13px 14px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(255,255,255,.025)}
     .pc-manager-item strong{display:block}.pc-manager-item small{color:var(--muted)}
