@@ -1030,9 +1030,18 @@ supabaseClient.auth.getUser().then(({ data }) => {
         COLLECTION
       </div>
 
-      <h2>
-        ${escapeHtml(profile.username || "Koleksiyoner")}'in Koleksiyonu
-      </h2>
+      <div class="collection-title-row">
+        <h2>
+          ${escapeHtml(profile.username || "Koleksiyoner")}'in Koleksiyonu
+        </h2>
+
+        <a
+          class="profile-growth-link"
+          href="growth.html?user=${encodeURIComponent(userId)}"
+        >
+          📈 Collection Growth
+        </a>
+      </div>
     </div>
 
     <div style="
