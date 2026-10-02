@@ -475,19 +475,36 @@
 
                 <div class="profile-card-info">
 
-                  <h3>
-                    ${escapeHtml(card.player || "Bilinmeyen Oyuncu")}
-                  </h3>
+  <h3>
+    ${escapeHtml(card.player || "Bilinmeyen Oyuncu")}
+  </h3>
 
-                  <p>
-                    ${escapeHtml(card.set || "Kart")} ·
-                    ${escapeHtml(card.year || "")}
-                  </p>
+  <p>
+    ${escapeHtml(card.set || "Kart")} ·
+    ${escapeHtml(card.year || "")}
+  </p>
 
-                </div>
+  ${userId === currentUserId ? `
+    <div class="profile-card-actions">
+      <button
+        type="button"
+        class="profile-edit-btn"
+        data-id="${escapeHtml(card.id)}"
+      >
+        Düzenle
+      </button>
 
-                ${userId === currentUserId ? `
-  <div class="profile-card-actions">
+      <button
+        type="button"
+        class="profile-delete-btn"
+        data-id="${escapeHtml(card.id)}"
+      >
+        Sil
+      </button>
+    </div>
+  ` : ""}
+
+</div>
     <button
       type="button"
       class="profile-edit-btn"
