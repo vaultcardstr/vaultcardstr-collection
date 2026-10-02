@@ -776,8 +776,8 @@ const username = $("#signupUsername").value.trim();
     return;
   }
 
-  if (password.length < 6) {
-    showToast("Şifre en az 6 karakter olmalı.", true);
+  if (password.length < 8) {
+    showToast("Şifre en az 8 karakter olmalı.", true);
     return;
   }
 
@@ -827,8 +827,8 @@ function closeAdminForm() { $("#adminForm").classList.add("hidden"); state.editi
 async function uploadCardImage(file) {
   if (!file) return "";
 
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Lütfen bir görsel seç.");
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    throw new Error("Sadece JPG, PNG veya WebP görsel yükleyebilirsin.");
   }
 
   if (file.size > 6 * 1024 * 1024) {
@@ -839,7 +839,9 @@ async function uploadCardImage(file) {
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "");
 
-  const path = `${crypto.randomUUID()}.${ext}`;
+  if (!currentUser?.id) throw new Error("Kart görseli yüklemek için giriş yapmalısın.");
+
+  const path = `${currentUser.id}/${crypto.randomUUID()}.${ext}`;
 
   const { error: uploadError } = await supabaseClient
     .storage
