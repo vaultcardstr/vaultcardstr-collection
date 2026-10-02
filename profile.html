@@ -1074,7 +1074,30 @@ supabaseClient.auth.getUser().then(({ data }) => {
 
   </div>
 
-
+<div style="
+  margin: 0 0 20px;
+  width: 100%;
+">
+  <input
+    type="text"
+    id="profileSearch"
+    placeholder="🔎 Koleksiyonunda ara..."
+    autocomplete="off"
+    style="
+      width:100%;
+      height:48px;
+      box-sizing:border-box;
+      padding:0 16px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background:#11141a;
+      color:#fff;
+      outline:none;
+      font-size:13px;
+      font-weight:600;
+    "
+  >
+</div>
           <div class="profile-card-grid">
             ${cardHtml}
           </div>
@@ -1082,6 +1105,55 @@ supabaseClient.auth.getUser().then(({ data }) => {
         </section>
 
       `;
+     const profileSearch = content.querySelector("#profileSearch");
+
+if (profileSearch) {
+  profileSearch.addEventListener("input", () => {
+    const query = profileSearch.value
+      .trim()
+      .toLocaleLowerCase("tr-TR");
+
+    const profileCards = content.querySelectorAll(".profile-card-item");
+
+    profileCards.forEach((cardElement) => {
+      const cardId = cardElement.dataset.id;
+
+      const card = userCards.find(
+        (item) => String(item.id) === String(cardId)
+      );
+
+      if (!card) {
+        cardElement.style.display = "none";
+        return;
+      }
+
+      const searchableText = [
+        card.player,
+        card.team,
+        card.category,
+        card.year,
+        card.set_name,
+        card.card_number,
+        card.parallel,
+        card.condition,
+        card.grade,
+        card.serial_number,
+        card.note,
+        card.rookie ? "rookie" : "",
+        card.autograph ? "autograph" : "",
+        card.for_sale ? "satılık" : ""
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase("tr-TR");
+
+      cardElement.style.display =
+        !query || searchableText.includes(query)
+          ? ""
+          : "none";
+    });
+  });
+}
       const addCardBtn = content.querySelector("#addCardBtn");
 
 if (addCardBtn) {
