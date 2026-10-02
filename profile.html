@@ -901,8 +901,9 @@ if (addCardBtn) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 38px 24px 24px;
   box-sizing: border-box;
+  overflow-y: auto;
 `;
 
     addBox.className = "profile-edit-overlay";
@@ -1069,6 +1070,15 @@ if (addCardBtn) {
     `;
 
     document.body.appendChild(addBox);
+    const newCardActions = addBox.querySelector("#newCardForm > div:last-child");
+
+if (newCardActions) {
+  newCardActions.style.position = "sticky";
+  newCardActions.style.bottom = "0";
+  newCardActions.style.padding = "12px 0 4px";
+  newCardActions.style.background = "rgba(0,0,0,.88)";
+  newCardActions.style.zIndex = "5";
+}
     addBox.querySelector("#newCardForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
