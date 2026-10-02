@@ -350,6 +350,12 @@
 
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("user");
+    let currentUserId = null;
+    supabaseClient.auth.getUser().then(({ data }) => {
+  currentUserId = data.user?.id || null;
+  loadProfile();
+});
+    
 
     const content = document.getElementById("profileContent");
 
@@ -480,6 +486,26 @@
 
                 </div>
 
+                ${userId === currentUserId ? `
+  <div class="profile-card-actions">
+    <button
+      type="button"
+      class="profile-edit-btn"
+      data-id="${escapeHtml(card.id)}"
+    >
+      Düzenle
+    </button>
+
+    <button
+      type="button"
+      class="profile-delete-btn"
+      data-id="${escapeHtml(card.id)}"
+    >
+      Sil
+    </button>
+  </div>
+` : ""}
+
               </article>
             `;
 
@@ -566,9 +592,318 @@
         </section>
 
       `;
+            content.querySelectorAll(".profile-delete-btn").forEach(button => {
+        button.addEventListener("click", async (event) => {
+          event.stopPropagation();
+
+          const cardId = button.dataset.id;
+
+          if (!confirm("Bu kartı koleksiyonundan silmek istediğine emin misin?")) {
+            return;
+          }
+
+          const { error } = await supabaseClient
+            .from("cards")
+            .delete()
+            .eq("id", cardId)
+            .eq("owner_id", currentUserId);
+
+          if (error) {
+            console.error(error);
+            alert("Kart silinemedi.");
+            return;
+          }
+
+          await loadProfile();
+        });
+      });
     }
 
-    loadProfile();
+          content.querySelectorAll(".profile-edit-btn").forEach(button => {
+        button.addEventListener("click", async (event) => {
+          event.stopPropagation();
+
+          const cardId = button.dataset.id;
+
+          const { data: card, error } = await supabaseClient
+            .from("cards")
+            .select("*")
+            .eq("id", cardId)
+            .eq("owner_id", currentUserId)
+            .single();
+
+          if (error || !card) {
+            alert("Kart bilgileri alınamadı.");
+            console.error(error);
+            return;
+          }
+
+          const editBox = document.createElement("div");
+
+          editBox.style.cssText = `
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0,0,0,.75);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+          `;
+
+          editBox.innerHTML = `
+            <div style="
+              width:min(620px,100%);
+              max-height:90vh;
+              overflow:auto;
+              background:#171a22;
+              border:1px solid rgba(255,255,255,.12);
+              border-radius:24px;
+              padding:24px;
+              box-shadow:0 30px 80px rgba(0,0,0,.55);
+            ">
+              <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:20px;
+              ">
+                <div>
+                  <div class="eyebrow">VAULTCARDSTR</div>
+                  <h2 style="margin:4px 0 0;">Kartı Düzenle</h2>
+                </div>
+
+                <button
+                  type="button"
+                  id="profileEditClose"
+                  style="
+                    border:0;
+                    background:rgba(255,255,255,.08);
+                    color:#fff;
+                    width:38px;
+                    height:38px;
+                    border-radius:50%;
+                    font-size:22px;
+                    cursor:pointer;
+                  "
+                >×</button>
+              </div>
+
+              <form id="profileEditForm">
+
+                <label>
+                  Oyuncu
+                  <input
+                    id="pePlayer"
+                    value="${escapeHtml(card.player || "")}"
+                    required
+                  >
+                </label>
+
+                <label>
+                  Takım
+                  <input
+                    id="peTeam"
+                    value="${escapeHtml(card.team || "")}"
+                  >
+                </label>
+
+                <label>
+                  Kategori
+                  <select id="peCategory">
+                    <option value="Football" ${card.category === "Football" ? "selected" : ""}>Football</option>
+                    <option value="Basketball" ${card.category === "Basketball" ? "selected" : ""}>Basketball</option>
+                  </select>
+                </label>
+
+                <label>
+                  Yıl
+                  <input
+                    id="peYear"
+                    value="${escapeHtml(card.year || "")}"
+                  >
+                </label>
+
+                <label>
+                  Set
+                  <input
+                    id="peSet"
+                    value="${escapeHtml(card.set_name || "")}"
+                  >
+                </label>
+
+                <label>
+                  Kart Numarası
+                  <input
+                    id="peCardNumber"
+                    value="${escapeHtml(card.card_number || "")}"
+                  >
+                </label>
+
+                <label>
+                  Parallel
+                  <input
+                    id="peParallel"
+                    value="${escapeHtml(card.parallel || "")}"
+                  >
+                </label>
+
+                <label>
+                  Condition
+                  <input
+                    id="peCondition"
+                    value="${escapeHtml(card.condition || "")}"
+                  >
+                </label>
+
+                <label>
+                  Grade
+                  <input
+                    id="peGrade"
+                    value="${escapeHtml(card.grade || "")}"
+                  >
+                </label>
+
+                <label>
+                  Alış Fiyatı (TL)
+                  <input
+                    id="pePurchasePrice"
+                    type="number"
+                    step="0.01"
+                    value="${card.purchase_price ?? ""}"
+                  >
+                </label>
+
+                <label>
+                  Tahmini Değer (USD)
+                  <input
+                    id="peEstimatedValue"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value="${card.estimated_value ?? ""}"
+                  >
+                </label>
+
+                <label>
+                  Not
+                  <textarea id="peNote" rows="4">${escapeHtml(card.note || "")}</textarea>
+                </label>
+
+                <label class="check">
+                  <input
+                    id="peRookie"
+                    type="checkbox"
+                    ${card.rookie ? "checked" : ""}
+                  >
+                  Rookie
+                </label>
+
+                <label class="check">
+                  <input
+                    id="peFeatured"
+                    type="checkbox"
+                    ${card.featured ? "checked" : ""}
+                  >
+                  Öne Çıkan
+                </label>
+
+                <label class="check">
+                  <input
+                    id="peForSale"
+                    type="checkbox"
+                    ${card.for_sale ? "checked" : ""}
+                  >
+                  Satılık
+                </label>
+
+                <label>
+                  Dolap İlan Linki
+                  <input
+                    id="peDolapUrl"
+                    type="url"
+                    value="${escapeHtml(card.dolap_url || "")}"
+                    placeholder="https://dolap.com/..."
+                  >
+                </label>
+
+                <div style="
+                  display:flex;
+                  gap:10px;
+                  margin-top:20px;
+                ">
+                  <button
+                    type="button"
+                    id="profileEditCancel"
+                    class="btn btn-ghost"
+                    style="flex:1;"
+                  >
+                    Vazgeç
+                  </button>
+
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    style="flex:1;"
+                  >
+                    Değişiklikleri Kaydet
+                  </button>
+                </div>
+
+              </form>
+            </div>
+          `;
+
+          document.body.appendChild(editBox);
+
+          const closeEditor = () => {
+            editBox.remove();
+          };
+
+          editBox.querySelector("#profileEditClose").onclick = closeEditor;
+          editBox.querySelector("#profileEditCancel").onclick = closeEditor;
+
+          editBox.querySelector("#profileEditForm").onsubmit = async (e) => {
+            e.preventDefault();
+
+            const payload = {
+              player: editBox.querySelector("#pePlayer").value.trim(),
+              team: editBox.querySelector("#peTeam").value.trim(),
+              category: editBox.querySelector("#peCategory").value,
+              year: editBox.querySelector("#peYear").value.trim(),
+              set_name: editBox.querySelector("#peSet").value.trim(),
+              card_number: editBox.querySelector("#peCardNumber").value.trim(),
+              parallel: editBox.querySelector("#peParallel").value.trim(),
+              condition: editBox.querySelector("#peCondition").value.trim(),
+              grade: editBox.querySelector("#peGrade").value.trim(),
+              purchase_price: Number(editBox.querySelector("#pePurchasePrice").value) || 0,
+              estimated_value: Number(editBox.querySelector("#peEstimatedValue").value) || 0,
+              note: editBox.querySelector("#peNote").value.trim(),
+              rookie: editBox.querySelector("#peRookie").checked,
+              featured: editBox.querySelector("#peFeatured").checked,
+              for_sale: editBox.querySelector("#peForSale").checked,
+              dolap_url: editBox.querySelector("#peDolapUrl").value.trim()
+            };
+
+            const { error } = await supabaseClient
+              .from("cards")
+              .update(payload)
+              .eq("id", cardId)
+              .eq("owner_id", currentUserId);
+
+            if (error) {
+              console.error(error);
+              alert("Kart güncellenemedi.");
+              return;
+            }
+
+            closeEditor();
+            await loadProfile();
+          };
+        });
+      });
+
   </script>
 
 <div class="modal hidden" id="cardModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
