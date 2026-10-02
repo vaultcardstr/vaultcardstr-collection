@@ -1075,29 +1075,104 @@ supabaseClient.auth.getUser().then(({ data }) => {
   </div>
 
 <div style="
-  margin: 0 0 20px;
-  width: 100%;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:0 0 20px;
+  width:100%;
 ">
-  <input
-    type="text"
-    id="profileSearch"
-    placeholder="🔎 Koleksiyonunda ara..."
-    autocomplete="off"
-    style="
-      width:100%;
-      height:48px;
-      box-sizing:border-box;
-      padding:0 16px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:#11141a;
-      color:#fff;
-      outline:none;
-      font-size:13px;
-      font-weight:600;
-    "
-  >
+
+  <div style="
+    flex:1 1 220px;
+    min-width:200px;
+    position:relative;
+  ">
+    <input
+      type="text"
+      id="profileSearch"
+      placeholder="🔎 Koleksiyonunda ara..."
+      autocomplete="off"
+      style="
+        width:100%;
+        height:42px;
+        box-sizing:border-box;
+        padding:0 14px;
+        border-radius:11px;
+        border:1px solid rgba(255,255,255,.10);
+        background:#11141a;
+        color:#fff;
+        outline:none;
+        font-size:12px;
+        font-weight:600;
+      "
+    >
+  </div>
+
+  <button type="button" class="profile-filter-btn" data-filter="rookie">
+    ROOKIE
+  </button>
+
+  <button type="button" class="profile-filter-btn" data-filter="numbered">
+    NUMBERED
+  </button>
+
+  <button type="button" class="profile-filter-btn" data-filter="autograph">
+    AUTOGRAPH
+  </button>
+
+  <button type="button" class="profile-filter-btn" data-filter="football">
+    FOOTBALL
+  </button>
+
+  <button type="button" class="profile-filter-btn" data-filter="basketball">
+    BASKETBALL
+  </button>
+
+  <button type="button" class="profile-filter-btn" data-filter="sale">
+    SATILIK
+  </button>
+
 </div>
+
+<style>
+  .profile-filter-btn {
+    height:42px;
+    padding:0 12px;
+    border-radius:11px;
+    border:1px solid rgba(255,255,255,.10);
+    background:#11141a;
+    color:#858b96;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.04em;
+    cursor:pointer;
+    transition:.2s ease;
+  }
+
+  .profile-filter-btn:hover {
+    color:#fff;
+    border-color:rgba(255,255,255,.22);
+  }
+
+  .profile-filter-btn.active {
+    background:linear-gradient(135deg,#d4af37,#f0d77a);
+    color:#111;
+    border-color:transparent;
+  }
+
+  #profileSearch:focus {
+    border-color:rgba(212,175,55,.55);
+    box-shadow:0 0 0 3px rgba(212,175,55,.08);
+  }
+
+  @media (max-width:700px) {
+    .profile-filter-btn {
+      flex:1 1 auto;
+    }
+  }
+</style>
+
           <div class="profile-card-grid">
             ${cardHtml}
           </div>
@@ -1105,28 +1180,117 @@ supabaseClient.auth.getUser().then(({ data }) => {
         </section>
 
       `;
-     const profileSearch = content.querySelector("#profileSearch");
+    const profileSearch = content.querySelector("#profileSearch");
+const filterButtons = content.querySelectorAll(".profile-filter-btn");
+
+let activeFilter = "";
+
+function applyProfileFilters() {
+  const query = profileSearch
+    ? profileSearch.value.trim().toLocaleLowerCase("tr-TR")
+    : "";
+
+  const profileCards = content.querySelectorAll(".profile-card-item");
+
+  profileCards.forEach((cardElement) => {
+    const cardId = cardElement.dataset.id;
+
+    const card = userCards.find(
+      (item) => String(item.id) === String(cardId)
+    );
+
+    if (!card) {
+      cardElement.style.display = "none";
+      return;
+    }
+
+    const searchableText = [
+      card.player,
+      card.team,
+      card.category,
+      card.year,
+      card.set_name,
+      card.card_number,
+      card.parallel,
+      card.condition,
+      card.grade,
+      card.serial_number,
+      card.note,
+      card.rookie ? "rookie" : "",
+      card.serial_number ? "numbered" : "",
+      card.autograph ? "autograph" : "",
+      card.for_sale ? "satılık" : ""
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLocaleLowerCase("tr-TR");
+
+    let matchesSearch = true;
+    let matchesFilter = true;
+
+    if (query) {
+      matchesSearch = searchableText.includes(query);
+    }
+
+    if (activeFilter === "rookie") {
+      matchesFilter = !!card.rookie;
+    }
+
+    if (activeFilter === "numbered") {
+      matchesFilter = !!card.serial_number;
+    }
+
+    if (activeFilter === "autograph") {
+      matchesFilter = !!card.autograph;
+    }
+
+    if (activeFilter === "football") {
+      matchesFilter =
+        String(card.category || "").toLowerCase() === "football";
+    }
+
+    if (activeFilter === "basketball") {
+      matchesFilter =
+        String(card.category || "").toLowerCase() === "basketball";
+    }
+
+    if (activeFilter === "sale") {
+      matchesFilter = !!card.for_sale;
+    }
+
+    cardElement.style.display =
+      matchesSearch && matchesFilter
+        ? ""
+        : "none";
+  });
+}
 
 if (profileSearch) {
   profileSearch.addEventListener("input", () => {
-    const query = profileSearch.value
-      .trim()
-      .toLocaleLowerCase("tr-TR");
+    applyProfileFilters();
+  });
+}
 
-    const profileCards = content.querySelectorAll(".profile-card-item");
+filterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const filter = button.dataset.filter;
 
-    profileCards.forEach((cardElement) => {
-      const cardId = cardElement.dataset.id;
+    if (activeFilter === filter) {
+      activeFilter = "";
+      button.classList.remove("active");
+    } else {
+      activeFilter = filter;
 
-      const card = userCards.find(
-        (item) => String(item.id) === String(cardId)
-      );
+      filterButtons.forEach((btn) => {
+        btn.classList.remove("active");
+      });
 
-      if (!card) {
-        cardElement.style.display = "none";
-        return;
-      }
+      button.classList.add("active");
+    }
 
+    applyProfileFilters();
+  });
+});
       const searchableText = [
         card.player,
         card.team,
