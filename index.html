@@ -106,28 +106,55 @@
   <div class="hero-showcase" id="heroShowcase"></div>
 </section>
 
-    <section class="stats container" aria-label="Koleksiyon istatistikleri">
-      <div class="stat-card">
-        <span class="stat-value" id="statTotal">0</span>
-        <span class="stat-label">Toplam Kart</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-value" id="statFootball">0</span>
-        <span class="stat-label">Football</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-value" id="statBasketball">0</span>
-        <span class="stat-label">Basketball</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-value" id="statGraded">0</span>
-        <span class="stat-label">Graded</span>
-      </div>
-      <div class="stat-card">
-  <span class="stat-value" id="statEstimatedValue">$0</span>
-  <span class="stat-label">Toplam Tahmini Değer</span>
-</div>
-    </section>
+    <section class="stats container">
+
+  <div class="stat-card">
+    <span class="stat-value" id="statTotal">0</span>
+    <span class="stat-label">Toplam Kart</span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-value" id="statEstimatedValue">$0</span>
+    <span class="stat-label">Toplam Tahmini Değer</span>
+  </div>
+
+  <div class="stat-card">
+    <div style="
+      display:flex;
+      align-items:center;
+      gap:8px;
+    ">
+      <span class="stat-value" id="statCollectors">0</span>
+
+      <span style="
+        width:8px;
+        height:8px;
+        border-radius:50%;
+        background:#ff3b30;
+        display:inline-block;
+        box-shadow:0 0 8px rgba(255,59,48,.8);
+        animation:livePulse 1.2s infinite;
+      "></span>
+    </div>
+
+    <span class="stat-label">Koleksiyonerler</span>
+  </div>
+
+</section>
+
+<style>
+  @keyframes livePulse {
+    0%, 100% {
+      opacity:1;
+      transform:scale(1);
+    }
+
+    50% {
+      opacity:.35;
+      transform:scale(.75);
+    }
+  }
+</style>
 <section class="section container growth-section" id="growth">
   <div class="section-heading">
     <div>
