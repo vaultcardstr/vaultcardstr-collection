@@ -892,6 +892,18 @@ supabaseClient.auth.getUser().then(({ data }) => {
 if (addCardBtn) {
   addCardBtn.addEventListener("click", () => {
     const addBox = document.createElement("div");
+    addBox.style.cssText = `
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+`;
 
     addBox.className = "profile-edit-overlay";
 
