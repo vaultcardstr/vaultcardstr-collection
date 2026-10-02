@@ -791,7 +791,10 @@ const username = $("#signupUsername").value.trim();
   options: {
     data: {
       username
-    }
+    },
+    // GitHub Pages uses a project subpath, so explicitly send
+    // email confirmation back to the real production page.
+    emailRedirectTo: "https://vaultcardstr.github.io/vaultcardstr-collection/"
   }
 });
 
