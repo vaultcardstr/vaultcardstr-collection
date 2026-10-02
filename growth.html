@@ -267,6 +267,10 @@
 const SUPABASE_ANON_KEY =
   "sb_publishable_m21U8kBhV38j8ipLdgrttA_bG6rPAQy"
 
+
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get("user");
+
   async function loadGrowthData() {
 
     const totalElement =
