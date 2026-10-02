@@ -351,6 +351,9 @@
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("user");
     let currentUserId = null;
+
+    const content = document.getElementById("profileContent");
+
    loadProfile();
 
 supabaseClient.auth.getUser().then(({ data }) => {
@@ -361,9 +364,6 @@ supabaseClient.auth.getUser().then(({ data }) => {
   }
 });
     
-
-    const content = document.getElementById("profileContent");
-
     function escapeHtml(value) {
       return String(value ?? "")
         .replace(/&/g, "&amp;")
