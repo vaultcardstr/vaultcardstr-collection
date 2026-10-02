@@ -23,13 +23,12 @@
           <small>MY CARD COLLECTION</small>
         </span>
       </a>
-      <nav class="main-nav">
-        <a href="#home">Ana Sayfa</a>
-        <a href="#collection">Koleksiyon</a>
-        <a href="pc.html">PC'ler</a>
-        <a href="growth.html">📈 Collection Growth</a>
-        <a href="#admin" id="adminLink" class="hidden">Admin Panel</a>
-      </nav>
+     <nav class="main-nav">
+  <a href="#home">Ana Sayfa</a>
+  <a href="#collection">Koleksiyon</a>
+  <a href="#collectors">Koleksiyoncular</a>
+  <a href="#admin" id="adminLink" class="hidden">Admin Panel</a>
+</nav>
      <button class="nav-login hidden" id="loginBtn">Giriş Yap</button>
    <div id="accountMenu" class="account-menu hidden">
 
@@ -71,13 +70,10 @@
     </p>
 
     <div class="hero-actions">
-      <a class="btn btn-primary" href="#collection">
-        Explore My Collection →
-      </a>
+    <a class="btn btn-primary" href="#collectors">
+  Explore Collectors →
+</a>
 
-      <a class="btn btn-ghost" href="pc.html">
-        Explore PCs
-      </a>
     </div>
 
     <div class="hero-features">
@@ -163,11 +159,19 @@
   <button class="filter" data-category="For Sale">For Sale</button>
 </div>
       </div>
-<div id="profilePage" class="hidden">
-  <div id="profilePageContent"></div>
-</div>
+<section class="section container" id="collectors">
+  <div class="section-heading">
+    <div>
+      <div class="eyebrow">COMMUNITY</div>
+      <h2>Koleksiyoncular</h2>
+      <p class="section-note">
+        VaultCardstr topluluğundaki koleksiyonları keşfet.
+      </p>
+    </div>
+  </div>
 
-<div class="card-grid" id="userGrid"></div>
+  <div class="card-grid" id="userGrid"></div>
+</section>
       <div class="card-grid" id="cardGrid"></div>
       <div class="empty-state hidden" id="emptyState">
         <div class="empty-icon">⌕</div>
