@@ -55,13 +55,17 @@ async function initSupabase() {
   if (!configured() || !window.supabase) return;
   supabaseClient = window.supabase.createClient(window.FG_CONFIG.SUPABASE_URL, window.FG_CONFIG.SUPABASE_KEY);
   liveMode = true;
+  // Start the public card query immediately; session restoration can happen in parallel.
+  // This avoids making the initial collection render wait on auth initialization.
+  const cardsPromise = loadCards();
   const { data } = await supabaseClient.auth.getSession();
   currentUser = data.session?.user || null;
+  updateAuthUI();
   supabaseClient.auth.onAuthStateChange((_event, session) => {
     currentUser = session?.user || null;
     updateAuthUI();
   });
-  await loadCards();
+  await cardsPromise;
 }
 
 async function loadCards() {
