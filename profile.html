@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Koleksiyoner | VaultCardstr</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .profile-page {
+      min-height: 100vh;
+      padding: 120px 5% 80px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .profile-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 28px;
+      color: #aeb4bf;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .profile-back:hover {
+      color: #ff9d2e;
+    }
+
+    .collector-profile {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      padding: 42px;
+      margin-bottom: 55px;
+      border-radius: 28px;
+      border: 1px solid rgba(255,157,46,.18);
+      background:
+        radial-gradient(circle at 10% 50%, rgba(255,157,46,.14), transparent 38%),
+        linear-gradient(135deg, rgba(255,255,255,.045), rgba(255,255,255,.012));
+      box-shadow: 0 25px 70px rgba(0,0,0,.35);
+    }
+
+    .collector-profile::after {
+      content: "";
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      right: -100px;
+      top: -120px;
+      border-radius: 50%;
+      background: rgba(255,157,46,.08);
+      filter: blur(20px);
+      pointer-events: none;
+    }
+
+    .collector-avatar {
+      position: relative;
+      z-index: 2;
+      width: 150px;
+      height: 150px;
+      flex: 0 0 150px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid #ff9d2e;
+      background: #11141a;
+      box-shadow:
+        0 0 0 8px rgba(255,157,46,.06),
+        0 18px 45px rgba(0,0,0,.45);
+    }
+
+    .collector-avatar img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .collector-avatar span {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      font-size: 52px;
+    }
+
+    .collector-info {
+      position: relative;
+      z-index: 2;
+    }
+
+    .collector-eyebrow {
+      color: #ff9d2e;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+
+    .collector-info h1 {
+      margin: 8px 0 8px;
+      font-size: clamp(38px, 5vw, 64px);
+      line-height: .95;
+      letter-spacing: -.06em;
+      font-weight: 900;
+    }
+
+    .collector-info p {
+      margin: 0 0 24px;
+      color: #9da3ae;
+      font-size: 15px;
+    }
+
+    .collector-stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .collector-stat {
+      min-width: 110px;
+      padding: 13px 17px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,157,46,.12);
+    }
+
+    .collector-stat strong {
+      display: block;
+      font-size: 23px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .collector-stat span {
+      display: block;
+      margin-top: 5px;
+      color: #777e89;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .collection-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .collection-heading .eyebrow {
+      color: #ff9d2e;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+
+    .collection-heading h2 {
+      margin: 7px 0 0;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1;
+      letter-spacing: -.055em;
+      font-weight: 900;
+    }
+
+    .collection-count {
+      color: #777e89;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .profile-card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .profile-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #111318;
+      border: 1px solid rgba(255,255,255,.08);
+      cursor: pointer;
+      transition: transform .25s ease, border-color .25s ease;
+    }
+
+    .profile-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,157,46,.35);
+    }
+
+    .profile-card-image {
+      position: relative;
+      aspect-ratio: .71;
+      background: #171a22;
+      overflow: hidden;
+    }
+
+    .profile-card-image img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .profile-sale {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 2;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ff9d2e;
+      color: #111;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .05em;
+    }
+
+    .profile-card-info {
+      padding: 16px;
+    }
+
+    .profile-card-info h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+      font-weight: 850;
+    }
+
+    .profile-card-info p {
+      margin: 0;
+      color: #858b96;
+      font-size: 12px;
+    }
+
+    .profile-empty {
+      padding: 60px 20px;
+      text-align: center;
+      border: 1px dashed rgba(255,255,255,.12);
+      border-radius: 20px;
+      color: #858b96;
+    }
+
+    .profile-loading {
+      padding: 80px 20px;
+      text-align: center;
+      color: #858b96;
+    }
+
+    @media (max-width: 1000px) {
+      .profile-card-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .profile-page {
+        padding: 100px 18px 50px;
+      }
+
+      .collector-profile {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 28px;
+      }
+
+      .collector-avatar {
+        width: 115px;
+        height: 115px;
+        flex-basis: 115px;
+      }
+
+      .profile-card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .collection-heading {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="nav-inner">
+
+      <a href="index.html#home" class="brand">
+        <span class="brand-mark">
+          <img src="logo.jpeg" alt="VaultCardstr">
+        </span>
+
+        <span>
+          <strong>VaultCardsTR</strong>
+          <small>MY CARD COLLECTION</small>
+        </span>
+      </a>
+
+      <nav class="main-nav">
+        <a href="index.html#home">Ana Sayfa</a>
+        <a href="index.html#collection">Koleksiyon</a>
+        <a href="pc.html">PC'ler</a>
+        <a href="growth.html">📈 Collection Growth</a>
+      </nav>
+
+    </div>
+  </header>
+
+
+  <main class="profile-page">
+
+    <a href="index.html#home" class="profile-back">
+      ← Koleksiyonerler
+    </a>
+
+    <div id="profileContent">
+      <div class="profile-loading">
+        Koleksiyoner profili yükleniyor...
+      </div>
+    </div>
+
+  </main>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+
+  <script>
+    const { createClient } = supabase;
+
+    const supabaseClient = createClient(
+      window.FG_CONFIG.SUPABASE_URL,
+      window.FG_CONFIG.SUPABASE_KEY
+    );
+
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("user");
+
+    const content = document.getElementById("profileContent");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function fallbackImage(card) {
+      return "assets/card-placeholder.svg";
+    }
+
+    async function loadProfile() {
+
+      if (!userId) {
+        content.innerHTML = `
+          <div class="profile-empty">
+            <h2>Koleksiyoner bulunamadı</h2>
+            <p>Geçerli bir profil bağlantısı gerekli.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const { data: profile, error: profileError } =
+        await supabaseClient
+          .from("profiles")
+          .select("id, username, avatar_url, created_at")
+          .eq("id", userId)
+          .single();
+
+      if (profileError || !profile) {
+        console.error(profileError);
+
+        content.innerHTML = `
+          <div class="profile-empty">
+            <h2>Koleksiyoner bulunamadı</h2>
+            <p>Bu profil mevcut değil veya kaldırılmış olabilir.</p>
+          </div>
+        `;
+
+        return;
+      }
+
+      const { data: cards, error: cardsError } =
+        await supabaseClient
+          .from("cards")
+          .select("*")
+          .eq("owner_id", userId)
+          .order("id", { ascending: false });
+
+      if (cardsError) {
+        console.error(cardsError);
+
+        content.innerHTML = `
+          <div class="profile-empty">
+            <h2>Koleksiyon yüklenemedi</h2>
+            <p>Kartlar alınırken bir hata oluştu.</p>
+          </div>
+        `;
+
+        return;
+      }
+
+      const userCards = cards || [];
+
+      const footballCount =
+        userCards.filter(card => card.category === "Football").length;
+
+      const basketballCount =
+        userCards.filter(card => card.category === "Basketball").length;
+
+      document.title =
+        `${profile.username || "Koleksiyoner"} | VaultCardstr`;
+
+
+      const avatar = profile.avatar_url
+        ? `
+          <img
+            src="${escapeHtml(profile.avatar_url)}"
+            alt="${escapeHtml(profile.username || "Koleksiyoner")}"
+          >
+        `
+        : `<span>👤</span>`;
+
+
+      const cardHtml = userCards.length
+        ? userCards.map(card => {
+
+            const image =
+              card.image_front_url ||
+              card.image_url ||
+              fallbackImage(card);
+
+            return `
+              <article class="profile-card">
+
+                <div class="profile-card-image">
+
+                  ${
+                    card.for_sale
+                      ? `<span class="profile-sale">SATILIK</span>`
+                      : ""
+                  }
+
+                  <img
+                    src="${escapeHtml(image)}"
+                    alt="${escapeHtml(card.player || "Kart")}"
+                    loading="lazy"
+                    onerror="this.src='${fallbackImage(card)}'"
+                  >
+
+                </div>
+
+                <div class="profile-card-info">
+
+                  <h3>
+                    ${escapeHtml(card.player || "Bilinmeyen Oyuncu")}
+                  </h3>
+
+                  <p>
+                    ${escapeHtml(card.set || "Kart")} ·
+                    ${escapeHtml(card.year || "")}
+                  </p>
+
+                </div>
+
+              </article>
+            `;
+
+          }).join("")
+        : `
+          <div class="profile-empty">
+            <h2>Henüz kart yok</h2>
+            <p>Bu koleksiyoner henüz koleksiyonuna kart eklememiş.</p>
+          </div>
+        `;
+
+
+      content.innerHTML = `
+
+        <section class="collector-profile">
+
+          <div class="collector-avatar">
+            ${avatar}
+          </div>
+
+          <div class="collector-info">
+
+            <div class="collector-eyebrow">
+              VAULTCARDSTR COLLECTOR
+            </div>
+
+            <h1>
+              ${escapeHtml(profile.username || "Koleksiyoner")}
+            </h1>
+
+            <p>
+              Koleksiyonunu keşfet
+            </p>
+
+            <div class="collector-stats">
+
+              <div class="collector-stat">
+                <strong>${userCards.length}</strong>
+                <span>Kart</span>
+              </div>
+
+              <div class="collector-stat">
+                <strong>${footballCount}</strong>
+                <span>Football</span>
+              </div>
+
+              <div class="collector-stat">
+                <strong>${basketballCount}</strong>
+                <span>Basketball</span>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <section>
+
+          <div class="collection-heading">
+
+            <div>
+              <div class="eyebrow">
+                COLLECTION
+              </div>
+
+              <h2>
+                ${escapeHtml(profile.username || "Koleksiyoner")}'in Koleksiyonu
+              </h2>
+            </div>
+
+            <span class="collection-count">
+              ${userCards.length} KART
+            </span>
+
+          </div>
+
+
+          <div class="profile-card-grid">
+            ${cardHtml}
+          </div>
+
+        </section>
+
+      `;
+    }
+
+    loadProfile();
+  </script>
+
+</body>
+</html>
