@@ -186,19 +186,31 @@
         <form id="cardEditorForm" class="form-grid">
           <label>Oyuncu *<input id="player" required></label>
           <label>Takım<input id="team"></label>
-          <label>Kategori<select id="category"><option>Football</option><option>Basketball</option></select></label>
+          <label>
+  Kategori
+  <select id="category">
+    <option value="Football">Football</option>
+    <option value="Basketball">Basketball</option>
+    <option value="Baseball">Baseball</option>
+    <option value="American Football">American Football</option>
+    <option value="Hockey">Hockey</option>
+    <option value="Tennis">Tennis</option>
+    <option value="F1 / Motorsport">F1 / Motorsport</option>
+    <option value="Other">Other</option>
+  </select>
+</label>
           <label>Yıl<input id="year"></label>
           <label>Set<input id="set_name"></label>
           <label>Card No.<input id="card_number"></label>
           <label>Parallel<input id="parallel" value="Base"></label>
-          <label class="check">
+         <label class="check">
   <input id="is_numbered" type="checkbox">
   Numbered
 </label>
 
-<label>
-  Numbering
-  <input id="numbering" placeholder="Örn: 12/150">
+<label id="numberingWrap" style="display:none;">
+  Seri Numarası
+  <input id="numbering" placeholder="Örn. 05/25 veya 12/99">
 </label>
 
 <label class="check">
@@ -549,3 +561,17 @@
 
   </div>
 </section>
+
+      <script>
+  const numberedCheckbox = document.getElementById("is_numbered");
+  const numberingWrap = document.getElementById("numberingWrap");
+  const numberingInput = document.getElementById("numbering");
+
+  numberedCheckbox.addEventListener("change", () => {
+    numberingWrap.style.display = numberedCheckbox.checked ? "" : "none";
+
+    if (!numberedCheckbox.checked) {
+      numberingInput.value = "";
+    }
+  });
+</script>
