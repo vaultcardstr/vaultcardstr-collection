@@ -292,6 +292,163 @@
         flex-direction: column;
       }
     }
+    /* ===== PROFILE EDIT MODAL ===== */
+
+#profileEditForm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+#profileEditForm > label:not(.check) {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #aeb4bf;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+#profileEditForm > label:nth-of-type(1),
+#profileEditForm > label:nth-of-type(2) {
+  grid-column: span 1;
+}
+
+#profileEditForm input,
+#profileEditForm select,
+#profileEditForm textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 12px;
+  background: #0f1116;
+  color: #f4f5f7;
+  padding: 12px 13px;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  transition:
+    border-color .2s ease,
+    background .2s ease,
+    box-shadow .2s ease;
+}
+
+#profileEditForm input,
+#profileEditForm select {
+  height: 44px;
+}
+
+#profileEditForm textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+#profileEditForm input:focus,
+#profileEditForm select:focus,
+#profileEditForm textarea:focus {
+  border-color: rgba(255,157,46,.65);
+  background: #12151b;
+  box-shadow: 0 0 0 3px rgba(255,157,46,.10);
+}
+
+#profileEditForm input::placeholder,
+#profileEditForm textarea::placeholder {
+  color: #555c68;
+}
+
+/* Not alanı tam genişlik */
+#profileEditForm > label:has(#peNote),
+#profileEditForm > label:has(#peDolapUrl) {
+  grid-column: 1 / -1;
+}
+
+/* Checkbox alanları */
+#profileEditForm > label.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 13px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  background: rgba(255,255,255,.025);
+  color: #d9dde5;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    transform .2s ease;
+}
+
+#profileEditForm > label.check:hover {
+  background: rgba(255,157,46,.06);
+  border-color: rgba(255,157,46,.22);
+  transform: translateY(-1px);
+}
+
+#profileEditForm > label.check input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: #ff9d2e;
+}
+
+/* Alt butonlar */
+#profileEditForm button {
+  min-height: 46px;
+  border-radius: 12px !important;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    transform .2s ease,
+    background .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+#profileEditForm #profileEditCancel {
+  background: rgba(255,255,255,.05) !important;
+  color: #aeb4bf !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+}
+
+#profileEditForm #profileEditCancel:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.09) !important;
+  color: #fff !important;
+}
+
+#profileEditForm button[type="submit"] {
+  background: linear-gradient(135deg, #ff9d2e, #ffb45f) !important;
+  color: #111 !important;
+  border: 0 !important;
+  box-shadow: 0 10px 25px rgba(255,157,46,.15);
+}
+
+#profileEditForm button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(255,157,46,.25);
+}
+
+/* Mobil */
+@media (max-width: 700px) {
+  #profileEditForm {
+    grid-template-columns: 1fr;
+  }
+
+  #profileEditForm > label:not(.check),
+  #profileEditForm > label:has(#peNote),
+  #profileEditForm > label:has(#peDolapUrl) {
+    grid-column: 1;
+  }
+}
   </style>
 </head>
 
