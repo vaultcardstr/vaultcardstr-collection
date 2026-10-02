@@ -187,17 +187,44 @@
       </div>
       </section>
 <section class="section container" id="collectors">
-  <div class="section-heading">
+
+  <div class="collector-community-heading">
+
     <div>
       <div class="eyebrow">COMMUNITY</div>
-      <h2>Koleksiyoncular</h2>
+
+      <h2>Meet the Collectors</h2>
+
       <p class="section-note">
         VaultCardstr topluluğundaki koleksiyonları keşfet.
       </p>
     </div>
+
+    <div class="collector-community-count">
+      <span class="collector-live-dot"></span>
+      <span id="collectorCount">0</span>
+      <small>COLLECTORS</small>
+    </div>
+
+  </div>
+
+  <div class="collector-search-wrap">
+
+    <div class="collector-search">
+      <span>⌕</span>
+
+      <input
+        id="collectorSearch"
+        type="search"
+        placeholder="Koleksiyoncu ara..."
+        autocomplete="off"
+      />
+    </div>
+
   </div>
 
   <div class="card-grid" id="userGrid"></div>
+
 </section>
       <div class="card-grid" id="cardGrid" style="display:none;"></div>
       <div class="empty-state hidden" id="emptyState">
