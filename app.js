@@ -144,28 +144,91 @@ function bindCardClicks(scope = document) {
 }
 
 async function renderUserCollection(userId) {
-  const { data: userCards, error } = await supabaseClient
+  const { data: profile, error: profileError } = await supabaseClient
+    .from("profiles")
+    .select("id, username, avatar_url, created_at")
+    .eq("id", userId)
+    .single();
+
+  if (profileError) {
+    console.error(profileError);
+    return;
+  }
+
+  const { data: userCards, error: cardError } = await supabaseClient
     .from("cards")
     .select("*")
     .eq("owner_id", userId)
     .order("id", { ascending: false });
 
-  if (error) {
-    console.error(error);
+  if (cardError) {
+    console.error(cardError);
     return;
   }
 
- const grid = $("#userGrid");
+  const footballCount = userCards.filter(
+    card => card.category === "Football"
+  ).length;
 
-  grid.innerHTML = userCards
-    .map(card => cardMarkup(normalizeCard(card)))
-    .join("");
+  const basketballCount = userCards.filter(
+    card => card.category === "Basketball"
+  ).length;
+
+  const grid = $("#userGrid");
+
+  grid.innerHTML = `
+    <section class="user-profile-header">
+
+      <div class="user-profile-avatar">
+        ${
+          profile.avatar_url
+            ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(profile.username || "Kullanıcı")}">`
+            : `<span>👤</span>`
+        }
+      </div>
+
+      <div class="user-profile-info">
+        <div class="eyebrow">VAULTCARDSTR COLLECTOR</div>
+
+        <h2>${escapeHtml(profile.username || "Kullanıcı")}</h2>
+
+        <p>Koleksiyonunu keşfet</p>
+
+        <div class="user-profile-stats">
+          <div>
+            <strong>${userCards.length}</strong>
+            <span>Kart</span>
+          </div>
+
+          <div>
+            <strong>${footballCount}</strong>
+            <span>Football</span>
+          </div>
+
+          <div>
+            <strong>${basketballCount}</strong>
+            <span>Basketball</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <div class="card-grid user-profile-card-grid">
+      ${
+        userCards.length
+          ? userCards.map(card => cardMarkup(normalizeCard(card))).join("")
+          : `<div class="empty-state">
+               <h3>Henüz kart yok</h3>
+               <p>Bu koleksiyonda henüz kart bulunmuyor.</p>
+             </div>`
+      }
+    </div>
+  `;
 
   $("#resultCount").textContent = `${userCards.length} kart`;
 
-  $("#emptyState").classList.toggle("hidden", userCards.length > 0);
-
-  bindCardClicks($("#cardGrid"));
+  bindCardClicks(grid.querySelector(".user-profile-card-grid"));
 }
 function renderCollection() {
   const filtered = cards.filter(matches);
