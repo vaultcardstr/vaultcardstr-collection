@@ -572,5 +572,31 @@
     loadProfile();
   </script>
 
+ <div class="modal hidden" id="cardModal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" data-modal-close></div>
+
+  <div class="modal-card">
+    <button class="modal-close" id="modalCloseBtn" aria-label="Kapat">×</button>
+
+    <div class="modal-media">
+      <img id="modalImage" src="" alt="">
+    </div>
+
+    <div class="modal-content">
+      <div class="tag-row" id="modalTags"></div>
+      <h2 id="modalTitle"></h2>
+      <p id="modalMeta"></p>
+      <p id="modalNote"></p>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost hidden" id="modalBackBtn">← Arka Yüz</button>
+        <button class="btn btn-ghost hidden" id="modalFrontBtn">Ön Yüz →</button>
+      </div>
+    </div>
+  </div>
+</div> 
+
+  <script src="app.js"></script>
+
 </body>
 </html>
