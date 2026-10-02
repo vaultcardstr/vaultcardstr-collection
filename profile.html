@@ -548,6 +548,45 @@
       window.FG_CONFIG.SUPABASE_KEY
     );
 
+    async function uploadProfileCardImage(file) {
+  if (!file) return "";
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Lütfen bir görsel seç.");
+  }
+
+  if (file.size > 6 * 1024 * 1024) {
+    throw new Error("Fotoğraf 6 MB'dan küçük olsun.");
+  }
+
+  const ext =
+    (file.name.split(".").pop() || "jpg")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+
+  const path = `${crypto.randomUUID()}.${ext}`;
+
+  const { error: uploadError } = await supabaseClient
+    .storage
+    .from("card-images")
+    .upload(path, file, {
+      cacheControl: "31536000",
+      contentType: file.type,
+      upsert: false
+    });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  const { data } = supabaseClient
+    .storage
+    .from("card-images")
+    .getPublicUrl(path);
+
+  return data.publicUrl;
+}
+
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("user");
     let currentUserId = null;
@@ -1018,6 +1057,100 @@ if (addCardBtn) {
     `;
 
     document.body.appendChild(addBox);
+    addBox.querySelector("#newCardForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (!currentUserId) {
+    alert("Önce hesabına giriş yapmalısın.");
+    return;
+  }
+
+  const frontFile = addBox.querySelector("#ncImageFront").files[0];
+  const backFile = addBox.querySelector("#ncImageBack").files[0];
+
+  if (!frontFile) {
+    alert("Kartın ön yüzünü seçmelisin.");
+    return;
+  }
+
+  try {
+    const frontUrl = await uploadProfileCardImage(frontFile);
+
+    let backUrl = "";
+
+    if (backFile) {
+      backUrl = await uploadProfileCardImage(backFile);
+    }
+
+    const payload = {
+      owner_id: currentUserId,
+
+      player: addBox.querySelector("#ncPlayer").value.trim(),
+      team: addBox.querySelector("#ncTeam").value.trim(),
+      category: addBox.querySelector("#ncCategory").value,
+
+      year: addBox.querySelector("#ncYear").value.trim(),
+      set_name: addBox.querySelector("#ncSetName").value.trim(),
+      card_number: addBox.querySelector("#ncCardNumber").value.trim(),
+      parallel: addBox.querySelector("#ncParallel").value.trim() || "Base",
+
+      condition: addBox.querySelector("#ncCondition").value.trim() || "Raw",
+      grade: addBox.querySelector("#ncGrade").value.trim() || "—",
+
+      purchase_price:
+        Number(addBox.querySelector("#ncPurchasePrice").value) || 0,
+
+      estimated_value:
+        Number(addBox.querySelector("#ncEstimatedValue").value) || 0,
+
+      acquired_date:
+        addBox.querySelector("#ncAcquiredDate").value || null,
+
+      rookie: addBox.querySelector("#ncRookie").checked,
+
+      serial_number:
+        addBox.querySelector("#ncSerialNumber").value.trim(),
+
+      autograph:
+        addBox.querySelector("#ncAutograph").checked,
+
+      for_sale:
+        addBox.querySelector("#ncForSale").checked,
+
+      dolap_url:
+        addBox.querySelector("#ncDolapUrl").value.trim(),
+
+      image_url: frontUrl,
+      image_front_url: frontUrl,
+      image_back_url: backUrl,
+
+      note:
+        addBox.querySelector("#ncNote").value.trim(),
+
+      status: "Collection"
+    };
+
+    const { error } = await supabaseClient
+      .from("cards")
+      .insert(payload);
+
+    if (error) {
+      console.error(error);
+      alert("Kart kaydedilemedi.");
+      return;
+    }
+
+    alert("Kart başarıyla eklendi! 🎉");
+
+    addBox.remove();
+
+    await loadProfile();
+
+  } catch (error) {
+    console.error(error);
+    alert(error.message || "Kart eklenirken bir hata oluştu.");
+  }
+});
     const newNumberedCheckbox = addBox.querySelector("#ncNumbered");
 const newSerialWrap = addBox.querySelector("#ncSerialWrap");
 const newSerialInput = addBox.querySelector("#ncSerialNumber");
