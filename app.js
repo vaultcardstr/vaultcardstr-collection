@@ -961,7 +961,18 @@ function handleHash() {
   const h = location.hash.replace("#", "");
   
   renderAll();
-  
+  if (h.startsWith("user/")) {
+  const userId = h.split("/")[1];
+
+  $("#userGrid").classList.add("hidden");
+  $("#cardGrid").classList.add("hidden");
+  $("#emptyState").classList.add("hidden");
+  $("#adminSection").classList.add("hidden");
+
+  renderUserCollection(userId);
+
+  return;
+}
   if (h === "admin" && currentUser && currentUser.app_metadata?.role === "admin") { $("#adminSection").classList.remove("hidden"); setTimeout(() => $("#adminSection").scrollIntoView({ behavior: "smooth" }), 50); }
   else if (h === "setup" && !liveMode) showSetup();
   else if (h === "home" || h === "collection" || h === "featured" || !h) { $("#adminSection").classList.add("hidden"); }
