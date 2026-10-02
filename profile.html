@@ -1918,6 +1918,39 @@ document.addEventListener("click", async (e) => {
     <span>ESTIMATED VALUE</span>
     <strong>$${Number(card.estimated_value || 0).toLocaleString("en-US")}</strong>
   </div>
+${
+  card.for_sale && card.dolap_url
+    ? `
+      <div style="
+        grid-column:1/-1;
+        margin-top:8px;
+      ">
+        <a
+          href="${escapeHtml(card.dolap_url)}"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            width:100%;
+            min-height:48px;
+            box-sizing:border-box;
+            border-radius:12px;
+            background:linear-gradient(135deg,#d4af37,#f0d77a);
+            color:#111;
+            text-decoration:none;
+            font-size:13px;
+            font-weight:900;
+            letter-spacing:.02em;
+          "
+        >
+          🛒 Dolap'ta İncele
+        </a>
+      </div>
+    `
+    : ""
+}
 `;
 
   modalNote.textContent =
