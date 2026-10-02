@@ -1100,11 +1100,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!message) return;
 
-    vaultbotMessages.innerHTML += `
-      <div class="vaultbot-message user">
-        ${message}
-      </div>
-    `;
+    const userMessageEl = document.createElement("div");
+    userMessageEl.className = "vaultbot-message user";
+    userMessageEl.textContent = message;
+    vaultbotMessages.appendChild(userMessageEl);
 
     vaultbotInput.value = "";
     vaultbotSend.disabled = true;
@@ -1117,11 +1116,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (error) throw error;
 
-      vaultbotMessages.innerHTML += `
-        <div class="vaultbot-message bot">
-          ${data.reply}
-        </div>
-      `;
+      const botMessageEl = document.createElement("div");
+      botMessageEl.className = "vaultbot-message bot";
+      botMessageEl.textContent = String(data?.reply ?? "");
+      vaultbotMessages.appendChild(botMessageEl);
     } catch (error) {
       console.error("VaultBot error:", error);
 
