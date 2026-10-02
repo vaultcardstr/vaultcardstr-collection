@@ -349,18 +349,35 @@ function renderFeatured() {
   $("#featuredGrid").innerHTML = featured.map(cardMarkup).join("");
   bindCardClicks($("#featuredGrid"));
 }
-function renderStats() {
+async function renderStats() {
+  // 1) Sitedeki toplam kart
   $("#statTotal").textContent = cards.length;
-  $("#statFootball").textContent = cards.filter(c => c.category === "Football").length;
-  $("#statBasketball").textContent = cards.filter(c => c.category === "Basketball").length;
-  $("#statGraded").textContent = cards.filter(c => c.grade !== "—").length;
 
+  // 2) Sitedeki tüm kartların toplam tahmini değeri
   const totalEstimatedValue = cards.reduce((total, card) => {
     return total + (Number(card.estimated_value) || 0);
   }, 0);
 
   $("#statEstimatedValue").textContent =
     `$${totalEstimatedValue.toLocaleString("en-US")}`;
+
+  // 3) Sitedeki toplam koleksiyoner
+  // Her profil bir koleksiyoner olarak sayılır.
+  if (liveMode && supabaseClient) {
+    const { count, error } = await supabaseClient
+      .from("profiles")
+      .select("id", { count: "exact", head: true });
+
+    if (error) {
+      console.error("Collector count error:", error);
+      $("#statCollectors").textContent = "0";
+      return;
+    }
+
+    $("#statCollectors").textContent = count ?? 0;
+  } else {
+    $("#statCollectors").textContent = "0";
+  }
 }
 function renderHero() {
   const shuffled = [...cards].sort(() => Math.random() - 0.5);
