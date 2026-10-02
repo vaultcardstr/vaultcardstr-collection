@@ -962,7 +962,16 @@ supabaseClient.auth.getUser().then(({ data }) => {
                   Rookie
                 </label>
 
-                <label>
+                <label class="check">
+  <input
+    id="peNumbered"
+    type="checkbox"
+    ${card.serial_number ? "checked" : ""}
+  >
+  Numbered
+</label>
+
+<label id="peSerialWrap" style="${card.serial_number ? "" : "display:none;"}">
   Seri Numarası
   <input
     id="peSerialNumber"
@@ -1018,6 +1027,18 @@ supabaseClient.auth.getUser().then(({ data }) => {
           `;
 
           document.body.appendChild(editBox);
+
+          const numberedCheckbox = editBox.querySelector("#peNumbered");
+const serialWrap = editBox.querySelector("#peSerialWrap");
+const serialInput = editBox.querySelector("#peSerialNumber");
+
+numberedCheckbox.addEventListener("change", () => {
+  serialWrap.style.display = numberedCheckbox.checked ? "" : "none";
+
+  if (!numberedCheckbox.checked) {
+    serialInput.value = "";
+  }
+});
 
           const closeEditor = () => {
             editBox.remove();
