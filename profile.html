@@ -775,8 +775,9 @@
     async function uploadProfileCardImage(file) {
   if (!file) return "";
 
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Lütfen bir görsel seç.");
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error("Sadece JPG, PNG veya WEBP görseller yükleyebilirsin.");
   }
 
   if (file.size > 6 * 1024 * 1024) {
@@ -788,7 +789,11 @@
       .toLowerCase()
       .replace(/[^a-z0-9]/g, "");
 
-  const path = `${crypto.randomUUID()}.${ext}`;
+  if (!currentUserId) {
+    throw new Error("Kullanıcı oturumu bulunamadı.");
+  }
+
+  const path = `${currentUserId}/${crypto.randomUUID()}.${ext}`;
 
   const { error: uploadError } = await supabaseClient
     .storage
