@@ -738,8 +738,8 @@
       <nav class="main-nav">
         <a href="index.html#home">Ana Sayfa</a>
         <a href="index.html#collection">Koleksiyon</a>
-        <a href="pc.html">PC'ler</a>
-        <a href="growth.html">📈 Collection Growth</a>
+        <a href="pc.html" id="profilePcLink">PC'ler</a>
+        <a href="growth.html" id="profileGrowthLink">📈 Collection Growth</a>
       </nav>
 
     </div>
@@ -814,6 +814,17 @@
     const params = new URLSearchParams(window.location.search);
     const userId = params.get("user");
     let currentUserId = null;
+
+    const profilePcLink = document.getElementById("profilePcLink");
+    const profileGrowthLink = document.getElementById("profileGrowthLink");
+
+    if (profilePcLink && userId) {
+      profilePcLink.href = `pc.html?user=${encodeURIComponent(userId)}`;
+    }
+
+    if (profileGrowthLink && userId) {
+      profileGrowthLink.href = `growth.html?user=${encodeURIComponent(userId)}`;
+    }
 
     const content = document.getElementById("profileContent");
 
