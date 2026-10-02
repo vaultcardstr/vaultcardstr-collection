@@ -962,14 +962,14 @@ supabaseClient.auth.getUser().then(({ data }) => {
                   Rookie
                 </label>
 
-                <label class="check">
-                  <input
-                    id="peFeatured"
-                    type="checkbox"
-                    ${card.featured ? "checked" : ""}
-                  >
-                  Öne Çıkan
-                </label>
+                <label>
+  Seri Numarası
+  <input
+    id="peSerialNumber"
+    value="${escapeHtml(card.serial_number || "")}"
+    placeholder="Örn. 05/25 veya 12/99"
+  >
+</label>
 
                 <label class="check">
                   <input
@@ -1043,7 +1043,7 @@ supabaseClient.auth.getUser().then(({ data }) => {
               estimated_value: Number(editBox.querySelector("#peEstimatedValue").value) || 0,
               note: editBox.querySelector("#peNote").value.trim(),
               rookie: editBox.querySelector("#peRookie").checked,
-              featured: editBox.querySelector("#peFeatured").checked,
+              serial_number: editBox.querySelector("#peSerialNumber").value.trim(),
               for_sale: editBox.querySelector("#peForSale").checked,
               dolap_url: editBox.querySelector("#peDolapUrl").value.trim()
             };
