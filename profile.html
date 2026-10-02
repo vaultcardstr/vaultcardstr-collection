@@ -449,8 +449,7 @@
               fallbackImage(card);
 
             return `
-              <article class="profile-card">
-
+             <article class="profile-card card-item" data-id="${escapeHtml(card.id)}" tabindex="0">
                 <div class="profile-card-image">
 
                   ${
