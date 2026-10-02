@@ -1204,3 +1204,363 @@ function renderCollectionGrowth() {
 }
 
 
+/* =========================
+   SECURE ACCOUNT DELETION
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+
+  if (!deleteAccountBtn) return;
+
+  deleteAccountBtn.addEventListener("click", () => {
+
+    if (!currentUser) {
+      showToast("Önce hesabına giriş yapmalısın.", true);
+      return;
+    }
+
+    const deleteBox = document.createElement("div");
+
+    deleteBox.style.cssText = `
+      position:fixed;
+      inset:0;
+      z-index:999999;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(0,0,0,.82);
+      backdrop-filter:blur(12px);
+    `;
+
+    deleteBox.innerHTML = `
+      <div style="
+        width:min(520px,100%);
+        max-height:90vh;
+        overflow:auto;
+        box-sizing:border-box;
+        background:linear-gradient(145deg,#181a22,#101218);
+        border:1px solid rgba(255,80,80,.22);
+        border-radius:24px;
+        padding:28px;
+        box-shadow:0 30px 90px rgba(0,0,0,.7);
+      ">
+
+        <div style="
+          width:52px;
+          height:52px;
+          border-radius:15px;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background:rgba(255,70,70,.10);
+          border:1px solid rgba(255,80,80,.25);
+          color:#ff7777;
+          font-size:24px;
+          margin-bottom:18px;
+        ">
+          ⚠
+        </div>
+
+        <div style="
+          color:#ff7777;
+          font-size:11px;
+          font-weight:900;
+          letter-spacing:.10em;
+          text-transform:uppercase;
+          margin-bottom:7px;
+        ">
+          ACCOUNT DELETION
+        </div>
+
+        <h2 style="
+          margin:0 0 12px;
+          color:#f4f5f7;
+          font-size:24px;
+        ">
+          Hesabını silmek üzeresin
+        </h2>
+
+        <p style="
+          margin:0 0 18px;
+          color:#9ca3af;
+          font-size:13px;
+          line-height:1.7;
+        ">
+          Bu işlem hesabını, koleksiyonundaki kartları ve
+          hesabına bağlı profil verilerini kalıcı olarak siler.
+          <strong style="color:#ff7777;">
+            Bu işlem geri alınamaz.
+          </strong>
+        </p>
+
+        <div style="
+          padding:14px;
+          margin-bottom:18px;
+          border-radius:12px;
+          background:rgba(255,70,70,.055);
+          border:1px solid rgba(255,80,80,.14);
+          color:#c7cbd3;
+          font-size:12px;
+          line-height:1.6;
+        ">
+          Güvenlik nedeniyle devam etmek için şifreni tekrar
+          doğrulaman ve aşağıdaki onay metnini yazman gerekiyor.
+        </div>
+
+        <label style="
+          display:block;
+          margin-bottom:14px;
+          color:#aeb4bf;
+          font-size:11px;
+          font-weight:800;
+          letter-spacing:.07em;
+          text-transform:uppercase;
+        ">
+          Şifren
+
+          <input
+            id="deleteAccountPassword"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Hesap şifren"
+            style="
+              width:100%;
+              box-sizing:border-box;
+              height:46px;
+              margin-top:7px;
+              padding:0 13px;
+              border-radius:12px;
+              border:1px solid rgba(255,255,255,.10);
+              background:#0f1116;
+              color:#f4f5f7;
+              outline:none;
+              font-size:13px;
+            "
+          >
+        </label>
+
+        <label style="
+          display:block;
+          margin-bottom:20px;
+          color:#aeb4bf;
+          font-size:11px;
+          font-weight:800;
+          letter-spacing:.07em;
+          text-transform:uppercase;
+        ">
+          Onay
+
+          <input
+            id="deleteAccountConfirmation"
+            type="text"
+            autocomplete="off"
+            placeholder="HESABIMI SİL"
+            style="
+              width:100%;
+              box-sizing:border-box;
+              height:46px;
+              margin-top:7px;
+              padding:0 13px;
+              border-radius:12px;
+              border:1px solid rgba(255,255,255,.10);
+              background:#0f1116;
+              color:#f4f5f7;
+              outline:none;
+              font-size:13px;
+              font-weight:800;
+              letter-spacing:.04em;
+            "
+          >
+        </label>
+
+        <div style="
+          display:flex;
+          justify-content:flex-end;
+          gap:10px;
+        ">
+
+          <button
+            type="button"
+            id="deleteAccountCancel"
+            style="
+              min-height:46px;
+              padding:0 18px;
+              border-radius:12px;
+              border:1px solid rgba(255,255,255,.10);
+              background:rgba(255,255,255,.05);
+              color:#aeb4bf;
+              font-size:12px;
+              font-weight:900;
+              cursor:pointer;
+            "
+          >
+            Vazgeç
+          </button>
+
+          <button
+            type="button"
+            id="deleteAccountConfirm"
+            style="
+              min-height:46px;
+              padding:0 18px;
+              border-radius:12px;
+              border:1px solid rgba(255,80,80,.30);
+              background:rgba(255,70,70,.10);
+              color:#ff7777;
+              font-size:12px;
+              font-weight:900;
+              cursor:pointer;
+            "
+          >
+            Hesabı Kalıcı Olarak Sil
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+    document.body.appendChild(deleteBox);
+
+    const passwordInput =
+      deleteBox.querySelector("#deleteAccountPassword");
+
+    const confirmationInput =
+      deleteBox.querySelector("#deleteAccountConfirmation");
+
+    const cancelButton =
+      deleteBox.querySelector("#deleteAccountCancel");
+
+    const confirmButton =
+      deleteBox.querySelector("#deleteAccountConfirm");
+
+    cancelButton.addEventListener("click", () => {
+      deleteBox.remove();
+    });
+
+    confirmButton.addEventListener("click", async () => {
+
+      const password = passwordInput.value;
+      const confirmation =
+        confirmationInput.value.trim();
+
+      if (!password) {
+        alert("Şifreni girmelisin.");
+        passwordInput.focus();
+        return;
+      }
+
+      if (confirmation !== "HESABIMI SİL") {
+        alert('Onay alanına tam olarak "HESABIMI SİL" yazmalısın.');
+        confirmationInput.focus();
+        return;
+      }
+
+      const finalConfirm = confirm(
+        "Hesabın ve koleksiyonun kalıcı olarak silinecek. Devam etmek istediğine emin misin?"
+      );
+
+      if (!finalConfirm) {
+        return;
+      }
+
+      confirmButton.disabled = true;
+      cancelButton.disabled = true;
+      confirmButton.textContent = "Doğrulanıyor...";
+
+      try {
+
+        /*
+         * 1. Şifreyi tekrar doğrula
+         */
+        const { data: authData, error: authError } =
+          await supabaseClient.auth.signInWithPassword({
+            email: currentUser.email,
+            password
+          });
+
+        if (authError) {
+          throw new Error("Şifre yanlış. Hesap silme işlemi iptal edildi.");
+        }
+
+        /*
+         * 2. Yeni doğrulanmış session'ı kontrol et
+         */
+        const session =
+          authData.session;
+
+        if (!session?.access_token) {
+          throw new Error(
+            "Güvenli oturum doğrulanamadı."
+          );
+        }
+
+        confirmButton.textContent =
+          "Hesap siliniyor...";
+
+        /*
+         * 3. Server-side account deletion
+         */
+        const { data, error } =
+          await supabaseClient.functions.invoke(
+            "delete-account",
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${session.access_token}`
+              }
+            }
+          );
+
+        if (error) {
+          console.error(error);
+          throw new Error(
+            "Hesap silme sunucusunda bir hata oluştu."
+          );
+        }
+
+        if (!data?.success) {
+          throw new Error(
+            "Hesap silinemedi."
+          );
+        }
+
+        /*
+         * 4. Oturumu kapat
+         */
+        await supabaseClient.auth.signOut();
+
+        deleteBox.remove();
+
+        alert(
+          "Hesabın ve koleksiyonun başarıyla silindi."
+        );
+
+        window.location.href = "index.html";
+
+      } catch (error) {
+
+        console.error(
+          "Account deletion error:",
+          error
+        );
+
+        confirmButton.disabled = false;
+        cancelButton.disabled = false;
+        confirmButton.textContent =
+          "Hesabı Kalıcı Olarak Sil";
+
+        alert(
+          error.message ||
+          "Hesap silinirken bir hata oluştu."
+        );
+      }
+
+    });
+
+  });
+
+});
