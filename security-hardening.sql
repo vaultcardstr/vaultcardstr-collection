@@ -153,3 +153,39 @@ using (bucket_id = 'avatars' and owner_id = (select auth.uid()::text));
 revoke insert, update, delete on storage.objects from anon;
 grant select on storage.objects to anon, authenticated;
 grant insert, update, delete on storage.objects to authenticated;
+
+
+-- =========================================================
+-- 7) Safer defaults for future public-schema objects.
+--    Future tables will not automatically become reachable
+--    by anon/authenticated until we explicitly grant access.
+-- =========================================================
+
+alter default privileges for role postgres in schema public
+revoke select, insert, update, delete on tables from anon, authenticated;
+
+alter default privileges for role postgres in schema public
+revoke usage, select on sequences from anon, authenticated;
+
+
+-- =========================================================
+-- 8) Verification queries
+--    These are read-only. Run them after the migration.
+-- =========================================================
+
+-- Existing cards that do not have an owner yet.
+select count(*) as cards_without_owner
+from public.cards
+where owner_id is null;
+
+-- Old flat card-image objects. New uploads should be under <user-id>/...
+select count(*) as old_card_image_objects
+from storage.objects
+where bucket_id = 'card-images'
+  and (storage.foldername(name))[1] is null;
+
+-- Old flat avatar objects. New uploads should be under <user-id>/...
+select count(*) as old_avatar_objects
+from storage.objects
+where bucket_id = 'avatars'
+  and (storage.foldername(name))[1] is null;
