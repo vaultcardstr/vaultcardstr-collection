@@ -607,7 +607,133 @@
   </div>
 </div>
 
-  <script src="app.js"></script>
+  <script>
+document.addEventListener("click", async (e) => {
+  const cardEl = e.target.closest(".profile-card");
+
+  if (!cardEl) return;
+
+  const cardId = cardEl.dataset.id;
+
+  if (!cardId) return;
+
+  const { data: card, error } = await supabaseClient
+    .from("cards")
+    .select("*")
+    .eq("id", cardId)
+    .single();
+
+  if (error || !card) {
+    console.error(error);
+    return;
+  }
+
+  const modal = document.getElementById("cardModal");
+  const modalImage = document.getElementById("modalImage");
+  const modalBackImage = document.getElementById("modalBackImage");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalSubtitle = document.getElementById("modalSubtitle");
+  const modalCategory = document.getElementById("modalCategory");
+  const modalTags = document.getElementById("modalTags");
+  const modalDetails = document.getElementById("modalDetails");
+  const modalNote = document.getElementById("modalNote");
+  const modalImageNext = document.getElementById("modalImageNext");
+
+  const frontImage =
+    card.image_front_url ||
+    card.image_url ||
+    "";
+
+  const backImage =
+    card.image_back_url ||
+    "";
+
+  modalImage.src = frontImage;
+  modalImage.classList.remove("hidden");
+
+  if (modalBackImage) {
+    if (backImage) {
+      modalBackImage.src = backImage;
+    }
+
+    modalBackImage.classList.add("hidden");
+  }
+
+  modalTitle.textContent = card.player || "Kart";
+
+  modalSubtitle.textContent =
+    `${card.set || ""} · ${card.year || ""}`;
+
+  modalCategory.textContent =
+    card.category || "";
+
+  modalTags.innerHTML = `
+    ${card.grade && card.grade !== "—"
+      ? `<span class="tag">${card.grade}</span>`
+      : ""}
+    ${card.for_sale
+      ? `<span class="tag">SATILIK</span>`
+      : ""}
+  `;
+
+  modalDetails.innerHTML = `
+    <div>
+      <strong>Kart</strong>
+      <span>${card.card_number || "—"}</span>
+    </div>
+
+    <div>
+      <strong>Yıl</strong>
+      <span>${card.year || "—"}</span>
+    </div>
+
+    <div>
+      <strong>Tahmini Değer</strong>
+      <span>$${Number(card.estimated_value || 0).toLocaleString("en-US")}</span>
+    </div>
+
+    <div>
+      <strong>Alış Fiyatı</strong>
+      <span>${card.purchase_price || "—"} TL</span>
+    </div>
+  `;
+
+  modalNote.textContent =
+    card.notes || "";
+
+  modal.classList.remove("hidden");
+
+  let showingBack = false;
+
+  if (modalImageNext) {
+    modalImageNext.onclick = (event) => {
+      event.stopPropagation();
+
+      if (!backImage) return;
+
+      showingBack = !showingBack;
+
+      if (showingBack) {
+        modalImage.classList.add("hidden");
+        modalBackImage.classList.remove("hidden");
+        modalImageNext.textContent = "←";
+      } else {
+        modalBackImage.classList.add("hidden");
+        modalImage.classList.remove("hidden");
+        modalImageNext.textContent = "→";
+      }
+    };
+  }
+});
+
+document.getElementById("modalClose")?.addEventListener("click", () => {
+  document.getElementById("cardModal")?.classList.add("hidden");
+});
+
+document.querySelector("[data-close-modal]")?.addEventListener("click", () => {
+  document.getElementById("cardModal")?.classList.add("hidden");
+});
+</script>
 
 </body>
 </html>
