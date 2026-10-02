@@ -229,6 +229,49 @@
       letter-spacing: .05em;
     }
 
+    .profile-card-badges {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: calc(100% - 20px);
+}
+
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: rgba(12,14,18,.88);
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.profile-badge.rookie {
+  color: #ffb45f;
+  border-color: rgba(255,157,46,.35);
+}
+
+.profile-badge.numbered {
+  color: #d9dde5;
+  border-color: rgba(255,255,255,.18);
+}
+
+.profile-badge.autograph {
+  color: #f4d58a;
+  border-color: rgba(244,213,138,.35);
+}
+
     .profile-card-info {
       padding: 16px;
     }
@@ -625,7 +668,25 @@ supabaseClient.auth.getUser().then(({ data }) => {
                       ? `<span class="profile-sale">SATILIK</span>`
                       : ""
                   }
+<div class="profile-card-badges">
+  ${
+    card.rookie
+      ? `<span class="profile-badge rookie">ROOKIE</span>`
+      : ""
+  }
 
+  ${
+    card.serial_number
+      ? `<span class="profile-badge numbered">NUMBERED ${escapeHtml(card.serial_number)}</span>`
+      : ""
+  }
+
+  ${
+    card.autograph
+      ? `<span class="profile-badge autograph">AUTOGRAPH</span>`
+      : ""
+  }
+</div>
                   <img
                     src="${escapeHtml(image)}"
                     alt="${escapeHtml(card.player || "Kart")}"
