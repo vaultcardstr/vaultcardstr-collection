@@ -874,9 +874,15 @@ supabaseClient.auth.getUser().then(({ data }) => {
                 <label>
                   Kategori
                   <select id="peCategory">
-                    <option value="Football" ${card.category === "Football" ? "selected" : ""}>Football</option>
-                    <option value="Basketball" ${card.category === "Basketball" ? "selected" : ""}>Basketball</option>
-                  </select>
+  <option value="Football">Football</option>
+  <option value="Basketball">Basketball</option>
+  <option value="Baseball">Baseball</option>
+  <option value="American Football">American Football</option>
+  <option value="Hockey">Hockey</option>
+  <option value="Tennis">Tennis</option>
+  <option value="F1 / Motorsport">F1 / Motorsport</option>
+  <option value="Other">Other</option>
+</select>
                 </label>
 
                 <label>
