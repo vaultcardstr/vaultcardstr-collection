@@ -340,7 +340,7 @@ async function renderUsers() {
   grid.querySelectorAll(".view-user-collection").forEach(button => {
     button.addEventListener("click", e => {
       const userId = e.target.closest(".user-card").dataset.userId;
-      location.hash = `user/${userId}`;
+    window.location.href = `profile.html?user=${encodeURIComponent(userId)}`;
     });
   });
 }
