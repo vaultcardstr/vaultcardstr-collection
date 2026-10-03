@@ -723,7 +723,7 @@
 <body>
 
   <header class="site-header">
-    <div class="nav-inner">
+    <div class="container header-inner">
 
       <a href="index.html#home" class="brand">
         <span class="brand-mark">
@@ -742,6 +742,8 @@
         <a href="pc.html" id="profilePcLink">PC'ler</a>
         <a href="growth.html" id="profileGrowthLink">📈 Collection Growth</a>
       </nav>
+
+      <button class="nav-toggle" id="profileNavToggle" aria-label="Menüyü aç/kapat">☰</button>
 
     </div>
   </header>
@@ -823,6 +825,20 @@
 
     const profilePcLink = document.getElementById("profilePcLink");
     const profileGrowthLink = document.getElementById("profileGrowthLink");
+    const profileNavToggle = document.getElementById("profileNavToggle");
+    const profileMainNav = document.querySelector(".main-nav");
+
+    if (profileNavToggle && profileMainNav) {
+      profileNavToggle.addEventListener("click", () => {
+        profileMainNav.classList.toggle("open");
+      });
+
+      profileMainNav.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", () => {
+          profileMainNav.classList.remove("open");
+        });
+      });
+    }
 
     if (profilePcLink && userId) {
       profilePcLink.href = `pc.html?user=${encodeURIComponent(userId)}`;
