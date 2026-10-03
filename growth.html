@@ -307,7 +307,7 @@
 
       const { data: liveCards, error: cardsError } = await supabaseClient
         .from("cards")
-        .select("id,estimated_value");
+        .select("id,estimated_value,owner_id");
 
       const filteredCards = userId
         ? (liveCards || []).filter(card => card.owner_id === userId)
