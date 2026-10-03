@@ -249,10 +249,9 @@
       feed.querySelectorAll("[data-feed-next]").forEach(btn => {
         btn.addEventListener("click", () => {
           const current = btn.closest(".vault-feed-post");
-          const next = current?.nextElementSibling;
-          if (next) {
-            feed.scrollTo({
-              top: next.offsetTop - feed.offsetTop,
+          if (current) {
+            feed.scrollBy({
+              top: current.getBoundingClientRect().height + 18,
               behavior: "smooth"
             });
           }
