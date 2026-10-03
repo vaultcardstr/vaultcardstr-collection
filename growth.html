@@ -153,9 +153,15 @@
 
     #growthChart {
       width: 100%;
-      min-width: 650px;
-      height: 360px;
+      min-width: 760px;
+      height: 420px;
       display: block;
+    }
+
+    .growth-legend-note {
+      margin-top: 10px;
+      color: rgba(255,255,255,.52);
+      font-size: 12px;
     }
 
     .status {
@@ -234,8 +240,9 @@
         </div>
 
         <div class="growth-badge">
-          📈 Collection Growth
+          📈 Collection Growth · 3 Metrics
         </div>
+        <div class="growth-legend-note">🟦 Cards · 🟩 Total Value · 🟨 Value / Card</div>
 
       </div>
 
@@ -260,320 +267,190 @@
   VaultCardsTR · Collection Growth
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-  const SUPABASE_URL =
-    "https://cigyrtxmovuvkvwirehe.supabase.co";
-
-const SUPABASE_ANON_KEY =
-  "sb_publishable_m21U8kBhV38j8ipLdgrttA_bG6rPAQy"
-
+  const supabaseClient = window.supabase.createClient(
+    window.FG_CONFIG.SUPABASE_URL,
+    window.FG_CONFIG.SUPABASE_KEY
+  );
 
   const params = new URLSearchParams(window.location.search);
   const userId = params.get("user");
 
   async function loadGrowthData() {
-
-    const totalElement =
-      document.getElementById("growthTotal");
-
-    const chart =
-      document.getElementById("growthChart");
-
-    const status =
-      document.getElementById("growthStatus");
-
-    const titleElement =
-      document.getElementById("growthTitle");
-
+    const totalElement = document.getElementById("growthTotal");
+    const chart = document.getElementById("growthChart");
+    const status = document.getElementById("growthStatus");
+    const titleElement = document.getElementById("growthTitle");
 
     try {
-
       if (userId) {
-        const profileResponse = await fetch(
-          SUPABASE_URL + "/rest/v1/profiles?id=eq." + encodeURIComponent(userId) + "&select=username",
-          {
-            headers: {
-              "apikey": SUPABASE_ANON_KEY,
-              "Authorization": "Bearer " + SUPABASE_ANON_KEY
-            }
-          }
-        );
+        const { data: profile } = await supabaseClient
+          .from("profiles")
+          .select("username")
+          .eq("id", userId)
+          .maybeSingle();
 
-        if (profileResponse.ok) {
-          const profiles = await profileResponse.json();
-          if (profiles[0]?.username) {
-            titleElement.textContent = profiles[0].username + "'s Collection Growth";
-          }
+        if (profile?.username) {
+          titleElement.textContent = profile.username + "'s Collection Growth";
         }
       }
 
-      const cardsUrl = userId
-        ? SUPABASE_URL + "/rest/v1/cards?select=id,acquired_date,created_at&owner_id=eq." + encodeURIComponent(userId) + "&order=acquired_date.asc"
-        : SUPABASE_URL + "/rest/v1/cards?select=id,acquired_date,created_at&order=acquired_date.asc";
+      const { data: snapshots, error: historyError } = await supabaseClient
+        .from("collection_growth_history")
+        .select("snapshot_date,total_cards,total_value,value_per_card")
+        .eq("owner_id", userId)
+        .order("snapshot_date", { ascending: true });
 
-      const response = await fetch(
-        cardsUrl,
-        {
-          headers: {
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization": "Bearer " + SUPABASE_ANON_KEY
-          }
-        }
+      if (historyError) throw historyError;
+
+      const { data: liveCards, error: cardsError } = await supabaseClient
+        .from("cards")
+        .select("id,estimated_value");
+
+      const filteredCards = userId
+        ? (liveCards || []).filter(card => card.owner_id === userId)
+        : (liveCards || []);
+
+      if (cardsError) throw cardsError;
+
+      const currentCards = filteredCards.length;
+      const currentValue = filteredCards.reduce(
+        (sum, card) => sum + (Number(card.estimated_value) || 0),
+        0
+      );
+      const currentPerCard = currentCards ? currentValue / currentCards : 0;
+
+      totalElement.textContent = currentCards;
+
+      const today = new Date().toISOString().slice(0, 10);
+      const pointsByDate = new Map(
+        (snapshots || []).map(row => [row.snapshot_date, {
+          snapshot_date: row.snapshot_date,
+          total_cards: Number(row.total_cards) || 0,
+          total_value: Number(row.total_value) || 0,
+          value_per_card: Number(row.value_per_card) || 0
+        }])
       );
 
-
-      if (!response.ok) {
-        throw new Error("Cards could not be loaded.");
-      }
-
-
-      const cards = await response.json();
-
-
-      totalElement.textContent = cards.length;
-
-
-      if (!cards.length) {
-
-        status.textContent =
-          "No cards found in the collection.";
-
-        return;
-      }
-
-
-      /*
-        Use acquired_date when available.
-        If it is missing, use created_at.
-
-        This prevents the graph from being blank
-        for cards that don't have acquired_date.
-      */
-
-      const dates = cards
-        .map(card => {
-
-          const date =
-            card.acquired_date ||
-            card.created_at;
-
-          return date
-            ? new Date(date)
-            : null;
-
-        })
-        .filter(date =>
-          date &&
-          !isNaN(date.getTime())
-        )
-        .sort((a, b) => a - b);
-
-
-      if (!dates.length) {
-
-        status.textContent =
-          "There is not enough date information to create the graph.";
-
-        return;
-      }
-
-
-      const dailyCounts = {};
-
-
-      dates.forEach(date => {
-
-        const key =
-          date.toISOString().slice(0, 10);
-
-        dailyCounts[key] =
-          (dailyCounts[key] || 0) + 1;
-
+      pointsByDate.set(today, {
+        snapshot_date: today,
+        total_cards: currentCards,
+        total_value: currentValue,
+        value_per_card: currentPerCard
       });
 
+      const points = [...pointsByDate.values()].sort(
+        (a, b) => new Date(a.snapshot_date) - new Date(b.snapshot_date)
+      );
 
-      let cumulative = 0;
+      if (!points.length) {
+        chart.innerHTML = "";
+        status.textContent = "Henüz büyüme verisi yok.";
+        return;
+      }
 
+      const width = 1100;
+      const height = 420;
+      const padLeft = 60;
+      const padRight = 30;
+      const padTop = 55;
+      const padBottom = 55;
+      const plotWidth = width - padLeft - padRight;
+      const plotHeight = height - padTop - padBottom;
 
-      const points = Object.entries(dailyCounts)
-        .map(([date, count]) => {
+      const maxCards = Math.max(...points.map(p => p.total_cards), 1);
+      const maxValue = Math.max(...points.map(p => p.total_value), 1);
+      const maxPerCard = Math.max(...points.map(p => p.value_per_card), 1);
 
-          cumulative += count;
+      const x = index =>
+        points.length === 1
+          ? padLeft + plotWidth / 2
+          : padLeft + (index / (points.length - 1)) * plotWidth;
 
-          return {
-            date,
-            count: cumulative
-          };
+      const y = (value, max) =>
+        padTop + plotHeight - (value / max) * plotHeight;
 
+      const series = [
+        { key: "total_cards", max: maxCards, color: "#68a9ff", label: "Cards" },
+        { key: "total_value", max: maxValue, color: "#63d4a3", label: "Total Value" },
+        { key: "value_per_card", max: maxPerCard, color: "#f2c14e", label: "Value / Card" }
+      ];
+
+      const grid = [0, .25, .5, .75, 1].map(t => {
+        const yy = padTop + plotHeight - t * plotHeight;
+        return `
+          <line x1="${padLeft}" y1="${yy}" x2="${width - padRight}" y2="${yy}" stroke="rgba(255,255,255,.07)" />
+        `;
+      }).join("");
+
+      const labels = points.map((point, index) => {
+        const d = new Date(point.snapshot_date);
+        const label = d.toLocaleDateString("tr-TR", {
+          day: "2-digit",
+          month: "short"
         });
+        return `
+          <text x="${x(index)}" y="${height - 16}" text-anchor="middle" fill="rgba(255,255,255,.52)" font-size="11">${label}</text>
+        `;
+      }).join("");
 
-
-      const width = 900;
-      const height = 360;
-      const paddingX = 45;
-      const paddingY = 40;
-
-
-      const maxValue =
-        Math.max(
-          ...points.map(point => point.count),
-          1
-        );
-
-
-      function x(index) {
-
-        if (points.length === 1) {
-          return width / 2;
-        }
-
-        return (
-          paddingX +
-          index *
-          (
-            (width - paddingX * 2) /
-            (points.length - 1)
-          )
-        );
-
-      }
-
-
-      function y(value) {
-
-        return (
-          height -
-          paddingY -
-          (
-            value / maxValue
-          ) *
-          (
-            height -
-            paddingY * 2
-          )
-        );
-
-      }
-
-
-      const linePoints =
-        points
-          .map((point, index) =>
-            `${x(index)},${y(point.count)}`
-          )
+      const lines = series.map(s => {
+        const coords = points
+          .map((p, i) => `${x(i)},${y(Number(p[s.key]) || 0, s.max)}`)
           .join(" ");
 
+        const dots = points.map((p, i) => `
+          <circle
+            cx="${x(i)}"
+            cy="${y(Number(p[s.key]) || 0, s.max)}"
+            r="4.5"
+            fill="${s.color}"
+          />
+        `).join("");
 
-      const circles =
-        points
-          .map((point, index) => `
-            <circle
-              cx="${x(index)}"
-              cy="${y(point.count)}"
-              r="5"
-              fill="#ff9d2e"
-            />
-          `)
-          .join("");
+        return `
+          <polyline
+            points="${coords}"
+            fill="none"
+            stroke="${s.color}"
+            stroke-width="3.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          ${dots}
+        `;
+      }).join("");
 
-
-      const labels =
-        points
-          .map((point, index) => {
-
-            const date =
-              new Date(point.date);
-
-            return `
-              <text
-                x="${x(index)}"
-                y="${height - 10}"
-                text-anchor="middle"
-                fill="rgba(255,255,255,.5)"
-                font-size="11"
-              >
-                ${date.getDate()}/${date.getMonth() + 1}
-              </text>
-            `;
-
-          })
-          .join("");
-
-
-      const gridLines = [0, .25, .5, .75, 1]
-        .map(value => {
-
-          const yy =
-            height -
-            paddingY -
-            value *
-            (height - paddingY * 2);
-
-          const number =
-            Math.round(value * maxValue);
-
-          return `
-            <line
-              x1="${paddingX}"
-              y1="${yy}"
-              x2="${width - paddingX}"
-              y2="${yy}"
-              stroke="rgba(255,255,255,.08)"
-            />
-
-            <text
-              x="8"
-              y="${yy + 4}"
-              fill="rgba(255,255,255,.4)"
-              font-size="11"
-            >
-              ${number}
-            </text>
-          `;
-
-        })
-        .join("");
-
+      const legend = series.map((s, i) => `
+        <g transform="translate(${i * 190} 0)">
+          <circle cx="0" cy="-3" r="5" fill="${s.color}" />
+          <text x="11" y="1" fill="rgba(255,255,255,.78)" font-size="12">${s.label}</text>
+        </g>
+      `).join("");
 
       chart.innerHTML = `
-
-        ${gridLines}
-
-        <polyline
-          points="${linePoints}"
-          fill="none"
-          stroke="#ff9d2e"
-          stroke-width="4"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-
-        ${circles}
-
+        ${grid}
+        ${lines}
         ${labels}
-
+        <g transform="translate(75 20)">
+          ${legend}
+        </g>
       `;
 
-
       status.textContent =
-        `Showing ${points.length} day${points.length === 1 ? "" : "s"} of collection growth.`;
-
+        `${points.length} snapshot · 🟦 Cards · 🟩 Total Value · 🟨 Value / Card`;
 
     } catch (error) {
-
       console.error(error);
-
+      chart.innerHTML = "";
       status.textContent =
-        "Collection data could not be loaded.";
-
+        "Collection Growth kurulumu tamamlanmamış olabilir. Önce collection-growth.sql dosyasını Supabase SQL Editor'da çalıştır.";
     }
-
   }
 
-
   loadGrowthData();
-
 </script>
 
 </body>
