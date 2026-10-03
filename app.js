@@ -495,9 +495,103 @@ function renderHero() {
     }, { once: true });
   });
 }
+
+function renderRandomCard() {
+  const slot = $("#randomCardSlot");
+  if (!slot) return;
+
+  if (!cards.length) {
+    slot.innerHTML = '<div class="trade-match-message">Henüz kart bulunamadı.</div>';
+    return;
+  }
+
+  const card = cards[Math.floor(Math.random() * cards.length)];
+  slot.innerHTML = cardMarkup(card);
+  bindCardClicks(slot);
+}
+
+async function renderTradeMatch() {
+  const login = $("#tradeMatchLogin");
+  const empty = $("#tradeMatchEmpty");
+  const content = $("#tradeMatchContent");
+  const select = $("#tradeCardSelect");
+  const results = $("#tradeMatchResults");
+
+  if (!login || !empty || !content || !select || !results) return;
+
+  login.classList.add("hidden");
+  empty.classList.add("hidden");
+  content.classList.add("hidden");
+
+  if (!currentUser) {
+    login.classList.remove("hidden");
+    return;
+  }
+
+  const myTradeCards = cards.filter(c => c.owner_id === currentUser.id && c.for_trade);
+
+  if (!myTradeCards.length) {
+    empty.classList.remove("hidden");
+    return;
+  }
+
+  content.classList.remove("hidden");
+
+  select.innerHTML = myTradeCards.map(c =>
+    `<option value="${escapeHtml(c.id)}">${escapeHtml(c.player)} — ${escapeHtml(c.set || "Kart")}</option>`
+  ).join("");
+
+  const renderMatches = () => {
+    const selected = myTradeCards.find(c => String(c.id) === String(select.value));
+    if (!selected) {
+      results.innerHTML = "";
+      return;
+    }
+
+    const candidates = cards
+      .filter(c => c.owner_id && c.owner_id !== currentUser.id && c.for_trade)
+      .map(c => {
+        let score = 0;
+        if (String(c.player || "").trim().toLowerCase() === String(selected.player || "").trim().toLowerCase()) score += 5;
+        if (String(c.team || "").trim().toLowerCase() && String(c.team || "").trim().toLowerCase() === String(selected.team || "").trim().toLowerCase()) score += 3;
+        if (String(c.category || "").trim().toLowerCase() === String(selected.category || "").trim().toLowerCase()) score += 1;
+        return { card: c, score };
+      })
+      .filter(x => x.score > 0)
+      .sort((a,b) => b.score - a.score)
+      .slice(0, 6);
+
+    if (!candidates.length) {
+      results.innerHTML = '<div class="trade-match-message">Şu anda uygun bir potansiyel eşleşme bulunamadı.</div>';
+      return;
+    }
+
+    results.innerHTML = candidates.map(({card, score}) => {
+      const owner = collectorProfiles.find(p => p.id === card.owner_id);
+      const image = card.image || fallbackImage(card);
+      const matchText = score >= 5 ? "Aynı oyuncu" : score >= 3 ? "Aynı takım" : "Aynı kategori";
+      return `
+        <article class="trade-match-card card-item" data-id="${escapeHtml(card.id)}" tabindex="0">
+          <img src="${escapeHtml(image)}" alt="${escapeHtml(card.player)} kartı" loading="lazy">
+          <strong>${escapeHtml(card.player)}</strong>
+          <small>${escapeHtml(owner?.username || "Koleksiyoner")} · ${escapeHtml(card.set || "Kart")}</small>
+          <span class="trade-match-score">${matchText}</span>
+        </article>
+      `;
+    }).join("");
+
+    bindCardClicks(results);
+  };
+
+  select.onchange = renderMatches;
+  renderMatches();
+}
+
 function renderAll() {
   renderStats();
   renderHero();
+  renderRandomCard();
+  renderTradeMatch();
 
   const h = location.hash.replace("#", "");
 
