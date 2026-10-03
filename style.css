@@ -2487,3 +2487,280 @@ code { color:#d7ff3f; }
     width: calc(100vw - 24px);
   }
 }
+
+
+/* =========================
+   VAULT FEED / COMMUNITY POLISH
+========================= */
+.vault-feed-next{
+  position:absolute;
+  left:50%;
+  bottom:16px;
+  z-index:5;
+  width:44px;
+  height:44px;
+  transform:translateX(-50%);
+  border:1px solid rgba(255,157,46,.75);
+  border-radius:50%;
+  background:linear-gradient(145deg,rgba(24,27,34,.96),rgba(9,11,15,.96));
+  color:#ffb45f;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  font-size:0;
+  line-height:1;
+  backdrop-filter:blur(10px);
+  box-shadow:0 10px 28px rgba(0,0,0,.42), inset 0 0 0 1px rgba(255,255,255,.03);
+  transition:transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.vault-feed-next::before{
+  content:"";
+  width:10px;
+  height:10px;
+  border-right:2px solid currentColor;
+  border-bottom:2px solid currentColor;
+  transform:rotate(45deg) translateY(-2px);
+}
+.vault-feed-next:hover{
+  transform:translateX(-50%) translateY(-3px) scale(1.05);
+  background:linear-gradient(145deg,rgba(255,157,46,.18),rgba(18,20,25,.98));
+  border-color:rgba(255,184,95,.95);
+  box-shadow:0 14px 34px rgba(0,0,0,.5), 0 0 0 4px rgba(255,157,46,.08);
+}
+.vault-feed-next:active{
+  transform:translateX(-50%) translateY(-1px) scale(.97);
+}
+
+.vault-feed-page .section-heading{
+  margin-bottom:24px;
+}
+.vault-feed-page{
+  max-width:980px;
+}
+.vault-feed-page .section-heading > div{
+  width:100%;
+}
+.vault-feed-list{
+  width:min(780px,100%);
+  height:min(78vh,760px);
+  gap:20px;
+  margin:0 auto;
+  padding:4px 8px 24px;
+  scroll-padding-top:4px;
+}
+.vault-feed-post{
+  width:min(720px,100%);
+  height:min(78vh,760px);
+  grid-template-columns:minmax(0,1fr) 74px;
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 80% 10%, rgba(255,157,46,.07), transparent 32%),
+    linear-gradient(145deg,#10141b,#090b10);
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 28px 80px rgba(0,0,0,.40), 0 0 0 1px rgba(255,157,46,.025);
+}
+.vault-feed-media{
+  background:
+    radial-gradient(circle at 50% 25%, rgba(255,255,255,.045), transparent 48%),
+    #06080c;
+}
+.vault-feed-media img{
+  padding:28px;
+  object-fit:contain;
+}
+.vault-feed-media:after{
+  background:
+    linear-gradient(to top,rgba(0,0,0,.90),transparent 42%),
+    linear-gradient(to bottom,rgba(0,0,0,.18),transparent 25%);
+}
+.vault-feed-info{
+  left:28px;
+  right:24px;
+  bottom:28px;
+}
+.vault-feed-avatar{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  border-color:rgba(255,157,46,.65);
+  box-shadow:0 8px 20px rgba(0,0,0,.28);
+}
+.vault-feed-user{
+  gap:11px;
+  margin-bottom:13px;
+}
+.vault-feed-user strong{
+  font-size:13px;
+  color:#f1f3f6;
+}
+.vault-feed-info h3{
+  margin-bottom:7px;
+  font-size:28px;
+  letter-spacing:-.025em;
+}
+.vault-feed-info p{
+  color:rgba(255,255,255,.58);
+  font-size:12px;
+}
+.vault-feed-actions{
+  justify-content:center;
+  gap:9px;
+  padding:0 10px 24px;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(0,0,0,.10));
+  border-left:1px solid rgba(255,255,255,.07);
+}
+.vault-feed-action{
+  width:48px;
+  height:48px;
+  border-radius:16px;
+  background:rgba(255,255,255,.035);
+  border-color:rgba(255,255,255,.10);
+  font-size:22px;
+  box-shadow:0 8px 22px rgba(0,0,0,.24);
+}
+.vault-feed-count{
+  font-size:10px;
+  color:#8e96a3;
+  margin-bottom:7px;
+}
+.vault-feed-comments{
+  padding:18px 20px;
+  background:linear-gradient(180deg,#10141b,#0b0e14);
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.vault-feed-comments-list{
+  gap:10px;
+  max-height:150px;
+  margin-bottom:12px;
+}
+.vault-feed-comment{
+  padding:9px 11px;
+  border-radius:11px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.06);
+  color:#bfc5cf;
+}
+.vault-feed-comment strong{
+  color:#fff;
+}
+.vault-feed-comment-form{
+  gap:10px;
+}
+.vault-feed-comment-form input{
+  height:44px;
+  border-radius:12px;
+  border-color:rgba(255,255,255,.11);
+  background:#080b10;
+}
+.vault-feed-comment-form input:focus{
+  border-color:rgba(255,157,46,.55);
+  box-shadow:0 0 0 3px rgba(255,157,46,.08);
+}
+.vault-feed-comment-form button{
+  height:44px;
+  min-width:104px;
+  padding:0 17px;
+  border:1px solid rgba(255,157,46,.45);
+  border-radius:12px;
+  background:linear-gradient(135deg,#ff9d2e,#e57d11);
+  color:#0b0d10;
+  font-weight:900;
+  box-shadow:0 10px 24px rgba(255,157,46,.18);
+  transition:transform .2s ease, filter .2s ease, box-shadow .2s ease;
+}
+.vault-feed-comment-form button:hover:not(:disabled){
+  transform:translateY(-2px);
+  filter:brightness(1.05);
+  box-shadow:0 13px 30px rgba(255,157,46,.25);
+}
+.vault-feed-comment-form button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+
+.community-random-slot{
+  min-height:430px;
+  padding:18px;
+  border-radius:22px;
+  background:radial-gradient(circle at 50% 20%, rgba(255,157,46,.07), transparent 42%),rgba(255,255,255,.012);
+}
+.community-random-slot .card-item{
+  width:min(290px,100%);
+  filter:drop-shadow(0 20px 35px rgba(0,0,0,.45));
+}
+.community-random-slot .card-item:hover{
+  transform:translateY(-6px);
+}
+.community-random-actions{
+  margin-top:16px;
+}
+#randomCardBtn{
+  min-height:48px;
+  padding:0 22px;
+  border-radius:14px;
+  border:1px solid rgba(255,157,46,.55);
+  background:linear-gradient(135deg,rgba(255,157,46,.16),rgba(255,157,46,.06));
+  color:#ffd09a;
+  font-weight:900;
+  letter-spacing:.01em;
+  box-shadow:0 10px 26px rgba(0,0,0,.25);
+  transition:transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+#randomCardBtn:hover{
+  transform:translateY(-2px);
+  background:linear-gradient(135deg,rgba(255,157,46,.25),rgba(255,157,46,.08));
+  border-color:rgba(255,190,110,.9);
+  box-shadow:0 14px 32px rgba(0,0,0,.35);
+}
+#randomCardBtn:active{
+  transform:translateY(0) scale(.98);
+}
+
+@media(max-width:600px){
+  .vault-feed-list{
+    height:min(76vh,700px);
+    gap:14px;
+    padding:2px 4px 16px;
+  }
+  .vault-feed-post{
+    width:100%;
+    height:min(76vh,700px);
+    grid-template-columns:minmax(0,1fr) 58px;
+    border-radius:22px;
+  }
+  .vault-feed-media img{
+    padding:20px;
+  }
+  .vault-feed-info{
+    left:18px;
+    right:14px;
+    bottom:19px;
+  }
+  .vault-feed-info h3{
+    font-size:21px;
+  }
+  .vault-feed-action{
+    width:40px;
+    height:40px;
+    border-radius:13px;
+    font-size:18px;
+  }
+  .vault-feed-next{
+    width:40px;
+    height:40px;
+    bottom:11px;
+  }
+  .vault-feed-comment-form{
+    gap:7px;
+  }
+  .vault-feed-comment-form button{
+    min-width:86px;
+    padding:0 12px;
+  }
+  #randomCardBtn{
+    min-height:44px;
+    padding:0 17px;
+    font-size:11px;
+  }
+}
