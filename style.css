@@ -1941,3 +1941,7 @@ code { color:#d7ff3f; }
   background: rgba(255,157,46,.08);
   color: #ffb45f;
 }
+
+
+/* FOR TRADE */
+.trade-tag{border-color:rgba(70,180,255,.28);background:rgba(70,180,255,.08);color:#74c8ff;}
