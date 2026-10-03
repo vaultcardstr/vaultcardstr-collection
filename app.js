@@ -438,33 +438,27 @@ function renderFeatured() {
   bindCardClicks($("#featuredGrid"));
 }
 async function renderStats() {
-  // 1) Sitedeki toplam kart
-  $("#statTotal").textContent = cards.length;
-
-  // 2) Sitedeki tüm kartların toplam tahmini değeri
-  const totalEstimatedValue = cards.reduce((total, card) => {
-    return total + (Number(card.estimated_value) || 0);
-  }, 0);
-
-  $("#statEstimatedValue").textContent =
-    `$${totalEstimatedValue.toLocaleString("en-US")}`;
-
-  // 3) Sitedeki toplam koleksiyoner
-  // Her profil bir koleksiyoner olarak sayılır.
   if (liveMode && supabaseClient) {
-    const { count, error } = await supabaseClient
-      .from("profiles")
-      .select("id", { count: "exact", head: true });
+    const [cardsCountRes, cardsValueRes, profilesRes] = await Promise.all([
+      supabaseClient.from("cards").select("id", { count: "exact", head: true }),
+      supabaseClient.from("cards").select("estimated_value"),
+      supabaseClient.from("profiles").select("id", { count: "exact", head: true })
+    ]);
 
-    if (error) {
-      console.error("Collector count error:", error);
-      $("#statCollectors").textContent = "0";
-      return;
-    }
+    $("#statTotal").textContent = !cardsCountRes.error ? (cardsCountRes.count ?? 0) : cards.length;
 
-    $("#statCollectors").textContent = count ?? 0;
+    const valueRows = !cardsValueRes.error ? (cardsValueRes.data || []) : cards;
+    const totalValue = valueRows.reduce((sum, card) => sum + (Number(card.estimated_value) || 0), 0);
+    $("#statEstimatedValue").textContent = "$" + totalValue.toLocaleString("en-US", { maximumFractionDigits: 0 });
+
+    $("#statCollectors").textContent = !profilesRes.error
+      ? (profilesRes.count ?? 0)
+      : (collectorProfiles.length || 0);
   } else {
-    $("#statCollectors").textContent = "0";
+    $("#statTotal").textContent = cards.length;
+    const totalValue = cards.reduce((sum, card) => sum + (Number(card.estimated_value) || 0), 0);
+    $("#statEstimatedValue").textContent = "$" + totalValue.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    $("#statCollectors").textContent = collectorProfiles.length || 0;
   }
 }
 function renderHero() {
