@@ -249,12 +249,13 @@
       feed.querySelectorAll("[data-feed-next]").forEach(btn => {
         btn.addEventListener("click", () => {
           const current = btn.closest(".vault-feed-post");
-          if (current) {
-            feed.scrollBy({
-              top: current.getBoundingClientRect().height + 18,
-              behavior: "smooth"
-            });
-          }
+          const next = current?.nextElementSibling;
+          if (!current || !next?.classList.contains("vault-feed-post")) return;
+
+          next.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
         });
       });
 
