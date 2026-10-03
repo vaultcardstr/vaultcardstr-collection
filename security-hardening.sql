@@ -4,6 +4,7 @@
 -- Signed-in users can only modify their own records/files.
 
 alter table public.cards add column if not exists owner_id uuid;
+alter table public.cards add column if not exists for_trade boolean not null default false;
 create index if not exists cards_owner_id_idx on public.cards (owner_id);
 alter table public.cards enable row level security;
 
