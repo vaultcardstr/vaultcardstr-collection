@@ -605,6 +605,14 @@ async function loadVaultFeedData() {
     return;
   }
 
+  if (!collectorProfiles.length) {
+    const { data: profiles } = await supabaseClient
+      .from("profiles")
+      .select("id, username, avatar_url, created_at")
+      .order("created_at", { ascending: false });
+    collectorProfiles = profiles || [];
+  }
+
   const [likesRes, commentsRes] = await Promise.all([
     supabaseClient.from("card_likes").select("card_id,user_id"),
     supabaseClient.from("card_comments").select("id,card_id,user_id,body,created_at").order("created_at", { ascending: false })
