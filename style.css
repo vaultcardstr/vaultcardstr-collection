@@ -1949,23 +1949,17 @@ code { color:#d7ff3f; }
 
 /* COMMUNITY TOOLS */
 
-.stat-collector-card{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px;
-}
-.stat-collector-main{min-width:0}
-.stat-collector-number{display:flex;align-items:center;gap:8px}
-.stat-collector-number .stat-value{display:inline-block}
+.stat-feed-cta{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:7px}
+.stat-feed-cta-label{font-size:9px;font-weight:900;letter-spacing:.14em;color:var(--accent)}
+.stat-feed-cta strong{font-size:20px;line-height:1}
 .stat-feed-btn{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-height:52px;
-  padding:0 18px;
+  min-height:44px;
+  padding:0 15px;
   border:1px solid rgba(255,157,46,.42);
-  border-radius:13px;
+  border-radius:12px;
   background:linear-gradient(135deg,rgba(255,157,46,.13),rgba(255,157,46,.05));
   color:#ffb45f;
   text-decoration:none;
@@ -1974,6 +1968,7 @@ code { color:#d7ff3f; }
   letter-spacing:.02em;
   transition:.2s ease;
   white-space:nowrap;
+  margin-top:3px;
 }
 .stat-feed-btn:hover{
   background:rgba(255,157,46,.18);
