@@ -157,6 +157,41 @@
     }
   }
 </style>
+<section class="section container vault-tools-section" id="randomTradeTools">
+  <div class="section-heading">
+    <div>
+      <div class="eyebrow">COMMUNITY TOOLS</div>
+      <h2>Random Card & Trade Match</h2>
+      <p class="section-note">Koleksiyondan rastgele bir kart keşfet veya takaslık kartlar arasında potansiyel eşleşmeler bul.</p>
+    </div>
+  </div>
+
+  <div class="vault-tools-grid">
+    <div class="vault-tool-card">
+      <div class="eyebrow">RANDOM CARD</div>
+      <div id="randomCardSlot" class="random-card-slot"></div>
+      <button class="btn btn-primary" id="randomCardBtn" type="button">🎲 Random Card</button>
+    </div>
+
+    <div class="vault-tool-card">
+      <div class="eyebrow">TRADE MATCH</div>
+      <div id="tradeMatchLogin" class="trade-match-message hidden">
+        Trade Match'i kullanmak için hesabına giriş yap.
+      </div>
+      <div id="tradeMatchEmpty" class="trade-match-message hidden">
+        Henüz takaslık kartın yok. Koleksiyonundan bir kartı <strong>Takaslık</strong> olarak işaretle.
+      </div>
+      <div id="tradeMatchContent" class="hidden">
+        <label class="trade-select-label">
+          Takas kartın
+          <select id="tradeCardSelect"></select>
+        </label>
+        <div id="tradeMatchResults" class="trade-match-results"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="section container growth-section" id="growth">
   <div class="section-heading">
     <div>
