@@ -222,8 +222,9 @@
         const image = card.image || fallbackImage(card);
         const username = profile?.username || "Koleksiyoner";
         const avatarInitial = escapeHtml(String(username).charAt(0).toUpperCase() || "👤");
-        const avatar = avatarUrl(profile?.avatar_url)
-          ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(username)}" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')"><span class="vault-feed-avatar-fallback hidden">${avatarInitial}</span>`
+        const resolvedAvatar = avatarUrl(profile?.avatar_url);
+        const avatar = resolvedAvatar
+          ? `<span class="vault-feed-avatar-fallback">${avatarInitial}</span><img class="vault-feed-avatar-image" src="${escapeHtml(resolvedAvatar)}" alt="${escapeHtml(username)}" onload="this.previousElementSibling.classList.add('hidden')" onerror="this.remove();this.previousElementSibling.classList.remove('hidden')">`
           : `<span class="vault-feed-avatar-fallback">${avatarInitial}</span>`;
 
         return `
