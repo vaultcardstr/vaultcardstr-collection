@@ -296,14 +296,14 @@
 
       let cardsQuery = supabaseClient
         .from("cards")
-        .select("id,estimated_value,owner_id,acquired_date,created_at");
+        .select("*");
 
       if (userId) cardsQuery = cardsQuery.eq("owner_id", userId);
 
       const { data: liveCards, error: cardsError } = await cardsQuery;
       if (cardsError) throw cardsError;
 
-      const ownedCards = liveCards || [];
+      const ownedCards = (liveCards || []).filter(card => !userId || String(card.owner_id) === String(userId));
       totalElement.textContent = ownedCards.length;
 
       const datedCards = ownedCards
