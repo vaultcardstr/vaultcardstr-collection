@@ -20,7 +20,8 @@ create table if not exists public.cards (
   featured boolean not null default false,
   image_url text not null,
   note text default '',
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  for_trade boolean not null default false
 );
 
 alter table public.cards enable row level security;
