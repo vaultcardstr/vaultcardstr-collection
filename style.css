@@ -1945,3 +1945,25 @@ code { color:#d7ff3f; }
 
 /* FOR TRADE */
 .trade-tag{border-color:rgba(70,180,255,.28);background:rgba(70,180,255,.08);color:#74c8ff;}
+
+
+/* COMMUNITY TOOLS */
+.vault-tools-section{margin-top:30px}
+.vault-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.vault-tool-card{padding:22px;border:1px solid rgba(255,255,255,.08);border-radius:22px;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.015));min-height:330px}
+.random-card-slot{min-height:245px;display:flex;align-items:center;justify-content:center;margin:10px 0 16px}
+.random-card-slot .card-item{width:min(190px,60%);cursor:pointer}
+.random-card-slot .card-item:hover{transform:translateY(-4px)}
+.random-card-slot .card-image{aspect-ratio:.71}
+.trade-select-label{display:flex;flex-direction:column;gap:8px;color:#aeb4bf;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin:16px 0}
+.trade-select-label select{height:46px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:#0f1116;color:#fff;padding:0 12px;font:inherit;text-transform:none;letter-spacing:0}
+.trade-match-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.trade-match-card{padding:10px;border:1px solid rgba(70,180,255,.18);border-radius:14px;background:rgba(70,180,255,.04);cursor:pointer}
+.trade-match-card:hover{border-color:rgba(70,180,255,.45);transform:translateY(-2px)}
+.trade-match-card img{width:100%;aspect-ratio:.71;object-fit:cover;border-radius:9px;background:#11151c}
+.trade-match-card strong{display:block;margin-top:8px;font-size:12px}
+.trade-match-card small{display:block;margin-top:3px;color:#858b96;font-size:9px;line-height:1.4}
+.trade-match-score{display:inline-block;margin-top:7px;padding:4px 7px;border-radius:999px;background:rgba(70,180,255,.09);color:#74c8ff;font-size:8px;font-weight:900}
+.trade-match-message{padding:30px 10px;text-align:center;color:#858b96;line-height:1.6}
+@media(max-width:820px){.vault-tools-grid{grid-template-columns:1fr}.trade-match-results{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.trade-match-results{grid-template-columns:1fr 1fr}.random-card-slot .card-item{width:180px}}
