@@ -80,6 +80,8 @@ async function loadCards() {
   }
   cards = (data || []).map(normalizeCard);
   renderCollectionGrowth();
+  renderRandomCard();
+  renderTradeMatch();
 }
 
 function cardTags(card) {
@@ -729,6 +731,7 @@ function updateAuthUI() {
     loginBtn.textContent = "Giriş Yap";
     adminLink.classList.add("hidden");
   }
+  renderTradeMatch();
 }
 
 function showToast(message, error = false) {
