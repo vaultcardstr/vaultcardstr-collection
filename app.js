@@ -785,16 +785,13 @@ const username = $("#signupUsername").value.trim();
     return;
   }
 
-  const { error } = await supabaseClient.auth.signUp({
+  const { data, error } = await supabaseClient.auth.signUp({
   email,
   password,
   options: {
     data: {
       username
-    },
-    // GitHub Pages uses a project subpath, so explicitly send
-    // email confirmation back to the real production page.
-    emailRedirectTo: "https://vaultcardstr.github.io/vaultcardstr-collection/"
+    }
   }
 });
 
@@ -803,11 +800,11 @@ const username = $("#signupUsername").value.trim();
     return;
   }
 
+  currentUser = data?.user || currentUser;
   closeSignup();
+  updateAuthUI();
 
-  showToast(
-    "Kayıt başarılı! E-posta doğrulaması gerekiyorsa gelen kutunu kontrol et."
-  );
+  showToast("Kayıt başarılı! Hesabın oluşturuldu.");
 }
 
 async function login(e) {
