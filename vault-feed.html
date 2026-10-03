@@ -210,9 +210,10 @@
         const liked = currentUser && likes.some(x => x.user_id === currentUser.id);
         const image = card.image || fallbackImage(card);
         const username = profile?.username || "Koleksiyoner";
+        const avatarInitial = escapeHtml(String(username).charAt(0).toUpperCase() || "👤");
         const avatar = profile?.avatar_url
-          ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(username)}" data-avatar-fallback="${escapeHtml(String(username).charAt(0).toUpperCase())}">`
-          : `<span class="vault-feed-avatar-fallback">${escapeHtml(String(username).charAt(0).toUpperCase())}</span>`;
+          ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(username)}" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')"><span class="vault-feed-avatar-fallback hidden">${avatarInitial}</span>`
+          : `<span class="vault-feed-avatar-fallback">${avatarInitial}</span>`;
 
         return `
           <article class="vault-feed-post" data-feed-card="${escapeHtml(card.id)}">
