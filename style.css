@@ -2990,3 +2990,18 @@ code { color:#d7ff3f; }
 .vaultbot-input-row .btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 12px 28px rgba(255,157,46,.28)}
 .vaultbot-input-row .btn:active:not(:disabled){transform:translateY(0) scale(.98)}
 .vaultbot-input-row .btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+
+/* Homepage stats: labels above values */
+.stats .stat-card:not(.stat-feed-cta){
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+}
+.stats .stat-card:not(.stat-feed-cta) .stat-label{
+  order:-1;
+  margin-bottom:8px;
+}
+.stats .stat-card:not(.stat-feed-cta) .stat-value{
+  order:1;
+}
