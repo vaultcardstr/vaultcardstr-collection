@@ -79,10 +79,15 @@ async function loadCards() {
     return;
   }
   cards = (data || []).map(normalizeCard);
+  // Keep the first paint light on phones: render the visible hero immediately,
+  // then build non-critical widgets when the browser is idle.
   renderHero();
-  renderCollectionGrowth();
-  renderRandomCard();
-  renderTradeMatch();
+  const defer = window.requestIdleCallback
+    ? (fn) => window.requestIdleCallback(fn, { timeout: 1200 })
+    : (fn) => setTimeout(fn, 120);
+  defer(() => renderCollectionGrowth());
+  defer(() => renderRandomCard());
+  defer(() => renderTradeMatch());
 }
 
 function cardTags(card) {
@@ -149,7 +154,7 @@ function matches(card) {
 }
 
 function cardMarkup(card) {
-  return `<article class="card-item" data-id="${escapeHtml(card.id)}" tabindex="0"><div class="card-image">${card.for_sale ? `<span class="sale-badge">SATILIK</span>` : ""}<img src="${escapeHtml(card.image)}" alt="${escapeHtml(card.player)} kartı" loading="lazy" data-fallback="${escapeHtml(fallbackImage(card))}"></div><div class="card-body"><div class="tag-row">${cardTags(card)}</div><h3>${escapeHtml(card.player)}</h3><p>${escapeHtml(card.set)} · ${escapeHtml(card.year)}</p></div></article>`;
+  return `<article class="card-item" data-id="${escapeHtml(card.id)}" tabindex="0"><div class="card-image">${card.for_sale ? `<span class="sale-badge">SATILIK</span>` : ""}<img src="${escapeHtml(card.image)}" alt="${escapeHtml(card.player)} kartı" loading="lazy" decoding="async" data-fallback="${escapeHtml(fallbackImage(card))}"></div><div class="card-body"><div class="tag-row">${cardTags(card)}</div><h3>${escapeHtml(card.player)}</h3><p>${escapeHtml(card.set)} · ${escapeHtml(card.year)}</p></div></article>`;
   }
 
 function bindCardClicks(scope = document) {
