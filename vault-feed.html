@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="VaultCardsTR — Vault Feed." />
+  <title>VaultCardsTR | Vault Feed</title>
+  <link rel="icon" href="logo.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html#home" class="brand" aria-label="VaultCardsTR ana sayfa">
+        <span class="brand-mark"><img src="logo.png" alt="VaultCardsTR"></span>
+        <span><strong>VaultCardsTR</strong><small>SPORTS CARD COMMUNITY</small></span>
+      </a>
+      <nav class="main-nav">
+        <a href="index.html#home">Ana Sayfa</a>
+        <a href="index.html#collectors">Koleksiyoncular</a>
+        <a href="vault-feed.html" class="active">Vault Feed</a>
+        <a href="community-tools.html">Community Tools</a>
+      </nav>
+      <a class="nav-login" href="index.html#home">Hesabım</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menüyü aç/kapat">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="section container vault-feed-page">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">VAULT FEED</div>
+          <h1>Discover Cards</h1>
+          <p class="section-note" style="max-width:520px;text-align:left;">
+            Koleksiyonerlerin kartlarını keşfet, beğen ve yorum yap.
+          </p>
+        </div>
+      </div>
+
+      <div id="vaultFeedList" class="vault-feed-list"></div>
+    </section>
+  </main>
+
+  <div class="modal hidden" id="feedCardModal" role="dialog" aria-modal="true" aria-labelledby="feedModalTitle">
+    <div class="modal-backdrop" id="feedModalBackdrop"></div>
+    <div class="modal-card">
+      <button class="modal-close" id="feedModalClose" aria-label="Kapat">×</button>
+      <div class="modal-image-wrap">
+        <img id="feedModalImage" src="" alt="" />
+      </div>
+      <div class="modal-info">
+        <div class="eyebrow" id="feedModalCategory"></div>
+        <h2 id="feedModalTitle"></h2>
+        <p class="modal-subtitle" id="feedModalSubtitle"></p>
+        <div class="details-grid" id="feedModalDetails"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> VaultCardsTR</span>
+      <span>Built for the collection.</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="cards.js"></script>
+  <script>
+    const $ = (s) => document.querySelector(s);
+
+    let supabaseClient = null;
+    let currentUser = null;
+    let cards = [];
+    let profiles = [];
+    let feedLikes = [];
+    let feedComments = [];
+
+    function configured() {
+      return window.FG_CONFIG &&
+        window.FG_CONFIG.SUPABASE_URL &&
+        window.FG_CONFIG.SUPABASE_KEY &&
+        !window.FG_CONFIG.SUPABASE_URL.includes("YOUR_") &&
+        !window.FG_CONFIG.SUPABASE_KEY.includes("YOUR_");
+    }
+
+    function escapeHtml(v) {
+      return String(v ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function escapeSvg(v) {
+      return String(v ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&apos;");
+    }
+
+    function normalizeCard(c) {
+      return {
+        ...c,
+        set: c.set_name ?? c.set ?? "",
+        image: c.image_front_url ?? c.image_url ?? c.image ?? "",
+        image_front: c.image_front_url ?? c.image_url ?? c.image ?? "",
+        year: c.year ?? "",
+        category: c.category ?? "Card"
+      };
+    }
+
+    function fallbackImage(card) {
+      const initials = String(card.player || "CARD")
+        .split(" ")
+        .map(p => p[0])
+        .join("")
+        .slice(0,3)
+        .toUpperCase();
+
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 1000">
+        <rect width="710" height="1000" fill="#11151c"/>
+        <circle cx="560" cy="150" r="210" fill="#ff9d2e" opacity=".08"/>
+        <text x="55" y="700" fill="#fff" font-family="Arial" font-weight="900" font-size="72">${escapeSvg(initials)}</text>
+        <text x="55" y="780" fill="#fff" font-family="Arial" font-weight="700" font-size="32">${escapeSvg(card.player || "Card")}</text>
+      </svg>`;
+
+      return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+    }
+
+    function feedProfile(userId) {
+      return profiles.find(p => p.id === userId);
+    }
+
+    function renderFeed() {
+      const feed = $("#vaultFeedList");
+      if (!feed) return;
+
+      const posts = cards.filter(c => c.owner_id).slice(0, 20);
+
+      if (!posts.length) {
+        feed.innerHTML = `
+          <div class="vault-feed-empty">
+            Henüz topluluk gönderisi yok. İlk kartını paylaşan sen ol! 🃏
+          </div>`;
+        return;
+      }
+
+      feed.innerHTML = posts.map((card, index) => {
+        const profile = feedProfile(card.owner_id);
+        const likes = feedLikes.filter(x => String(x.card_id) === String(card.id));
+        const comments = feedComments
+          .filter(x => String(x.card_id) === String(card.id))
+          .slice(0, 4);
+        const liked = currentUser && likes.some(x => x.user_id === currentUser.id);
+        const image = card.image || fallbackImage(card);
+        const username = profile?.username || "Koleksiyoner";
+        const avatar = profile?.avatar_url
+          ? `<img src="${escapeHtml(profile.avatar_url)}" alt="">`
+          : escapeHtml(String(username).charAt(0).toUpperCase());
+
+        return `
+          <article class="vault-feed-post" data-feed-card="${escapeHtml(card.id)}">
+            <div class="vault-feed-media" data-feed-open="${escapeHtml(card.id)}" role="button" tabindex="0">
+              <img
+                src="${escapeHtml(image)}"
+                alt="${escapeHtml(card.player)} kartı"
+                loading="${index === 0 ? "eager" : "lazy"}"
+                data-fallback="${escapeHtml(fallbackImage(card))}"
+              >
+              <div class="vault-feed-info">
+                <div class="vault-feed-user">
+                  <div class="vault-feed-avatar">${avatar}</div>
+                  <strong>@${escapeHtml(username)}</strong>
+                </div>
+                <h3>${escapeHtml(card.player)}</h3>
+                <p>${escapeHtml(card.set || "Card")} · ${escapeHtml(card.year || "")} · ${escapeHtml(card.category || "")}</p>
+              </div>
+            </div>
+
+            <aside class="vault-feed-actions">
+              <button class="vault-feed-action ${liked ? "liked" : ""}" data-feed-like="${escapeHtml(card.id)}" aria-label="Beğen">
+                ${liked ? "♥" : "♡"}
+              </button>
+              <span class="vault-feed-count">${likes.length}</span>
+
+              <button class="vault-feed-action" data-feed-comments-toggle="${escapeHtml(card.id)}" aria-label="Yorumları göster">💬</button>
+              <span class="vault-feed-count">
+                ${feedComments.filter(x => String(x.card_id) === String(card.id)).length}
+              </span>
+            </aside>
+
+            ${index < posts.length - 1
+              ? `<button class="vault-feed-next" data-feed-next="${escapeHtml(card.id)}" aria-label="Sonraki kart">↓</button>`
+              : ""}
+
+            <div class="vault-feed-comments hidden" data-feed-comments="${escapeHtml(card.id)}">
+              <div class="vault-feed-comments-list">
+                ${comments.length
+                  ? comments.map(comment => {
+                      const cp = feedProfile(comment.user_id);
+                      return `<div class="vault-feed-comment"><strong>@${escapeHtml(cp?.username || "Koleksiyoner")}</strong>${escapeHtml(comment.body)}</div>`;
+                    }).join("")
+                  : '<div class="vault-feed-comment">Henüz yorum yok. İlk yorumu sen bırak.</div>'}
+              </div>
+
+              <form class="vault-feed-comment-form" data-feed-comment-form="${escapeHtml(card.id)}">
+                <input maxlength="500" placeholder="${currentUser ? "Bir yorum yaz..." : "Yorum yapmak için giriş yap"}" ${currentUser ? "" : "disabled"}>
+                <button class="btn btn-primary" type="submit" ${currentUser ? "" : "disabled"}>Gönder</button>
+              </form>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      feed.querySelectorAll("[data-fallback]").forEach(img => {
+        img.addEventListener("error", () => {
+          if (img.src !== img.dataset.fallback) img.src = img.dataset.fallback;
+        }, { once: true });
+      });
+
+      feed.querySelectorAll("[data-feed-open]").forEach(el => {
+        const open = () => openCardModal(Number(el.dataset.feedOpen));
+        el.addEventListener("click", open);
+        el.addEventListener("dblclick", e => {
+          e.preventDefault();
+          toggleFeedLike(Number(el.dataset.feedOpen));
+        });
+        el.addEventListener("keydown", e => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            open();
+          }
+        });
+      });
+
+      feed.querySelectorAll("[data-feed-like]").forEach(btn => {
+        btn.addEventListener("click", () => toggleFeedLike(Number(btn.dataset.feedLike)));
+      });
+
+      feed.querySelectorAll("[data-feed-next]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const current = btn.closest(".vault-feed-post");
+          const next = current?.nextElementSibling;
+          if (next) {
+            feed.scrollTo({
+              top: next.offsetTop - feed.offsetTop,
+              behavior: "smooth"
+            });
+          }
+        });
+      });
+
+      feed.querySelectorAll("[data-feed-comments-toggle]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const box = feed.querySelector(`[data-feed-comments="${btn.dataset.feedCommentsToggle}"]`);
+          if (box) box.classList.toggle("hidden");
+        });
+      });
+
+      feed.querySelectorAll("[data-feed-comment-form]").forEach(form => {
+        form.addEventListener("submit", e => {
+          e.preventDefault();
+          submitFeedComment(Number(form.dataset.feedCommentForm), form);
+        });
+      });
+    }
+
+    function requireLogin() {
+      if (currentUser) return true;
+      alert("Beğenmek veya yorum yapmak için önce giriş yapmalısın.");
+      return false;
+    }
+
+    async function toggleFeedLike(cardId) {
+      if (!requireLogin()) return;
+
+      const existing = feedLikes.find(
+        x => String(x.card_id) === String(cardId) && x.user_id === currentUser.id
+      );
+
+      if (existing) {
+        const { error } = await supabaseClient
+          .from("card_likes")
+          .delete()
+          .eq("card_id", cardId)
+          .eq("user_id", currentUser.id);
+
+        if (error) {
+          alert("Beğeni kaldırılamadı.");
+          return;
+        }
+
+        feedLikes = feedLikes.filter(
+          x => !(String(x.card_id) === String(cardId) && x.user_id === currentUser.id)
+        );
+      } else {
+        const { data, error } = await supabaseClient
+          .from("card_likes")
+          .insert({ card_id: cardId, user_id: currentUser.id })
+          .select("card_id,user_id")
+          .single();
+
+        if (error) {
+          alert("Beğeni eklenemedi.");
+          return;
+        }
+
+        feedLikes.push(data);
+      }
+
+      renderFeed();
+    }
+
+    async function submitFeedComment(cardId, form) {
+      if (!requireLogin()) return;
+
+      const input = form.querySelector("input");
+      const body = input.value.trim();
+      if (!body) return;
+
+      const { data, error } = await supabaseClient
+        .from("card_comments")
+        .insert({
+          card_id: cardId,
+          user_id: currentUser.id,
+          body
+        })
+        .select("id,card_id,user_id,body,created_at")
+        .single();
+
+      if (error) {
+        alert("Yorum gönderilemedi.");
+        return;
+      }
+
+      feedComments.unshift(data);
+      input.value = "";
+      renderFeed();
+
+      const box = document.querySelector(`[data-feed-comments="${cardId}"]`);
+      if (box) box.classList.remove("hidden");
+    }
+
+    function openCardModal(id) {
+      const card = cards.find(x => Number(x.id) === Number(id));
+      if (!card) return;
+
+      const image = card.image || fallbackImage(card);
+      $("#feedModalImage").src = image;
+      $("#feedModalImage").alt = `${card.player} kartı`;
+      $("#feedModalCategory").textContent = `${card.category} · ${card.year || ""}`;
+      $("#feedModalTitle").textContent = card.player || "Kart";
+      $("#feedModalSubtitle").textContent = card.team || "";
+
+      const details = [
+        ["Set", card.set || "—"],
+        ["Card No.", card.card_number || "—"],
+        ["Parallel", card.parallel || "—"],
+        ["Condition", card.condition || "—"],
+        ["Grade", card.grade || "—"],
+        ["Estimated value", card.estimated_value != null ? `$${Number(card.estimated_value).toLocaleString("en-US")}` : "—"]
+      ];
+
+      $("#feedModalDetails").innerHTML = details
+        .map(([label, value]) => `<div class="detail"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`)
+        .join("");
+
+      $("#feedCardModal").classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeCardModal() {
+      $("#feedCardModal").classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    async function init() {
+      $("#year").textContent = new Date().getFullYear();
+
+      const toggle = $("#navToggle");
+      const nav = document.querySelector(".main-nav");
+      toggle?.addEventListener("click", () => nav?.classList.toggle("open"));
+      nav?.querySelectorAll("a").forEach(a =>
+        a.addEventListener("click", () => nav.classList.remove("open"))
+      );
+
+      $("#feedModalClose").addEventListener("click", closeCardModal);
+      $("#feedModalBackdrop").addEventListener("click", closeCardModal);
+
+      if (!configured() || !window.supabase) {
+        cards = (window.demoCards || []).map(normalizeCard);
+        profiles = [];
+        feedLikes = [];
+        feedComments = [];
+        renderFeed();
+        return;
+      }
+
+      supabaseClient = window.supabase.createClient(
+        window.FG_CONFIG.SUPABASE_URL,
+        window.FG_CONFIG.SUPABASE_KEY
+      );
+
+      const [cardsRes, profileRes, likesRes, commentsRes, sessionRes] = await Promise.all([
+        supabaseClient.from("cards").select("*").order("created_at", { ascending: false }),
+        supabaseClient.from("profiles").select("id,username,avatar_url,created_at").order("created_at", { ascending: false }),
+        supabaseClient.from("card_likes").select("card_id,user_id"),
+        supabaseClient.from("card_comments").select("id,card_id,user_id,body,created_at").order("created_at", { ascending: false }),
+        supabaseClient.auth.getSession()
+      ]);
+
+      cards = (cardsRes.data || []).map(normalizeCard);
+      profiles = profileRes.data || [];
+      feedLikes = likesRes.data || [];
+      feedComments = commentsRes.data || [];
+      currentUser = sessionRes.data?.session?.user || null;
+
+      if (cardsRes.error) console.error("Vault Feed cards:", cardsRes.error);
+      if (profileRes.error) console.error("Vault Feed profiles:", profileRes.error);
+      if (likesRes.error) console.warn("Vault Feed likes:", likesRes.error);
+      if (commentsRes.error) console.warn("Vault Feed comments:", commentsRes.error);
+
+      renderFeed();
+
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        currentUser = session?.user || null;
+        renderFeed();
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
