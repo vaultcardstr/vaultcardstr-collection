@@ -618,6 +618,7 @@
         [shuffledFeedCards[i], shuffledFeedCards[j]] = [shuffledFeedCards[j], shuffledFeedCards[i]];
       }
       cards = shuffledFeedCards;
+      const visibleCardIds = cards.slice(0, 20).map(c => c.id);
 
       const [likesRes, commentsRes] = await Promise.all([
         visibleCardIds.length
