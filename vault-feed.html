@@ -599,7 +599,7 @@
       const [cardsRes, profileRes, sessionRes] = await Promise.all([
         supabaseClient
           .from("cards")
-          .select("id,owner_id,player,set_name,image_front_url,image_url,image,year,category,for_sale,team,card_number,parallel,condition,grade,estimated_value")
+           .select("*")
           .not("owner_id", "is", null)
           .limit(80),
         supabaseClient.from("profiles").select("id,username,avatar_url").limit(200),
@@ -634,6 +634,8 @@
 
       if (commentsRes.error) {
         console.warn("Feed comments could not be loaded:", commentsRes.error);
+        // Comments are optional; a comments-table/schema issue must never blank the feed.
+        feedComments = [];
       }
 
       if (cardsRes.error) console.error("Vault Feed cards:", cardsRes.error);
