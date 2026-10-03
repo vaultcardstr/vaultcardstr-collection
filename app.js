@@ -45,6 +45,7 @@ function normalizeCard(c) {
 numbering: c.numbering ?? "",
 is_autograph: c.is_autograph ?? false,
 is_relic: c.is_relic ?? false,
+    for_trade: c.for_trade ?? false,
     acquired_date: c.acquired_date ?? null,
     price: c.estimated_value != null ? `${c.estimated_value} USD` : "Collection",
     acquired: c.acquired_date || "—"
@@ -78,7 +79,6 @@ async function loadCards() {
     return;
   }
   cards = (data || []).map(normalizeCard);
-  renderAll();
   renderCollectionGrowth();
 }
 
@@ -103,6 +103,9 @@ function cardTags(card) {
   if (card.is_relic)
     out += `<span class="tag accent">RELIC</span>`;
 
+  if (card.for_trade)
+    out += `<span class="tag trade-tag">FOR TRADE</span>`;
+
   return out;
 }
 
@@ -117,7 +120,8 @@ function matches(card) {
     (state.category === "Numbered" && (card.is_numbered || card.numbered)) ||
     (state.category === "Autograph" && card.is_autograph) ||
     (state.category === "Relic" && card.is_relic) ||
-    (state.category === "For Sale" && card.for_sale);
+    (state.category === "For Sale" && card.for_sale) ||
+    (state.category === "For Trade" && card.for_trade);
 
   const text = [
     card.player,
@@ -133,6 +137,7 @@ function matches(card) {
     card.is_autograph ? "autograph" : "",
     card.is_relic ? "relic" : "",
     card.for_sale ? "for sale" : "",
+    card.for_trade ? "for trade" : "",
     card.price,
     card.status
   ].join(" ").toLowerCase();
@@ -822,7 +827,10 @@ function openAdminForm(card = null) {
   const fields = ["player","team","category","year","set_name","card_number","parallel","condition","grade","purchase_price","estimated_value","acquired_date","note"];
   fields.forEach(f => { $("#"+f).value = card?.[f] ?? ""; });
   $("#category").value = card?.category || "Football";
-  $("#rookie").checked = !!card?.rookie; $("#featured").checked = !!card?.featured; $("#imageFront").value = "";
+  $("#rookie").checked = !!card?.rookie;
+  $("#featured").checked = !!card?.featured;
+  if ($("#forTrade")) $("#forTrade").checked = !!card?.for_trade;
+  $("#imageFront").value = "";
 $("#imageBack").value = "";
   $("#adminForm").classList.remove("hidden"); window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 }
@@ -926,6 +934,7 @@ is_relic: $("#is_relic").checked,
     image_back_url: backUrl,
     note: $("#note").value.trim(),
     for_sale: $("#forSale").checked,
+    for_trade: $("#forTrade").checked,
 dolap_url: $("#dolapUrl").value.trim(),
     status: "Collection"
   };
@@ -1003,7 +1012,7 @@ function init() {
   $("#year").textContent = new Date().getFullYear();
   cards = demoCards.map(normalizeCard);
   renderAll();
-  initSupabase().then(() => renderAll());
+  initSupabase();
 
   $("#searchInput").oninput = e => { state.query = e.target.value; renderCollection(); };
   const collectorSearch = $("#collectorSearch");
