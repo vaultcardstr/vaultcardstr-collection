@@ -14,7 +14,8 @@ create table if not exists public.card_comments (
   card_id bigint not null references public.cards(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
   body text not null check (char_length(body) between 1 and 500),
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  parent_comment_id bigint references public.card_comments(id) on delete cascade
 );
 
 alter table public.card_likes enable row level security;
@@ -49,3 +50,11 @@ grant insert, delete on public.card_comments to authenticated;
 create index if not exists card_likes_card_id_idx on public.card_likes(card_id);
 create index if not exists card_comments_card_id_idx on public.card_comments(card_id);
 create index if not exists card_comments_created_at_idx on public.card_comments(created_at desc);
+
+
+-- Replies / threaded comments
+alter table public.card_comments
+  add column if not exists parent_comment_id bigint references public.card_comments(id) on delete cascade;
+
+create index if not exists card_comments_parent_comment_id_idx
+  on public.card_comments(parent_comment_id);
