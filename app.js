@@ -82,7 +82,9 @@ async function loadCards() {
   renderHero();
   renderCollectionGrowth();
   renderRandomCard();
+  loadVaultFeedData();
   renderTradeMatch();
+  loadVaultFeedData();
 }
 
 function cardTags(card) {
@@ -588,6 +590,184 @@ async function renderTradeMatch() {
 
   select.onchange = renderMatches;
   renderMatches();
+}
+
+
+let feedLikes = [];
+let feedComments = [];
+
+async function loadVaultFeedData() {
+  const feed = $("#vaultFeedList");
+  if (!feed) return;
+
+  if (!liveMode || !supabaseClient) {
+    renderVaultFeed();
+    return;
+  }
+
+  const [likesRes, commentsRes] = await Promise.all([
+    supabaseClient.from("card_likes").select("card_id,user_id"),
+    supabaseClient.from("card_comments").select("id,card_id,user_id,body,created_at").order("created_at", { ascending: false })
+  ]);
+
+  if (likesRes.error) console.warn("Feed likes:", likesRes.error);
+  if (commentsRes.error) console.warn("Feed comments:", commentsRes.error);
+
+  feedLikes = likesRes.data || [];
+  feedComments = commentsRes.data || [];
+
+  renderVaultFeed();
+}
+
+function feedProfile(userId) {
+  return collectorProfiles.find(p => p.id === userId);
+}
+
+function renderVaultFeed() {
+  const feed = $("#vaultFeedList");
+  if (!feed) return;
+
+  const posts = cards.filter(c => c.owner_id || !liveMode).slice(0, 12);
+
+  if (!posts.length) {
+    feed.innerHTML = '<div class="vault-feed-empty">Henüz topluluk gönderisi yok. İlk kartını paylaşan sen ol! 🃏</div>';
+    return;
+  }
+
+  feed.innerHTML = posts.map(card => {
+    const profile = feedProfile(card.owner_id);
+    const likes = feedLikes.filter(x => String(x.card_id) === String(card.id));
+    const comments = feedComments.filter(x => String(x.card_id) === String(card.id)).slice(0, 4);
+    const liked = currentUser && likes.some(x => x.user_id === currentUser.id);
+    const image = card.image || fallbackImage(card);
+    const username = profile?.username || "Koleksiyoner";
+    const avatar = profile?.avatar_url
+      ? `<img src="${escapeHtml(profile.avatar_url)}" alt="">`
+      : escapeHtml(String(username).charAt(0).toUpperCase());
+
+    return `
+      <article class="vault-feed-post" data-feed-card="${escapeHtml(card.id)}">
+        <div class="vault-feed-media" data-feed-open="${escapeHtml(card.id)}" role="button" tabindex="0">
+          <img src="${escapeHtml(image)}" alt="${escapeHtml(card.player)} kartı" loading="lazy" data-fallback="${escapeHtml(fallbackImage(card))}">
+          <div class="vault-feed-info">
+            <div class="vault-feed-user">
+              <div class="vault-feed-avatar">${avatar}</div>
+              <strong>@${escapeHtml(username)}</strong>
+            </div>
+            <h3>${escapeHtml(card.player)}</h3>
+            <p>${escapeHtml(card.set || "Card")} · ${escapeHtml(card.year || "")} · ${escapeHtml(card.category || "")}</p>
+          </div>
+        </div>
+
+        <aside class="vault-feed-actions">
+          <button class="vault-feed-action ${liked ? "liked" : ""}" data-feed-like="${escapeHtml(card.id)}" aria-label="Beğen">
+            ${liked ? "♥" : "♡"}
+          </button>
+          <span class="vault-feed-count">${likes.length}</span>
+          <button class="vault-feed-action" data-feed-comments-toggle="${escapeHtml(card.id)}" aria-label="Yorumları göster">💬</button>
+          <span class="vault-feed-count">${feedComments.filter(x => String(x.card_id) === String(card.id)).length}</span>
+        </aside>
+
+        <div class="vault-feed-comments hidden" data-feed-comments="${escapeHtml(card.id)}">
+          <div class="vault-feed-comments-list">
+            ${comments.length
+              ? comments.map(comment => {
+                  const cp = feedProfile(comment.user_id);
+                  return `<div class="vault-feed-comment"><strong>@${escapeHtml(cp?.username || "Koleksiyoner")}</strong>${escapeHtml(comment.body)}</div>`;
+                }).join("")
+              : '<div class="vault-feed-comment">Henüz yorum yok. İlk yorumu sen bırak.</div>'}
+          </div>
+          <form class="vault-feed-comment-form" data-feed-comment-form="${escapeHtml(card.id)}">
+            <input maxlength="500" placeholder="${currentUser ? "Bir yorum yaz..." : "Yorum yapmak için giriş yap"}" ${currentUser ? "" : "disabled"}>
+            <button class="btn btn-primary" type="submit" ${currentUser ? "" : "disabled"}>Gönder</button>
+          </form>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  feed.querySelectorAll("[data-fallback]").forEach(img => {
+    img.addEventListener("error", () => {
+      if (img.src !== img.dataset.fallback) img.src = img.dataset.fallback;
+    }, { once: true });
+  });
+
+  feed.querySelectorAll("[data-feed-open]").forEach(el => {
+    const open = () => openModal(Number(el.dataset.feedOpen));
+    el.addEventListener("click", open);
+    el.addEventListener("dblclick", e => {
+      e.preventDefault();
+      toggleFeedLike(Number(el.dataset.feedOpen));
+    });
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+    });
+  });
+
+  feed.querySelectorAll("[data-feed-like]").forEach(btn => {
+    btn.addEventListener("click", () => toggleFeedLike(Number(btn.dataset.feedLike)));
+  });
+
+  feed.querySelectorAll("[data-feed-comments-toggle]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const box = feed.querySelector(`[data-feed-comments="${btn.dataset.feedCommentsToggle}"]`);
+      if (box) box.classList.toggle("hidden");
+    });
+  });
+
+  feed.querySelectorAll("[data-feed-comment-form]").forEach(form => {
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      submitFeedComment(Number(form.dataset.feedCommentForm), form);
+    });
+  });
+}
+
+async function toggleFeedLike(cardId) {
+  if (!currentUser) {
+    openLogin();
+    return;
+  }
+
+  const existing = feedLikes.find(x => String(x.card_id) === String(cardId) && x.user_id === currentUser.id);
+
+  if (existing) {
+    const { error } = await supabaseClient.from("card_likes").delete().eq("card_id", cardId).eq("user_id", currentUser.id);
+    if (error) return showToast("Beğeni kaldırılamadı.", true);
+    feedLikes = feedLikes.filter(x => !(String(x.card_id) === String(cardId) && x.user_id === currentUser.id));
+  } else {
+    const { data, error } = await supabaseClient.from("card_likes").insert({ card_id: cardId, user_id: currentUser.id }).select("card_id,user_id").single();
+    if (error) return showToast("Beğeni eklenemedi.", true);
+    feedLikes.push(data);
+  }
+
+  renderVaultFeed();
+}
+
+async function submitFeedComment(cardId, form) {
+  if (!currentUser) {
+    openLogin();
+    return;
+  }
+
+  const input = form.querySelector("input");
+  const body = input.value.trim();
+  if (!body) return;
+
+  const { data, error } = await supabaseClient
+    .from("card_comments")
+    .insert({ card_id: cardId, user_id: currentUser.id, body })
+    .select("id,card_id,user_id,body,created_at")
+    .single();
+
+  if (error) return showToast("Yorum gönderilemedi.", true);
+
+  feedComments.unshift(data);
+  input.value = "";
+  renderVaultFeed();
+
+  const box = document.querySelector(`[data-feed-comments="${cardId}"]`);
+  if (box) box.classList.remove("hidden");
 }
 
 function renderAll() {
