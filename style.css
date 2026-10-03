@@ -2978,3 +2978,15 @@ code { color:#d7ff3f; }
   color:#8d94a0;
   font-size:11px;
 }
+
+/* Homepage live collector indicator */
+.stat-label{display:flex;align-items:center;gap:7px}
+.stat-live-dot{width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#ff3f4f;box-shadow:0 0 0 0 rgba(255,63,79,.65);animation:statLivePulse 1.5s infinite}
+@keyframes statLivePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,63,79,.5)}50%{opacity:.45;box-shadow:0 0 0 5px rgba(255,63,79,0)}}
+.vault-feed-avatar-fallback.hidden{display:none!important}
+
+/* VaultBot Send button */
+.vaultbot-input-row .btn{min-width:76px;height:44px;padding:0 16px;border:1px solid rgba(255,157,46,.55);border-radius:12px;background:linear-gradient(135deg,#ff9d2e,#e77e12);color:#101114;font-size:12px;font-weight:900;box-shadow:0 8px 22px rgba(255,157,46,.18);cursor:pointer;transition:transform .18s ease,filter .18s ease,box-shadow .18s ease}
+.vaultbot-input-row .btn:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.06);box-shadow:0 12px 28px rgba(255,157,46,.28)}
+.vaultbot-input-row .btn:active:not(:disabled){transform:translateY(0) scale(.98)}
+.vaultbot-input-row .btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
