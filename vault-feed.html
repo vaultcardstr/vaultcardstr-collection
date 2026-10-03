@@ -289,6 +289,10 @@
         }, { once: true });
       });
 
+      feed.querySelectorAll(".vault-feed-user").forEach(link => {
+        link.addEventListener("click", e => e.stopPropagation());
+      });
+
       feed.querySelectorAll("[data-feed-open]").forEach(el => {
         const open = () => openCardModal(Number(el.dataset.feedOpen));
         el.addEventListener("click", open);
@@ -349,7 +353,9 @@
       });
 
       feed.querySelectorAll("[data-feed-reply]").forEach(btn => {
-        btn.addEventListener("click", () => {
+        btn.addEventListener("click", e => {
+          e.preventDefault();
+          e.stopPropagation();
           const form = feed.querySelector(`[data-feed-reply-form="${btn.dataset.feedReply}"]`);
           if (form) {
             form.classList.toggle("hidden");
@@ -574,13 +580,28 @@
         window.FG_CONFIG.SUPABASE_KEY
       );
 
-      const [cardsRes, profileRes, likesRes, commentsRes, sessionRes] = await Promise.all([
+      const [cardsRes, profileRes, likesRes, sessionRes] = await Promise.all([
         supabaseClient.from("cards").select("*").order("created_at", { ascending: false }),
         supabaseClient.from("profiles").select("id,username,avatar_url,created_at").order("created_at", { ascending: false }),
         supabaseClient.from("card_likes").select("card_id,user_id"),
-        supabaseClient.from("card_comments").select("id,card_id,user_id,body,created_at,parent_comment_id").order("created_at", { ascending: true }),
         supabaseClient.auth.getSession()
       ]);
+
+      // Load comments with replies when the new parent_comment_id column exists.
+      // Fall back to the original schema so the feed never goes blank if the SQL migration
+      // has not been run yet.
+      let commentsRes = await supabaseClient
+        .from("card_comments")
+        .select("id,card_id,user_id,body,created_at,parent_comment_id")
+        .order("created_at", { ascending: true });
+
+      if (commentsRes.error) {
+        console.warn("Threaded comments are not enabled yet:", commentsRes.error);
+        commentsRes = await supabaseClient
+          .from("card_comments")
+          .select("id,card_id,user_id,body,created_at")
+          .order("created_at", { ascending: true });
+      }
 
       cards = (cardsRes.data || []).map(normalizeCard);
       profiles = profileRes.data || [];
