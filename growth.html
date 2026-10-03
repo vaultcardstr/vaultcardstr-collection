@@ -284,33 +284,33 @@
     const status = document.getElementById("growthStatus");
     const titleElement = document.getElementById("growthTitle");
 
+    const withTimeout = (promise, ms = 12000) => Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Supabase request timed out")), ms)
+      )
+    ]);
+
     try {
-      if (userId) {
-        const { data: profile } = await supabaseClient
-          .from("profiles")
-          .select("username")
-          .eq("id", userId)
-          .maybeSingle();
-        if (profile?.username) titleElement.textContent = profile.username + "'s Collection Growth";
-      }
-
-      // Use the exact same public cards query as the profile page.
-      // Keep the growth page independent from auth/session state.
-      let cardsQuery = supabaseClient
-        .from("cards")
-        .select("*")
-        .order("id", { ascending: false });
+      // Make sure the browser has restored the Supabase session before querying.
+      await supabaseClient.auth.getSession();
 
       if (userId) {
-        cardsQuery = cardsQuery.eq("owner_id", userId);
+        const { data: profile } = await withTimeout(
+          supabaseClient.from("profiles").select("username").eq("id", userId).maybeSingle()
+        );
+        if (profile?.username) {
+          titleElement.textContent = profile.username + "'s Collection Growth";
+        }
       }
 
-      const { data: liveCards, error: cardsError } = await cardsQuery;
+      // Query the same cards table used by profile.html, then filter locally.
+      // This avoids any issue with a user-specific PostgREST filter.
+      const { data: liveCards, error: cardsError } = await withTimeout(
+        supabaseClient.from("cards").select("*").limit(5000)
+      );
 
-      if (cardsError) {
-        console.error("Collection Growth cards query failed:", cardsError);
-        throw cardsError;
-      }
+      if (cardsError) throw cardsError;
 
       const ownedCards = (liveCards || []).filter(card =>
         !userId || String(card.owner_id) === String(userId)
@@ -325,7 +325,9 @@
 
       if (!datedCards.length) {
         chart.innerHTML = "";
-        status.textContent = "Kartlarda henüz geçerli bir alınma tarihi bulunamadı.";
+        status.textContent = ownedCards.length
+          ? "Kartlarda henüz geçerli bir alınma tarihi bulunamadı."
+          : "Bu koleksiyonda henüz kart bulunamadı.";
         return;
       }
 
@@ -341,7 +343,12 @@
       const points = [...byDate.entries()].map(([date, dayCards]) => {
         cumulativeCards += dayCards.length;
         cumulativeValue += dayCards.reduce((sum, card) => sum + (Number(card.estimated_value) || 0), 0);
-        return { snapshot_date: date, total_cards: cumulativeCards, total_value: cumulativeValue, value_per_card: cumulativeCards ? cumulativeValue / cumulativeCards : 0 };
+        return {
+          snapshot_date: date,
+          total_cards: cumulativeCards,
+          total_value: cumulativeValue,
+          value_per_card: cumulativeCards ? cumulativeValue / cumulativeCards : 0
+        };
       });
 
       const width = 1100, height = 420, padLeft = 60, padRight = 30, padTop = 55, padBottom = 55;
@@ -362,35 +369,36 @@
 
       const grid = [0,.25,.5,.75,1].map(t => {
         const yy = padTop + plotHeight - t * plotHeight;
-        return \`<line x1="\${padLeft}" y1="\${yy}" x2="\${width-padRight}" y2="\${yy}" stroke="rgba(255,255,255,.07)" />\`;
+        return `<line x1="${padLeft}" y1="${yy}" x2="${width-padRight}" y2="${yy}" stroke="rgba(255,255,255,.07)" />`;
       }).join("");
 
       const labels = points.map((point,index) => {
         const d = new Date(point.snapshot_date);
-        return \`<text x="\${x(index)}" y="\${height-16}" text-anchor="middle" fill="rgba(255,255,255,.52)" font-size="11">\${d.toLocaleDateString("tr-TR",{day:"2-digit",month:"short"})}</text>\`;
+        return `<text x="${x(index)}" y="${height-16}" text-anchor="middle" fill="rgba(255,255,255,.52)" font-size="11">${d.toLocaleDateString("tr-TR",{day:"2-digit",month:"short"})}</text>`;
       }).join("");
 
       const lines = series.map(s => {
-        const coords = points.map((p,i) => \`\${x(i)},\${y(Number(p[s.key])||0,s.max)}\`).join(" ");
-        const dots = points.map((p,i) => \`<circle cx="\${x(i)}" cy="\${y(Number(p[s.key])||0,s.max)}" r="4.5" fill="\${s.color}" />\`).join("");
-        return \`<polyline points="\${coords}" fill="none" stroke="\${s.color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />\${dots}\`;
+        const coords = points.map((p,i) => `${x(i)},${y(Number(p[s.key])||0,s.max)}`).join(" ");
+        const dots = points.map((p,i) => `<circle cx="${x(i)}" cy="${y(Number(p[s.key])||0,s.max)}" r="4.5" fill="${s.color}" />`).join("");
+        return `<polyline points="${coords}" fill="none" stroke="${s.color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />${dots}`;
       }).join("");
 
-      const legend = series.map((s,i) => \`
-        <g transform="translate(\${i*190} 0)">
-          <circle cx="0" cy="-3" r="5" fill="\${s.color}" />
-          <text x="11" y="1" fill="rgba(255,255,255,.78)" font-size="12">\${s.label}</text>
-        </g>\`).join("");
+      const legend = series.map((s,i) => `
+        <g transform="translate(${i*190} 0)">
+          <circle cx="0" cy="-3" r="5" fill="${s.color}" />
+          <text x="11" y="1" fill="rgba(255,255,255,.78)" font-size="12">${s.label}</text>
+        </g>`).join("");
 
-      chart.innerHTML = \`\${grid}\${lines}\${labels}<g transform="translate(75 20)">\${legend}</g>\`;
-      status.textContent = \`\${points.length} acquisition dates · Based on card acquired dates\`;
+      chart.innerHTML = `${grid}${lines}${labels}<g transform="translate(75 20)">${legend}</g>`;
+      status.textContent = `${points.length} acquisition dates · Based on card acquired dates`;
     } catch (error) {
-      console.error(error);
+      console.error("Collection Growth error:", error);
       chart.innerHTML = "";
-      status.textContent = "Collection Growth verileri yüklenemedi.";
+      status.textContent = error?.message === "Supabase request timed out"
+        ? "Koleksiyon verisi zaman aşımına uğradı. Lütfen sayfayı yenileyin."
+        : "Collection Growth verileri yüklenemedi.";
     }
   }
-
   loadGrowthData();
 </script>
 
