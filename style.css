@@ -3005,3 +3005,12 @@ code { color:#d7ff3f; }
 .stats .stat-card:not(.stat-feed-cta) .stat-value{
   order:1;
 }
+
+.vault-feed-avatar{position:relative!important;overflow:hidden!important}
+.vault-feed-avatar .vault-feed-avatar-image{
+  position:absolute!important;inset:0!important;display:block!important;
+  width:100%!important;height:100%!important;min-width:100%!important;min-height:100%!important;
+  object-fit:cover!important;opacity:1!important;visibility:visible!important;
+  border-radius:inherit!important;
+}
+.vault-feed-avatar .vault-feed-avatar-fallback{position:absolute;inset:0}
