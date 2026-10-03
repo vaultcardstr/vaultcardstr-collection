@@ -140,6 +140,54 @@
       return profiles.find(p => p.id === userId);
     }
 
+    function renderCommentTree(comments) {
+      const byParent = new Map();
+      comments.forEach(comment => {
+        const key = comment.parent_comment_id == null ? "root" : String(comment.parent_comment_id);
+        if (!byParent.has(key)) byParent.set(key, []);
+        byParent.get(key).push(comment);
+      });
+
+      const renderLevel = (parentKey, depth = 0) => {
+        const items = byParent.get(parentKey) || [];
+        return items.map(comment => {
+          const cp = feedProfile(comment.user_id);
+          const username = cp?.username || "Koleksiyoner";
+          const avatar = cp?.avatar_url
+            ? `<img src="${escapeHtml(cp.avatar_url)}" alt="${escapeHtml(username)}" data-comment-avatar-fallback="${escapeHtml(String(username).charAt(0).toUpperCase())}">`
+            : `<span class="comment-avatar-fallback">${escapeHtml(String(username).charAt(0).toUpperCase())}</span>`;
+          const isOwner = currentUser && String(comment.user_id) === String(currentUser.id);
+          const children = renderLevel(String(comment.id), depth + 1);
+
+          return `
+            <div class="vault-feed-comment-wrap" data-comment-id="${escapeHtml(comment.id)}">
+              <div class="vault-feed-comment" style="--comment-depth:${Math.min(depth, 4)}">
+                <div class="vault-feed-comment-head">
+                  <a class="vault-feed-comment-user" href="profile.html?user=${encodeURIComponent(comment.user_id)}">
+                    <span class="vault-feed-comment-avatar">${avatar}</span>
+                    <strong>@${escapeHtml(username)}</strong>
+                  </a>
+                  <div class="vault-feed-comment-tools">
+                    <button type="button" class="vault-feed-reply-btn" data-feed-reply="${escapeHtml(comment.id)}">↩ Yanıtla</button>
+                    ${isOwner ? `<button type="button" class="vault-feed-delete-btn" data-feed-delete-comment="${escapeHtml(comment.id)}">Sil</button>` : ""}
+                  </div>
+                </div>
+                <div class="vault-feed-comment-body">${escapeHtml(comment.body)}</div>
+              </div>
+
+              <form class="vault-feed-reply-form hidden" data-feed-reply-form="${escapeHtml(comment.id)}">
+                <input maxlength="500" placeholder="${currentUser ? "Yanıtını yaz..." : "Yanıt vermek için giriş yap"}" ${currentUser ? "" : "disabled"}>
+                <button type="submit" ${currentUser ? "" : "disabled"}>Yanıtla</button>
+              </form>
+
+              ${children}
+            </div>`;
+        }).join("");
+      };
+
+      return renderLevel("root");
+    }
+
     function renderFeed() {
       const feed = $("#vaultFeedList");
       if (!feed) return;
@@ -158,14 +206,13 @@
         const profile = feedProfile(card.owner_id);
         const likes = feedLikes.filter(x => String(x.card_id) === String(card.id));
         const comments = feedComments
-          .filter(x => String(x.card_id) === String(card.id))
-          .slice(0, 4);
+          .filter(x => String(x.card_id) === String(card.id));
         const liked = currentUser && likes.some(x => x.user_id === currentUser.id);
         const image = card.image || fallbackImage(card);
         const username = profile?.username || "Koleksiyoner";
         const avatar = profile?.avatar_url
-          ? `<img src="${escapeHtml(profile.avatar_url)}" alt="">`
-          : escapeHtml(String(username).charAt(0).toUpperCase());
+          ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(username)}" data-avatar-fallback="${escapeHtml(String(username).charAt(0).toUpperCase())}">`
+          : `<span class="vault-feed-avatar-fallback">${escapeHtml(String(username).charAt(0).toUpperCase())}</span>`;
 
         return `
           <article class="vault-feed-post" data-feed-card="${escapeHtml(card.id)}">
@@ -205,11 +252,8 @@
             <div class="vault-feed-comments hidden" data-feed-comments="${escapeHtml(card.id)}">
               <div class="vault-feed-comments-list">
                 ${comments.length
-                  ? comments.map(comment => {
-                      const cp = feedProfile(comment.user_id);
-                      return `<div class="vault-feed-comment"><strong>@${escapeHtml(cp?.username || "Koleksiyoner")}</strong>${escapeHtml(comment.body)}</div>`;
-                    }).join("")
-                  : '<div class="vault-feed-comment">Henüz yorum yok. İlk yorumu sen bırak.</div>'}
+                  ? renderCommentTree(comments)
+                  : '<div class="vault-feed-comment-empty">Henüz yorum yok. İlk yorumu sen bırak.</div>'}
               </div>
 
               <form class="vault-feed-comment-form" data-feed-comment-form="${escapeHtml(card.id)}">
@@ -224,6 +268,24 @@
       feed.querySelectorAll("[data-fallback]").forEach(img => {
         img.addEventListener("error", () => {
           if (img.src !== img.dataset.fallback) img.src = img.dataset.fallback;
+        }, { once: true });
+      });
+
+      feed.querySelectorAll("[data-avatar-fallback]").forEach(img => {
+        img.addEventListener("error", () => {
+          const fallback = document.createElement("span");
+          fallback.className = "vault-feed-avatar-fallback";
+          fallback.textContent = img.dataset.avatarFallback || "👤";
+          img.replaceWith(fallback);
+        }, { once: true });
+      });
+
+      feed.querySelectorAll("[data-comment-avatar-fallback]").forEach(img => {
+        img.addEventListener("error", () => {
+          const fallback = document.createElement("span");
+          fallback.className = "comment-avatar-fallback";
+          fallback.textContent = img.dataset.commentAvatarFallback || "👤";
+          img.replaceWith(fallback);
         }, { once: true });
       });
 
@@ -285,6 +347,27 @@
           submitFeedComment(Number(form.dataset.feedCommentForm), form);
         });
       });
+
+      feed.querySelectorAll("[data-feed-reply]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const form = feed.querySelector(`[data-feed-reply-form="${btn.dataset.feedReply}"]`);
+          if (form) {
+            form.classList.toggle("hidden");
+            if (!form.classList.contains("hidden")) form.querySelector("input")?.focus();
+          }
+        });
+      });
+
+      feed.querySelectorAll("[data-feed-reply-form]").forEach(form => {
+        form.addEventListener("submit", e => {
+          e.preventDefault();
+          submitFeedReply(Number(form.dataset.feedReplyForm), form);
+        });
+      });
+
+      feed.querySelectorAll("[data-feed-delete-comment]").forEach(btn => {
+        btn.addEventListener("click", () => deleteFeedComment(Number(btn.dataset.feedDeleteComment)));
+      });
     }
 
     function requireLogin() {
@@ -333,6 +416,74 @@
       renderFeed();
     }
 
+    async function submitFeedReply(parentCommentId, form) {
+      if (!requireLogin()) return;
+
+      const input = form.querySelector("input");
+      const body = input.value.trim();
+      if (!body) return;
+
+      const parent = feedComments.find(x => String(x.id) === String(parentCommentId));
+      if (!parent) return;
+
+      const { data, error } = await supabaseClient
+        .from("card_comments")
+        .insert({
+          card_id: parent.card_id,
+          user_id: currentUser.id,
+          body,
+          parent_comment_id: parentCommentId
+        })
+        .select("id,card_id,user_id,body,created_at,parent_comment_id")
+        .single();
+
+      if (error) {
+        alert("Yanıt gönderilemedi. Supabase'de parent_comment_id alanının ekli olduğundan emin ol.");
+        return;
+      }
+
+      feedComments.push(data);
+      renderFeed();
+      const box = document.querySelector(`[data-feed-comments="${parent.card_id}"]`);
+      if (box) box.classList.remove("hidden");
+      const post = box?.closest(".vault-feed-post");
+      post?.classList.add("comments-open");
+    }
+
+    async function deleteFeedComment(commentId) {
+      if (!requireLogin()) return;
+
+      const comment = feedComments.find(x => String(x.id) === String(commentId));
+      if (!comment || String(comment.user_id) !== String(currentUser.id)) return;
+
+      if (!confirm("Bu yorumu ve varsa yanıtlarını silmek istediğine emin misin?")) return;
+
+      const { error } = await supabaseClient
+        .from("card_comments")
+        .delete()
+        .eq("id", commentId)
+        .eq("user_id", currentUser.id);
+
+      if (error) {
+        alert("Yorum silinemedi.");
+        return;
+      }
+
+      const ids = new Set([String(commentId)]);
+      let changed = true;
+      while (changed) {
+        changed = false;
+        feedComments.forEach(x => {
+          if (x.parent_comment_id != null && ids.has(String(x.parent_comment_id)) && !ids.has(String(x.id))) {
+            ids.add(String(x.id));
+            changed = true;
+          }
+        });
+      }
+      feedComments = feedComments.filter(x => !ids.has(String(x.id)));
+      renderFeed();
+    }
+
     async function submitFeedComment(cardId, form) {
       if (!requireLogin()) return;
 
@@ -347,7 +498,7 @@
           user_id: currentUser.id,
           body
         })
-        .select("id,card_id,user_id,body,created_at")
+        .select("id,card_id,user_id,body,created_at,parent_comment_id")
         .single();
 
       if (error) {
@@ -427,7 +578,7 @@
         supabaseClient.from("cards").select("*").order("created_at", { ascending: false }),
         supabaseClient.from("profiles").select("id,username,avatar_url,created_at").order("created_at", { ascending: false }),
         supabaseClient.from("card_likes").select("card_id,user_id"),
-        supabaseClient.from("card_comments").select("id,card_id,user_id,body,created_at").order("created_at", { ascending: false }),
+        supabaseClient.from("card_comments").select("id,card_id,user_id,body,created_at,parent_comment_id").order("created_at", { ascending: true }),
         supabaseClient.auth.getSession()
       ]);
 
