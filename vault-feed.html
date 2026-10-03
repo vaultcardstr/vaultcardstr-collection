@@ -224,10 +224,10 @@
                 data-fallback="${escapeHtml(fallbackImage(card))}"
               >
               <div class="vault-feed-info">
-                <div class="vault-feed-user">
+                <a class="vault-feed-user" href="profile.html?user=${encodeURIComponent(card.owner_id)}" aria-label="@${escapeHtml(username)} koleksiyonunu görüntüle">
                   <div class="vault-feed-avatar">${avatar}</div>
                   <strong>@${escapeHtml(username)}</strong>
-                </div>
+                </a>
                 <h3>${escapeHtml(card.player)}</h3>
                 <p>${escapeHtml(card.set || "Card")} · ${escapeHtml(card.year || "")} · ${escapeHtml(card.category || "")}</p>
               </div>
