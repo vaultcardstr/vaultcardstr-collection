@@ -302,6 +302,12 @@
   border-color: rgba(244,213,138,.35);
 }
 
+.profile-badge.trade {
+  color: #8fe7ff;
+  border-color: rgba(143,231,255,.35);
+  background: rgba(20,75,95,.38);
+}
+
     .profile-card-info {
       padding: 16px;
     }
@@ -982,6 +988,11 @@ supabaseClient.auth.getUser().then(({ data }) => {
       ? `<span class="profile-badge autograph">AUTOGRAPH</span>`
       : ""
   }
+  ${
+    card.for_trade
+      ? `<span class="profile-badge trade">FOR TRADE</span>`
+      : ""
+  }
 </div>
                   <img
                     src="${escapeHtml(image)}"
@@ -1467,6 +1478,11 @@ if (addCardBtn) {
       Satılık
     </label>
 
+    <label class="check">
+      <input id="ncForTrade" type="checkbox">
+      Takaslık
+    </label>
+
     <label id="ncDolapWrap" style="grid-column:1 / -1;">
       Dolap İlan Linki
       <input id="ncDolapUrl" type="url" placeholder="https://dolap.com/...">
@@ -1587,6 +1603,9 @@ if (newCardActions) {
 
       for_sale:
         addBox.querySelector("#ncForSale").checked,
+
+      for_trade:
+        addBox.querySelector("#ncForTrade").checked,
 
       dolap_url:
         addBox.querySelector("#ncDolapUrl").value.trim(),
@@ -1910,6 +1929,15 @@ newNumberedCheckbox.addEventListener("change", () => {
                   Satılık
                 </label>
 
+                <label class="check">
+                  <input
+                    id="peForTrade"
+                    type="checkbox"
+                    ${card.for_trade ? "checked" : ""}
+                  >
+                  Takaslık
+                </label>
+
                 <label>
                   Dolap İlan Linki
                   <input
@@ -1988,6 +2016,7 @@ numberedCheckbox.addEventListener("change", () => {
 autograph: editBox.querySelector("#peAutograph").checked,
 serial_number: editBox.querySelector("#peSerialNumber").value.trim(),
 for_sale: editBox.querySelector("#peForSale").checked,
+              for_trade: editBox.querySelector("#peForTrade").checked,
               dolap_url: editBox.querySelector("#peDolapUrl").value.trim()
             };
 
@@ -2107,6 +2136,9 @@ document.addEventListener("click", async (e) => {
       : ""}
     ${card.for_sale
       ? `<span class="tag">SATILIK</span>`
+      : ""}
+    ${card.for_trade
+      ? `<span class="tag trade-tag">FOR TRADE</span>`
       : ""}
   `;
 
