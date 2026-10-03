@@ -82,9 +82,7 @@ async function loadCards() {
   renderHero();
   renderCollectionGrowth();
   renderRandomCard();
-  loadVaultFeedData();
   renderTradeMatch();
-  loadVaultFeedData();
 }
 
 function cardTags(card) {
