@@ -261,8 +261,21 @@
 
       feed.querySelectorAll("[data-feed-comments-toggle]").forEach(btn => {
         btn.addEventListener("click", () => {
+          const post = btn.closest(".vault-feed-post");
           const box = feed.querySelector(`[data-feed-comments="${btn.dataset.feedCommentsToggle}"]`);
-          if (box) box.classList.toggle("hidden");
+          if (!post || !box) return;
+
+          const isOpen = !box.classList.contains("hidden");
+
+          feed.querySelectorAll(".vault-feed-post.comments-open").forEach(other => {
+            if (other !== post) other.classList.remove("comments-open");
+          });
+          feed.querySelectorAll(".vault-feed-comments:not(.hidden)").forEach(other => {
+            if (other !== box) other.classList.add("hidden");
+          });
+
+          box.classList.toggle("hidden", isOpen);
+          post.classList.toggle("comments-open", !isOpen);
         });
       });
 
