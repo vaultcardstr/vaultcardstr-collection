@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="VaultCardsTR — Community Tools." />
+  <title>VaultCardsTR | Community Tools</title>
+  <link rel="icon" href="logo.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .community-tools-hero{padding:78px 0 34px}
+    .community-tools-hero h1{margin:8px 0 14px;font-size:clamp(44px,6vw,72px);line-height:.98;letter-spacing:-.06em}
+    .community-tools-hero p{max-width:680px;color:var(--muted);line-height:1.7}
+    .community-tools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding-bottom:80px}
+    .community-tool-panel{min-height:560px;padding:28px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.015));box-shadow:var(--shadow)}
+    .community-tool-panel .eyebrow{margin-bottom:18px}
+    .community-random-slot{min-height:430px;display:flex;align-items:center;justify-content:center;padding:12px}
+    .community-random-slot .card-item{width:min(270px,100%)}
+    .community-random-actions{display:flex;justify-content:center;margin-top:6px}
+    .community-trade-message{min-height:430px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:25px}
+    .community-trade-content{min-height:430px}
+    .community-trade-select-label{display:grid;gap:8px;color:#c9ced7;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+    .community-trade-select-label select{width:100%;height:46px;padding:0 13px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#0d0f14;color:#fff;outline:none}
+    .community-trade-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+    .community-trade-card{padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(255,255,255,.025);cursor:pointer;transition:.2s ease}
+    .community-trade-card:hover{transform:translateY(-3px);border-color:rgba(255,157,46,.4)}
+    .community-trade-card img{display:block;width:100%;aspect-ratio:7/10;object-fit:cover;border-radius:11px;background:#111}
+    .community-trade-card strong{display:block;margin-top:9px;font-size:13px}
+    .community-trade-card small{display:block;margin-top:4px;color:var(--muted);font-size:10px}
+    .community-trade-score{display:inline-block;margin-top:8px;padding:5px 8px;border-radius:999px;background:rgba(255,157,46,.09);border:1px solid rgba(255,157,46,.18);color:#ffb45f;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+    .community-tools-back{margin-left:auto}
+    @media(max-width:850px){
+      .community-tools-grid{grid-template-columns:1fr}
+      .community-tool-panel{min-height:unset}
+      .community-random-slot,.community-trade-message,.community-trade-content{min-height:unset}
+      .community-random-slot{padding-bottom:22px}
+    }
+    @media(max-width:560px){
+      .community-tools-hero{padding-top:55px}
+      .community-tool-panel{padding:20px;border-radius:18px}
+      .community-trade-results{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html#home" class="brand" aria-label="VaultCardsTR ana sayfa">
+        <span class="brand-mark"><img src="logo.png" alt="VaultCardsTR"></span>
+        <span><strong>VaultCardsTR</strong><small>SPORTS CARD COMMUNITY</small></span>
+      </a>
+      <nav class="main-nav">
+        <a href="index.html#home">Ana Sayfa</a>
+        <a href="index.html#collectors">Koleksiyoncular</a>
+        <a href="community-tools.html">Community Tools</a>
+      </nav>
+      <a class="nav-login" href="index.html#home">Hesabım</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menüyü aç/kapat">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="community-tools-hero container">
+      <div class="eyebrow">COMMUNITY TOOLS</div>
+      <h1>Random Card &amp;<br><span>Your Trade Match.</span></h1>
+      <p>Koleksiyondan rastgele bir kart keşfet veya takaslık kartların arasında topluluk içindeki potansiyel eşleşmeleri bul.</p>
+    </section>
+
+    <section class="community-tools-grid container">
+      <div class="community-tool-panel">
+        <div class="eyebrow">RANDOM CARD</div>
+        <div id="randomCardSlot" class="community-random-slot"></div>
+        <div class="community-random-actions">
+          <button class="btn btn-primary" id="randomCardBtn" type="button">🎲 Random Card</button>
+        </div>
+      </div>
+
+      <div class="community-tool-panel">
+        <div class="eyebrow">TRADE MATCH</div>
+
+        <div id="tradeMatchLogin" class="community-trade-message hidden">
+          <div>
+            <strong>Trade Match için giriş yap.</strong>
+            <p style="margin:8px 0 0;">Takaslık kartlarını seçip topluluktaki uygun kartlarla eşleştirebilmek için hesabına giriş yapman gerekiyor.</p>
+          </div>
+        </div>
+
+        <div id="tradeMatchEmpty" class="community-trade-message hidden">
+          <div>
+            <strong>Henüz takaslık kartın yok.</strong>
+            <p style="margin:8px 0 0;">Koleksiyonundaki bir kartı <b>Takas</b> olarak işaretlediğinde burada eşleşmeler göreceksin.</p>
+          </div>
+        </div>
+
+        <div id="tradeMatchContent" class="community-trade-content hidden">
+          <label class="community-trade-select-label">
+            Takas kartın
+            <select id="tradeCardSelect"></select>
+          </label>
+          <div id="tradeMatchResults" class="community-trade-results"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> VaultCardsTR</span>
+      <span>Built for the collection.</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="cards.js"></script>
+  <script>
+    const $ = s => document.querySelector(s);
+    let supabaseClient = null;
+    let currentUser = null;
+    let cards = [];
+    let profiles = [];
+
+    function configured(){
+      return window.FG_CONFIG &&
+        window.FG_CONFIG.SUPABASE_URL &&
+        window.FG_CONFIG.SUPABASE_KEY &&
+        !window.FG_CONFIG.SUPABASE_URL.includes("YOUR_") &&
+        !window.FG_CONFIG.SUPABASE_KEY.includes("YOUR_");
+    }
+
+    function escapeHtml(v){
+      return String(v ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function normalizeCard(c){
+      return {
+        ...c,
+        set: c.set_name ?? c.set ?? "",
+        image: c.image_front_url ?? c.image_url ?? c.image ?? "",
+        for_trade: c.for_trade ?? false
+      };
+    }
+
+    function fallbackImage(card){
+      const initials = String(card.player || "CARD")
+        .split(" ").map(p => p[0]).join("").slice(0,3).toUpperCase();
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 1000">
+        <rect width="710" height="1000" fill="#11151c"/>
+        <circle cx="560" cy="150" r="210" fill="#ff9d2e" opacity=".08"/>
+        <text x="55" y="700" fill="#fff" font-family="Arial" font-weight="900" font-size="72">${initials}</text>
+        <text x="55" y="780" fill="#fff" font-family="Arial" font-weight="700" font-size="32">${String(card.player || "Card").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}</text>
+      </svg>`;
+      return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+    }
+
+    function renderCard(card){
+      const image = card.image || fallbackImage(card);
+      return `
+        <article class="card-item community-random-card" data-id="${escapeHtml(card.id)}" tabindex="0">
+          <div class="card-image">
+            <img src="${escapeHtml(image)}" alt="${escapeHtml(card.player)} kartı" loading="eager">
+          </div>
+          <div class="card-body">
+            <div class="tag-row"><span class="tag">${escapeHtml(card.category || "Card")}</span>${card.for_trade ? '<span class="tag trade-tag">FOR TRADE</span>' : ''}</div>
+            <h3>${escapeHtml(card.player || "Kart")}</h3>
+            <p>${escapeHtml(card.set || "Collection")} · ${escapeHtml(card.year || "—")}</p>
+          </div>
+        </article>`;
+    }
+
+    function bindRandomCard(){
+      const slot=$("#randomCardSlot");
+      slot.querySelectorAll("img").forEach(img=>{
+        img.addEventListener("error",()=>{
+          const card=cards.find(c=>String(c.id)===String(slot.querySelector(".card-item")?.dataset.id));
+          if(card && img.src !== fallbackImage(card)) img.src=fallbackImage(card);
+        },{once:true});
+      });
+    }
+
+    function renderRandomCard(){
+      const slot=$("#randomCardSlot");
+      if(!cards.length){
+        slot.innerHTML='<div class="community-trade-message">Henüz kart bulunamadı.</div>';
+        return;
+      }
+      const card=cards[Math.floor(Math.random()*cards.length)];
+      slot.innerHTML=renderCard(card);
+      bindRandomCard();
+    }
+
+    function renderTradeMatch(){
+      const login=$("#tradeMatchLogin");
+      const empty=$("#tradeMatchEmpty");
+      const content=$("#tradeMatchContent");
+      const select=$("#tradeCardSelect");
+      const results=$("#tradeMatchResults");
+
+      login.classList.add("hidden");
+      empty.classList.add("hidden");
+      content.classList.add("hidden");
+
+      if(!currentUser){
+        login.classList.remove("hidden");
+        return;
+      }
+
+      const mine=cards.filter(c=>c.owner_id===currentUser.id && c.for_trade);
+      if(!mine.length){
+        empty.classList.remove("hidden");
+        return;
+      }
+
+      content.classList.remove("hidden");
+      select.innerHTML=mine.map(c=>`<option value="${escapeHtml(c.id)}">${escapeHtml(c.player)} — ${escapeHtml(c.set || "Kart")}</option>`).join("");
+
+      const update=()=>{
+        const selected=mine.find(c=>String(c.id)===String(select.value));
+        if(!selected){results.innerHTML="";return;}
+
+        const matches=cards
+          .filter(c=>c.owner_id && c.owner_id!==currentUser.id && c.for_trade)
+          .map(c=>{
+            let score=0;
+            if(String(c.player||"").trim().toLowerCase()===String(selected.player||"").trim().toLowerCase()) score+=5;
+            if(String(c.team||"").trim().toLowerCase() && String(c.team||"").trim().toLowerCase()===String(selected.team||"").trim().toLowerCase()) score+=3;
+            if(String(c.category||"").trim().toLowerCase()===String(selected.category||"").trim().toLowerCase()) score+=1;
+            return {card:c,score};
+          })
+          .filter(x=>x.score>0)
+          .sort((a,b)=>b.score-a.score)
+          .slice(0,6);
+
+        if(!matches.length){
+          results.innerHTML='<div class="community-trade-message" style="grid-column:1/-1;">Şu anda uygun bir potansiyel eşleşme bulunamadı.</div>';
+          return;
+        }
+
+        results.innerHTML=matches.map(({card,score})=>{
+          const owner=profiles.find(p=>p.id===card.owner_id);
+          const image=card.image||fallbackImage(card);
+          const matchText=score>=5?"Aynı oyuncu":score>=3?"Aynı takım":"Aynı kategori";
+          return `
+            <article class="community-trade-card" data-id="${escapeHtml(card.id)}">
+              <img src="${escapeHtml(image)}" alt="${escapeHtml(card.player)} kartı" loading="lazy">
+              <strong>${escapeHtml(card.player)}</strong>
+              <small>${escapeHtml(owner?.username||"Koleksiyoner")} · ${escapeHtml(card.set||"Kart")}</small>
+              <span class="community-trade-score">${matchText}</span>
+            </article>`;
+        }).join("");
+      };
+
+      select.onchange=update;
+      update();
+    }
+
+    async function init(){
+      document.getElementById("year").textContent=new Date().getFullYear();
+      document.getElementById("randomCardBtn").addEventListener("click",renderRandomCard);
+
+      const toggle=document.getElementById("navToggle");
+      const nav=document.querySelector(".main-nav");
+      toggle?.addEventListener("click",()=>nav?.classList.toggle("open"));
+      nav?.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>nav.classList.remove("open")));
+
+      if(!configured() || !window.supabase){
+        cards=(demoCards||[]).map(normalizeCard);
+        renderRandomCard();
+        renderTradeMatch();
+        return;
+      }
+
+      supabaseClient=window.supabase.createClient(window.FG_CONFIG.SUPABASE_URL,window.FG_CONFIG.SUPABASE_KEY);
+
+      const [cardsRes,profileRes,sessionRes]=await Promise.all([
+        supabaseClient.from("cards").select("*").order("created_at",{ascending:false}),
+        supabaseClient.from("profiles").select("id,username,avatar_url"),
+        supabaseClient.auth.getSession()
+      ]);
+
+      currentUser=sessionRes.data?.session?.user||null;
+      cards=(cardsRes.data||[]).map(normalizeCard);
+      profiles=profileRes.data||[];
+
+      if(cardsRes.error) console.error("Community tools cards:",cardsRes.error);
+      if(profileRes.error) console.error("Community tools profiles:",profileRes.error);
+
+      renderRandomCard();
+      renderTradeMatch();
+
+      supabaseClient.auth.onAuthStateChange((_event,session)=>{
+        currentUser=session?.user||null;
+        renderTradeMatch();
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
