@@ -291,86 +291,56 @@
           .select("username")
           .eq("id", userId)
           .maybeSingle();
-
-        if (profile?.username) {
-          titleElement.textContent = profile.username + "'s Collection Growth";
-        }
+        if (profile?.username) titleElement.textContent = profile.username + "'s Collection Growth";
       }
 
-      const { data: snapshots, error: historyError } = await supabaseClient
-        .from("collection_growth_history")
-        .select("snapshot_date,total_cards,total_value,value_per_card")
-        .eq("owner_id", userId)
-        .order("snapshot_date", { ascending: true });
-
-      if (historyError) throw historyError;
-
-      const { data: liveCards, error: cardsError } = await supabaseClient
+      let cardsQuery = supabaseClient
         .from("cards")
-        .select("id,estimated_value,owner_id");
+        .select("id,estimated_value,owner_id,acquired_date,created_at");
 
-      const filteredCards = userId
-        ? (liveCards || []).filter(card => card.owner_id === userId)
-        : (liveCards || []);
+      if (userId) cardsQuery = cardsQuery.eq("owner_id", userId);
 
+      const { data: liveCards, error: cardsError } = await cardsQuery;
       if (cardsError) throw cardsError;
 
-      const currentCards = filteredCards.length;
-      const currentValue = filteredCards.reduce(
-        (sum, card) => sum + (Number(card.estimated_value) || 0),
-        0
-      );
-      const currentPerCard = currentCards ? currentValue / currentCards : 0;
+      const ownedCards = liveCards || [];
+      totalElement.textContent = ownedCards.length;
 
-      totalElement.textContent = currentCards;
+      const datedCards = ownedCards
+        .map(card => ({ ...card, date: card.acquired_date || card.created_at }))
+        .filter(card => card.date && !isNaN(new Date(card.date).getTime()))
+        .sort((a,b) => new Date(a.date) - new Date(b.date));
 
-      const today = new Date().toISOString().slice(0, 10);
-      const pointsByDate = new Map(
-        (snapshots || []).map(row => [row.snapshot_date, {
-          snapshot_date: row.snapshot_date,
-          total_cards: Number(row.total_cards) || 0,
-          total_value: Number(row.total_value) || 0,
-          value_per_card: Number(row.value_per_card) || 0
-        }])
-      );
-
-      pointsByDate.set(today, {
-        snapshot_date: today,
-        total_cards: currentCards,
-        total_value: currentValue,
-        value_per_card: currentPerCard
-      });
-
-      const points = [...pointsByDate.values()].sort(
-        (a, b) => new Date(a.snapshot_date) - new Date(b.snapshot_date)
-      );
-
-      if (!points.length) {
+      if (!datedCards.length) {
         chart.innerHTML = "";
-        status.textContent = "Henüz büyüme verisi yok.";
+        status.textContent = "Kartlarda henüz geçerli bir alınma tarihi bulunamadı.";
         return;
       }
 
-      const width = 1100;
-      const height = 420;
-      const padLeft = 60;
-      const padRight = 30;
-      const padTop = 55;
-      const padBottom = 55;
+      const byDate = new Map();
+      datedCards.forEach(card => {
+        const key = new Date(card.date).toISOString().slice(0,10);
+        if (!byDate.has(key)) byDate.set(key, []);
+        byDate.get(key).push(card);
+      });
+
+      let cumulativeCards = 0;
+      let cumulativeValue = 0;
+      const points = [...byDate.entries()].map(([date, dayCards]) => {
+        cumulativeCards += dayCards.length;
+        cumulativeValue += dayCards.reduce((sum, card) => sum + (Number(card.estimated_value) || 0), 0);
+        return { snapshot_date: date, total_cards: cumulativeCards, total_value: cumulativeValue, value_per_card: cumulativeCards ? cumulativeValue / cumulativeCards : 0 };
+      });
+
+      const width = 1100, height = 420, padLeft = 60, padRight = 30, padTop = 55, padBottom = 55;
       const plotWidth = width - padLeft - padRight;
       const plotHeight = height - padTop - padBottom;
-
       const maxCards = Math.max(...points.map(p => p.total_cards), 1);
       const maxValue = Math.max(...points.map(p => p.total_value), 1);
       const maxPerCard = Math.max(...points.map(p => p.value_per_card), 1);
 
-      const x = index =>
-        points.length === 1
-          ? padLeft + plotWidth / 2
-          : padLeft + (index / (points.length - 1)) * plotWidth;
-
-      const y = (value, max) =>
-        padTop + plotHeight - (value / max) * plotHeight;
+      const x = index => points.length === 1 ? padLeft + plotWidth / 2 : padLeft + (index / (points.length - 1)) * plotWidth;
+      const y = (value, max) => padTop + plotHeight - (value / max) * plotHeight;
 
       const series = [
         { key: "total_cards", max: maxCards, color: "#68a9ff", label: "Cards" },
@@ -378,75 +348,34 @@
         { key: "value_per_card", max: maxPerCard, color: "#f2c14e", label: "Value / Card" }
       ];
 
-      const grid = [0, .25, .5, .75, 1].map(t => {
+      const grid = [0,.25,.5,.75,1].map(t => {
         const yy = padTop + plotHeight - t * plotHeight;
-        return `
-          <line x1="${padLeft}" y1="${yy}" x2="${width - padRight}" y2="${yy}" stroke="rgba(255,255,255,.07)" />
-        `;
+        return \`<line x1="\${padLeft}" y1="\${yy}" x2="\${width-padRight}" y2="\${yy}" stroke="rgba(255,255,255,.07)" />\`;
       }).join("");
 
-      const labels = points.map((point, index) => {
+      const labels = points.map((point,index) => {
         const d = new Date(point.snapshot_date);
-        const label = d.toLocaleDateString("tr-TR", {
-          day: "2-digit",
-          month: "short"
-        });
-        return `
-          <text x="${x(index)}" y="${height - 16}" text-anchor="middle" fill="rgba(255,255,255,.52)" font-size="11">${label}</text>
-        `;
+        return \`<text x="\${x(index)}" y="\${height-16}" text-anchor="middle" fill="rgba(255,255,255,.52)" font-size="11">\${d.toLocaleDateString("tr-TR",{day:"2-digit",month:"short"})}</text>\`;
       }).join("");
 
       const lines = series.map(s => {
-        const coords = points
-          .map((p, i) => `${x(i)},${y(Number(p[s.key]) || 0, s.max)}`)
-          .join(" ");
-
-        const dots = points.map((p, i) => `
-          <circle
-            cx="${x(i)}"
-            cy="${y(Number(p[s.key]) || 0, s.max)}"
-            r="4.5"
-            fill="${s.color}"
-          />
-        `).join("");
-
-        return `
-          <polyline
-            points="${coords}"
-            fill="none"
-            stroke="${s.color}"
-            stroke-width="3.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          ${dots}
-        `;
+        const coords = points.map((p,i) => \`\${x(i)},\${y(Number(p[s.key])||0,s.max)}\`).join(" ");
+        const dots = points.map((p,i) => \`<circle cx="\${x(i)}" cy="\${y(Number(p[s.key])||0,s.max)}" r="4.5" fill="\${s.color}" />\`).join("");
+        return \`<polyline points="\${coords}" fill="none" stroke="\${s.color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />\${dots}\`;
       }).join("");
 
-      const legend = series.map((s, i) => `
-        <g transform="translate(${i * 190} 0)">
-          <circle cx="0" cy="-3" r="5" fill="${s.color}" />
-          <text x="11" y="1" fill="rgba(255,255,255,.78)" font-size="12">${s.label}</text>
-        </g>
-      `).join("");
+      const legend = series.map((s,i) => \`
+        <g transform="translate(\${i*190} 0)">
+          <circle cx="0" cy="-3" r="5" fill="\${s.color}" />
+          <text x="11" y="1" fill="rgba(255,255,255,.78)" font-size="12">\${s.label}</text>
+        </g>\`).join("");
 
-      chart.innerHTML = `
-        ${grid}
-        ${lines}
-        ${labels}
-        <g transform="translate(75 20)">
-          ${legend}
-        </g>
-      `;
-
-      status.textContent =
-        `${points.length} snapshot · 🟦 Cards · 🟩 Total Value · 🟨 Value / Card`;
-
+      chart.innerHTML = \`\${grid}\${lines}\${labels}<g transform="translate(75 20)">\${legend}</g>\`;
+      status.textContent = \`\${points.length} acquisition dates · Based on card acquired dates\`;
     } catch (error) {
       console.error(error);
       chart.innerHTML = "";
-      status.textContent =
-        "Collection Growth kurulumu tamamlanmamış olabilir. Önce collection-growth.sql dosyasını Supabase SQL Editor'da çalıştır.";
+      status.textContent = "Collection Growth verileri yüklenemedi.";
     }
   }
 
