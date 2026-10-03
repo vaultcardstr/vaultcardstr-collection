@@ -42,3 +42,5 @@ Never put a Supabase `service_role` / secret key in `config.js`. Browser code sh
 ## Image limit
 
 The UI limits card photos to 6 MB. Supabase recommends standard uploads for smaller files; for larger files it recommends resumable uploads.
+
+<!-- GitHub Pages rebuild trigger after custom-domain removal. -->
