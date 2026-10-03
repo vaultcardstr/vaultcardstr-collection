@@ -2837,3 +2837,144 @@ code { color:#d7ff3f; }
   .vault-feed-post.comments-open .vault-feed-comment-form input{height:38px;padding:0 9px;font-size:11px}
   .vault-feed-post.comments-open .vault-feed-comment-form button{height:38px;min-width:0;font-size:10px}
 }
+
+/* COMMENT REPLIES + AVATARS */
+.vault-feed-avatar,
+.vault-feed-avatar img{
+  width:42px;
+  height:42px;
+}
+.vault-feed-avatar{
+  flex:0 0 42px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:linear-gradient(145deg,#171b23,#0c0f14);
+}
+.vault-feed-avatar img{
+  display:block;
+  object-fit:cover;
+  border-radius:inherit;
+}
+.vault-feed-avatar-fallback,
+.comment-avatar-fallback{
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  color:#ffb45f;
+  font-weight:900;
+  font-size:14px;
+}
+.vault-feed-user{
+  cursor:pointer;
+}
+.vault-feed-user:hover strong{
+  color:#ffb45f;
+}
+.vault-feed-comment-wrap{
+  position:relative;
+}
+.vault-feed-comment{
+  margin-left:calc(var(--comment-depth, 0) * 14px);
+}
+.vault-feed-comment-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.vault-feed-comment-user{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  min-width:0;
+  color:inherit;
+  text-decoration:none;
+}
+.vault-feed-comment-user:hover strong{
+  color:#ffb45f;
+}
+.vault-feed-comment-avatar{
+  width:22px;
+  height:22px;
+  flex:0 0 22px;
+  overflow:hidden;
+  border-radius:7px;
+  display:grid;
+  place-items:center;
+  background:#171b23;
+  border:1px solid rgba(255,157,46,.3);
+}
+.vault-feed-comment-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.vault-feed-comment-tools{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex:0 0 auto;
+}
+.vault-feed-reply-btn,
+.vault-feed-delete-btn{
+  border:0;
+  background:none;
+  padding:2px 0;
+  color:#8f98a6;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+.vault-feed-reply-btn:hover{
+  color:#ffb45f;
+}
+.vault-feed-delete-btn:hover{
+  color:#ff687c;
+}
+.vault-feed-comment-body{
+  margin-top:5px;
+  color:#c5cbd4;
+  line-height:1.45;
+}
+.vault-feed-reply-form{
+  display:flex;
+  gap:7px;
+  margin:6px 0 7px 14px;
+}
+.vault-feed-reply-form input{
+  flex:1;
+  min-width:0;
+  height:34px;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:9px;
+  background:#080b10;
+  color:#fff;
+  padding:0 10px;
+  outline:none;
+  font-size:11px;
+}
+.vault-feed-reply-form input:focus{
+  border-color:rgba(255,157,46,.5);
+  box-shadow:0 0 0 2px rgba(255,157,46,.07);
+}
+.vault-feed-reply-form button{
+  height:34px;
+  border:1px solid rgba(255,157,46,.4);
+  border-radius:9px;
+  padding:0 10px;
+  background:rgba(255,157,46,.12);
+  color:#ffb45f;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+}
+.vault-feed-reply-form button:hover:not(:disabled){
+  background:rgba(255,157,46,.2);
+}
+.vault-feed-comment-empty{
+  padding:12px;
+  color:#8d94a0;
+  font-size:11px;
+}
