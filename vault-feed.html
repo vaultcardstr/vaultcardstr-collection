@@ -137,7 +137,18 @@
     }
 
     function feedProfile(userId) {
-      return profiles.find(p => p.id === userId);
+      return profiles.find(p => String(p.id) === String(userId));
+    }
+
+    function avatarUrl(value) {
+      if (!value) return "";
+      const url = String(value).trim();
+      if (/^https?:\\/\\//i.test(url) || url.startsWith("data:")) return url;
+      // Support older profiles where avatar_url was stored as a storage path.
+      if (supabaseClient) {
+        return supabaseClient.storage.from("avatars").getPublicUrl(url).data.publicUrl;
+      }
+      return url;
     }
 
     function renderCommentTree(comments) {
@@ -153,7 +164,7 @@
         return items.map(comment => {
           const cp = feedProfile(comment.user_id);
           const username = cp?.username || "Koleksiyoner";
-          const avatar = cp?.avatar_url
+          const avatar = avatarUrl(cp?.avatar_url)
             ? `<img src="${escapeHtml(cp.avatar_url)}" alt="${escapeHtml(username)}" data-comment-avatar-fallback="${escapeHtml(String(username).charAt(0).toUpperCase())}">`
             : `<span class="comment-avatar-fallback">${escapeHtml(String(username).charAt(0).toUpperCase())}</span>`;
           const isOwner = currentUser && String(comment.user_id) === String(currentUser.id);
@@ -211,7 +222,7 @@
         const image = card.image || fallbackImage(card);
         const username = profile?.username || "Koleksiyoner";
         const avatarInitial = escapeHtml(String(username).charAt(0).toUpperCase() || "👤");
-        const avatar = profile?.avatar_url
+        const avatar = avatarUrl(profile?.avatar_url)
           ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(username)}" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')"><span class="vault-feed-avatar-fallback hidden">${avatarInitial}</span>`
           : `<span class="vault-feed-avatar-fallback">${avatarInitial}</span>`;
 
