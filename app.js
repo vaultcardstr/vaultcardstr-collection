@@ -79,6 +79,7 @@ async function loadCards() {
     return;
   }
   cards = (data || []).map(normalizeCard);
+  renderHero();
   renderCollectionGrowth();
   renderRandomCard();
   renderTradeMatch();
