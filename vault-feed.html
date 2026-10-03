@@ -143,7 +143,7 @@
     function avatarUrl(value) {
       if (!value) return "";
       const url = String(value).trim();
-      if (/^https?:\\/\\//i.test(url) || url.startsWith("data:")) return url;
+      if (/^https?:\/\//i.test(url) || url.startsWith("data:")) return url;
       // Support older profiles where avatar_url was stored as a storage path.
       if (supabaseClient) {
         return supabaseClient.storage.from("avatars").getPublicUrl(url).data.publicUrl;
