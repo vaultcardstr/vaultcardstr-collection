@@ -1474,6 +1474,11 @@ if (addCardBtn) {
     </label>
 
     <label class="check">
+      <input id="ncRelic" type="checkbox">
+      Relic
+    </label>
+
+    <label class="check">
       <input id="ncForSale" type="checkbox">
       Satılık
     </label>
@@ -1600,6 +1605,9 @@ if (newCardActions) {
 
       autograph:
         addBox.querySelector("#ncAutograph").checked,
+
+      is_relic:
+        addBox.querySelector("#ncRelic").checked,
 
       for_sale:
         addBox.querySelector("#ncForSale").checked,
