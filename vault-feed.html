@@ -203,7 +203,14 @@
       const feed = $("#vaultFeedList");
       if (!feed) return;
 
-      const posts = cards.filter(c => c.owner_id).slice(0, 20);
+      // Shuffle on every render/visit so different visitors see a different feed order.
+      const pool = cards.filter(c => c.owner_id);
+      const shuffled = [...pool];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      const posts = shuffled.slice(0, 20);
 
       if (!posts.length) {
         feed.innerHTML = `
@@ -593,34 +600,46 @@
         window.FG_CONFIG.SUPABASE_KEY
       );
 
-      const [cardsRes, profileRes, likesRes, sessionRes] = await Promise.all([
-        supabaseClient.from("cards").select("*").order("created_at", { ascending: false }),
-        supabaseClient.from("profiles").select("id,username,avatar_url,created_at").order("created_at", { ascending: false }),
-        supabaseClient.from("card_likes").select("card_id,user_id"),
+      // Only fetch enough cards for a random feed. Do not download the entire
+      // collection or every comment on every mobile visit.
+      const [cardsRes, profileRes, sessionRes] = await Promise.all([
+        supabaseClient
+          .from("cards")
+          .select("id,owner_id,player,set_name,image_front_url,image_url,image,year,category,for_sale,team,card_number,parallel,condition,grade,estimated_value")
+          .not("owner_id", "is", null)
+          .limit(80),
+        supabaseClient.from("profiles").select("id,username,avatar_url").limit(200),
         supabaseClient.auth.getSession()
       ]);
 
-      // Load comments with replies when the new parent_comment_id column exists.
-      // Fall back to the original schema so the feed never goes blank if the SQL migration
-      // has not been run yet.
-      let commentsRes = await supabaseClient
-        .from("card_comments")
-        .select("id,card_id,user_id,body,created_at,parent_comment_id")
-        .order("created_at", { ascending: true });
-
-      if (commentsRes.error) {
-        console.warn("Threaded comments are not enabled yet:", commentsRes.error);
-        commentsRes = await supabaseClient
-          .from("card_comments")
-          .select("id,card_id,user_id,body,created_at")
-          .order("created_at", { ascending: true });
-      }
-
       cards = (cardsRes.data || []).map(normalizeCard);
       profiles = profileRes.data || [];
+      currentUser = sessionRes.data?.session?.user || null;
+
+      // Shuffle the card pool once per page visit, then only load likes/comments
+      // for the 20 cards that are actually shown.
+      const shuffledFeedCards = [...cards];
+      for (let i = shuffledFeedCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledFeedCards[i], shuffledFeedCards[j]] = [shuffledFeedCards[j], shuffledFeedCards[i]];
+      }
+      const visibleCardIds = shuffledFeedCards.slice(0, 20).map(c => c.id);
+
+      const [likesRes, commentsRes] = await Promise.all([
+        visibleCardIds.length
+          ? supabaseClient.from("card_likes").select("card_id,user_id").in("card_id", visibleCardIds)
+          : Promise.resolve({data:[],error:null}),
+        visibleCardIds.length
+          ? supabaseClient.from("card_comments").select("id,card_id,user_id,body,created_at,parent_comment_id").in("card_id", visibleCardIds).order("created_at", {ascending:true})
+          : Promise.resolve({data:[],error:null})
+      ]);
+
       feedLikes = likesRes.data || [];
       feedComments = commentsRes.data || [];
-      currentUser = sessionRes.data?.session?.user || null;
+
+      if (commentsRes.error) {
+        console.warn("Feed comments could not be loaded:", commentsRes.error);
+      }
 
       if (cardsRes.error) console.error("Vault Feed cards:", cardsRes.error);
       if (profileRes.error) console.error("Vault Feed profiles:", profileRes.error);
