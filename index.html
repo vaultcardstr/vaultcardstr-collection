@@ -121,29 +121,16 @@
     <span class="stat-label">Toplam Tahmini Değer</span>
   </div>
 
-  <div class="stat-card">
-    <div style="
-      display:flex;
-      align-items:center;
-      gap:8px;
-    ">
-      <span class="stat-value" id="statCollectors">0</span>
-
-      <span style="
-        width:8px;
-        height:8px;
-        border-radius:50%;
-        background:#ff3b30;
-        display:inline-block;
-        box-shadow:0 0 8px rgba(255,59,48,.8);
-        animation:livePulse 1.2s infinite;
-      "></span>
-    </div>
-
-    <div class="stat-label-row">
+  <div class="stat-card stat-collector-card">
+    <div class="stat-collector-main">
+      <div class="stat-collector-number">
+        <span class="stat-value" id="statCollectors">0</span>
+        <span class="collector-live-dot"></span>
+      </div>
       <span class="stat-label">Koleksiyonerler</span>
-      <a class="stat-link-btn" href="#collectors">Tümünü Gör →</a>
     </div>
+
+    <a class="stat-link-btn stat-feed-btn" href="#vaultFeed">Vault Feed →</a>
   </div>
 
 </section>
