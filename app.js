@@ -676,6 +676,8 @@ function renderVaultFeed() {
           <span class="vault-feed-count">${feedComments.filter(x => String(x.card_id) === String(card.id)).length}</span>
         </aside>
 
+        ${posts.indexOf(card) < posts.length - 1 ? `<button class="vault-feed-next" data-feed-next="${escapeHtml(card.id)}" aria-label="Sonraki kart">↓</button>` : ""}
+
         <div class="vault-feed-comments hidden" data-feed-comments="${escapeHtml(card.id)}">
           <div class="vault-feed-comments-list">
             ${comments.length
@@ -714,6 +716,16 @@ function renderVaultFeed() {
 
   feed.querySelectorAll("[data-feed-like]").forEach(btn => {
     btn.addEventListener("click", () => toggleFeedLike(Number(btn.dataset.feedLike)));
+  });
+
+  feed.querySelectorAll("[data-feed-next]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const current = btn.closest(".vault-feed-post");
+      const next = current?.nextElementSibling;
+      if (next) {
+        feed.scrollTo({ top: next.offsetTop - feed.offsetTop, behavior: "smooth" });
+      }
+    });
   });
 
   feed.querySelectorAll("[data-feed-comments-toggle]").forEach(btn => {
