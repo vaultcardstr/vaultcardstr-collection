@@ -1948,6 +1948,51 @@ code { color:#d7ff3f; }
 
 
 /* COMMUNITY TOOLS */
+
+.stat-label-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  width:100%;
+}
+
+.stat-link-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:30px;
+  padding:0 10px;
+  border:1px solid rgba(255,157,46,.28);
+  border-radius:9px;
+  background:rgba(255,157,46,.06);
+  color:#ffb45f;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.02em;
+  transition:.2s ease;
+  white-space:nowrap;
+}
+
+.stat-link-btn:hover{
+  background:rgba(255,157,46,.12);
+  border-color:rgba(255,157,46,.5);
+  transform:translateY(-1px);
+}
+
+@media(max-width:560px){
+  .stat-label-row{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:7px;
+  }
+
+  .stat-link-btn{
+    min-height:28px;
+  }
+}
+
 .vault-tools-section{margin-top:30px}
 .vault-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .vault-tool-card{padding:22px;border:1px solid rgba(255,255,255,.08);border-radius:22px;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.015));min-height:330px}
