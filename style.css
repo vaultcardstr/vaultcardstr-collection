@@ -2071,3 +2071,419 @@ code { color:#d7ff3f; }
   .vault-feed-action{width:38px;height:38px;font-size:17px}
   .vault-feed-next{width:38px;height:38px;bottom:10px;font-size:18px}
 }
+
+
+/* =========================================================
+   MOBILE DESKTOP-PARITY
+   Keep the desktop composition on small screens.
+   Only compact controls/sizing where the phone viewport requires it.
+   ========================================================= */
+
+@media (max-width: 820px) {
+  /* Header keeps the same horizontal composition; nav can scroll instead of changing layout. */
+  .header-inner {
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .brand {
+    flex: 0 0 auto;
+  }
+
+  .main-nav {
+    display: flex;
+    position: static;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 3px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+
+  .main-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .main-nav.open {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .main-nav a {
+    flex: 0 0 auto;
+    padding: 6px 8px;
+    font-size: 10px;
+    border-radius: 9px;
+  }
+
+  .main-nav a::after {
+    left: 8px;
+    right: 8px;
+    bottom: 2px;
+  }
+
+  .nav-toggle {
+    display: none;
+  }
+
+  /* Same desktop page composition */
+  .hero {
+    min-height: 650px;
+    grid-template-columns: 1fr 1fr;
+    padding: 55px 20px;
+    gap: 22px;
+  }
+
+  .hero-copy {
+    text-align: left;
+  }
+
+  .hero h1,
+  .hero p {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .hero-actions {
+    justify-content: flex-start;
+  }
+
+  .hero-features {
+    justify-content: flex-start;
+  }
+
+  .hero-showcase {
+    min-height: 500px;
+  }
+
+  .showcase-card {
+    width: 170px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .card-grid,
+  .featured-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .about-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 35px;
+  }
+
+  .about-inner p {
+    margin-left: auto;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-grid .wide {
+    grid-column: 1 / -1;
+  }
+
+  .admin-row {
+    grid-template-columns: 54px 1fr auto;
+  }
+
+  .admin-actions {
+    grid-column: auto;
+  }
+
+  .admin-top-actions {
+    width: auto;
+  }
+
+  .admin-top-actions .btn {
+    flex: initial;
+  }
+
+  .vault-tools-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .trade-match-results {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .random-card-slot .card-item {
+    width: min(190px, 60%);
+  }
+
+  .user-profile-header,
+  .collector-profile-header {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .user-profile-stats {
+    width: auto;
+  }
+
+  .collector-section-heading,
+  .collector-community-heading {
+    align-items: flex-end;
+    flex-direction: row;
+  }
+
+  .collector-community-count {
+    align-self: auto;
+  }
+
+  .collector-search {
+    width: min(440px, 100%);
+  }
+
+  .vault-feed-list {
+    height: min(76vh, 720px);
+    gap: 18px;
+  }
+
+  .vault-feed-post {
+    width: min(520px, 100%);
+    height: min(76vh, 720px);
+    grid-template-columns: minmax(0, 1fr) 62px;
+    border-radius: 24px;
+  }
+
+  .vault-feed-info {
+    left: 22px;
+    right: 18px;
+    bottom: 24px;
+  }
+
+  .vault-feed-info h3 {
+    font-size: 22px;
+  }
+
+  .vault-feed-action {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+
+  .vault-feed-next {
+    width: 42px;
+    height: 42px;
+    bottom: 14px;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Keep the desktop composition, compact only the controls/spacing needed on phones. */
+  .container {
+    width: min(100% - 24px, 1180px);
+  }
+
+  .header-inner {
+    min-height: 64px;
+  }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand strong {
+    font-size: 13px;
+  }
+
+  .brand small {
+    font-size: 7px;
+  }
+
+  .main-nav {
+    gap: 2px;
+  }
+
+  .main-nav a {
+    padding: 5px 6px;
+    font-size: 9px;
+  }
+
+  .hero {
+    min-height: 560px;
+    grid-template-columns: 1fr 1fr;
+    padding: 38px 10px;
+    gap: 10px;
+  }
+
+  .hero h1 {
+    font-size: 38px;
+  }
+
+  .hero p {
+    font-size: 13px;
+  }
+
+  .hero-actions {
+    gap: 8px;
+  }
+
+  .hero-actions .btn {
+    min-height: 40px;
+    padding: 0 14px;
+    font-size: 11px;
+  }
+
+  .hero-features {
+    gap: 12px;
+  }
+
+  .hero-feature-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .hero-feature strong {
+    font-size: 11px;
+  }
+
+  .hero-feature small {
+    font-size: 8px;
+  }
+
+  .hero-showcase {
+    min-height: 420px;
+  }
+
+  .showcase-card {
+    width: 120px;
+    border-radius: 14px;
+  }
+
+  .showcase-card:nth-child(1) { left: 0; }
+  .showcase-card:nth-child(2) { left: 24%; }
+  .showcase-card:nth-child(3) { left: 48%; }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .stat-label {
+    font-size: 8px;
+  }
+
+  .stat-feed-btn {
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 9px;
+  }
+
+  .filter,
+  .small-btn {
+    padding: 7px 9px;
+    font-size: 9px;
+  }
+
+  .vault-tools-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .vault-tool-card {
+    padding: 14px;
+    min-height: 280px;
+  }
+
+  .trade-match-results {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .random-card-slot .card-item {
+    width: 150px;
+  }
+
+  .modal-card {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    max-height: 90vh;
+  }
+
+  .modal-image-wrap,
+  .modal-image-wrap img {
+    min-height: 300px;
+    max-height: none;
+  }
+
+  .modal-info {
+    padding: 20px 8px 16px 0;
+  }
+
+  .section {
+    padding: 50px 0;
+  }
+
+  .vault-feed-list {
+    height: 72vh;
+    gap: 14px;
+    padding-bottom: 10px;
+  }
+
+  .vault-feed-post {
+    width: min(100%, 520px);
+    height: 72vh;
+    grid-template-columns: minmax(0, 1fr) 54px;
+    border-radius: 18px;
+  }
+
+  .vault-feed-info {
+    left: 16px;
+    right: 12px;
+    bottom: 20px;
+  }
+
+  .vault-feed-info h3 {
+    font-size: 18px;
+  }
+
+  .vault-feed-action {
+    width: 38px;
+    height: 38px;
+    font-size: 17px;
+  }
+
+  .vault-feed-next {
+    width: 38px;
+    height: 38px;
+    bottom: 10px;
+    font-size: 18px;
+  }
+
+  .vaultbot-floating {
+    width: 50px;
+    height: 50px;
+    right: 14px;
+    bottom: 14px;
+    font-size: 23px;
+  }
+
+  .vaultbot-panel {
+    right: 12px;
+    bottom: 76px;
+    width: calc(100vw - 24px);
+  }
+}
