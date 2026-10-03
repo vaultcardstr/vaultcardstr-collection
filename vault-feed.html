@@ -204,13 +204,7 @@
       if (!feed) return;
 
       // Shuffle on every render/visit so different visitors see a different feed order.
-      const pool = cards.filter(c => c.owner_id);
-      const shuffled = [...pool];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      const posts = shuffled.slice(0, 20);
+      const posts = cards.filter(c => c.owner_id).slice(0, 20);
 
       if (!posts.length) {
         feed.innerHTML = `
@@ -623,7 +617,7 @@
         const j = Math.floor(Math.random() * (i + 1));
         [shuffledFeedCards[i], shuffledFeedCards[j]] = [shuffledFeedCards[j], shuffledFeedCards[i]];
       }
-      const visibleCardIds = shuffledFeedCards.slice(0, 20).map(c => c.id);
+      cards = shuffledFeedCards;
 
       const [likesRes, commentsRes] = await Promise.all([
         visibleCardIds.length
