@@ -1086,33 +1086,61 @@ const username = $("#signupUsername").value.trim();
   }
 
   const { data, error } = await supabaseClient.auth.signUp({
-  email,
-  password,
-  options: {
-    data: {
-      username
+    email,
+    password,
+    options: {
+      data: {
+        username
+      }
     }
-  }
-});
+  });
 
   if (error) {
     showToast(error.message, true);
     return;
   }
 
+  // Email confirmation is required before the new account can be used.
+  // Supabase normally returns no session here when confirmation is enabled.
+  if (!data?.session) {
+    closeSignup();
+    showToast("Kayıt başarılı! E-posta adresini doğrulamak için mail kutunu kontrol et.");
+    return;
+  }
+
+  // Keep this fallback for projects where email confirmation is disabled.
   currentUser = data?.user || currentUser;
   closeSignup();
   updateAuthUI();
-
   showToast("Kayıt başarılı! Hesabın oluşturuldu.");
 }
 
 async function login(e) {
   e.preventDefault();
   const email = $("#loginEmail").value.trim(), password = $("#loginPassword").value;
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) { showToast(error.message, true); return; }
-  closeLogin(); location.hash = "admin"; showToast("Giriş başarılı.");
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    if (/email not confirmed/i.test(error.message || "")) {
+      showToast("Önce e-posta adresini doğrulamalısın. Mail kutunu kontrol et.", true);
+    } else {
+      showToast(error.message, true);
+    }
+    return;
+  }
+
+  const signedInUser = data?.user;
+  if (signedInUser && !signedInUser.email_confirmed_at) {
+    await supabaseClient.auth.signOut();
+    showToast("Önce e-posta adresini doğrulamalısın. Mail kutunu kontrol et.", true);
+    return;
+  }
+
+  currentUser = signedInUser || currentUser;
+  closeLogin();
+  location.hash = "admin";
+  showToast("Giriş başarılı.");
 }
 async function logout() { await supabaseClient.auth.signOut(); location.hash = "home"; showToast("Çıkış yapıldı."); }
 
