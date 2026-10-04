@@ -71,7 +71,7 @@ async function initSupabase() {
 
 async function loadCards() {
   if (!liveMode) { cards = demoCards.map(normalizeCard); return; }
-  const { data, error } = await supabaseClient.from("cards").select("*").order("created_at", { ascending: false });
+  const { data, error } = await supabaseClient.from("cards").select("id,player,team,category,year,set_name,card_number,parallel,condition,grade,numbering,is_numbered,is_autograph,is_relic,rookie,for_trade,for_sale,featured,estimated_value,purchase_price,acquired_date,dolap_url,note,status,owner_id,image_url,image_front_url,image_back_url").order("created_at", { ascending: false });
   if (error) {
     console.error(error);
     showToast("Kartlar yüklenemedi. Supabase ayarlarını kontrol et.", true);
@@ -470,9 +470,9 @@ function renderHero() {
   const shuffled = [...cards].sort(() => Math.random() - 0.5);
   const picks = shuffled.slice(0, 3);
 
-  $("#heroShowcase").innerHTML = picks.map(c => `
+  $("#heroShowcase").innerHTML = picks.map((c, i) => `
     <div class="showcase-card" data-id="${escapeHtml(c.id)}" tabindex="0">
-      <img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.player)} kartı" loading="eager" fetchpriority="high" decoding="async" data-fallback="${escapeHtml(fallbackImage(c))}">
+      <img src="${escapeHtml(c.image)}" alt="${escapeHtml(c.player)} kartı" loading="${i === 1 ? "eager" : "lazy"}" fetchpriority="${i === 1 ? "high" : "low"}" decoding="async" data-fallback="${escapeHtml(fallbackImage(c))}">
     </div>
   `).join("");
 
