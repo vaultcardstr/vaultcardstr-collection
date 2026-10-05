@@ -171,7 +171,7 @@ function render(){
     return `
       <article class="pc-card" data-player="${esc(p.player_name)}">
         <div class="pc-cover">
-          <img src="${esc(cover)}" alt="${esc(p.player_name)}">
+          <img src="${esc(cover)}" alt="${esc(p.player_name)}" loading="lazy" decoding="async">
         </div>
         <div class="pc-overlay"></div>
         <div class="pc-info">
@@ -293,7 +293,7 @@ function cardMarkup(c){
     <article class="card-item" data-id="${esc(c.id)}">
       <div class="card-image">
         ${c.for_sale ? '<span class="sale-badge">SATILIK</span>' : ""}
-        <img src="${esc(c.image || fallbackImage(c.player))}" alt="${esc(c.player)} kartı">
+        <img src="${esc(c.image || fallbackImage(c.player))}" alt="${esc(c.player)} kartı" loading="lazy" decoding="async">
       </div>
       <div class="card-body">
         <div class="tag-row">
