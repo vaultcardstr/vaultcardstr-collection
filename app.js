@@ -224,7 +224,7 @@ function bindCardClicks(scope = document) {
 async function renderUserCollection(userId) {
   const { data: profile, error: profileError } = await supabaseClient
     .from("profiles")
-    .select("id, username, avatar_url, created_at")
+    .select("id, username, avatar_url, created_at, is_verified")
     .eq("id", userId)
     .single();
 
@@ -277,7 +277,7 @@ async function renderUserCollection(userId) {
         <div class="collector-profile-info">
           <div class="eyebrow">VAULTCARDSTR COLLECTOR</div>
 
-          <h1>${escapeHtml(profile.username || "Kullanıcı")}</h1>
+          <h1>${escapeHtml(profile.username || "Kullanıcı")} ${profile.is_verified ? '<span class="verified-badge" title="Doğrulanmış koleksiyoner" aria-label="Doğrulanmış koleksiyoner">✓</span>' : ""}</h1>
 
           <p>Koleksiyonunu keşfet</p>
 
@@ -439,7 +439,7 @@ async function renderUsers(searchTerm = "") {
         <div class="user-card-body">
 
           <h3>
-            ${escapeHtml(profile.username || "Kullanıcı")}
+            ${escapeHtml(profile.username || "Kullanıcı")} ${profile.is_verified ? '<span class="verified-badge verified-badge-small" title="Doğrulanmış koleksiyoner" aria-label="Doğrulanmış koleksiyoner">✓</span>' : ""}
           </h3>
 
           <p>VaultCardstr Collector</p>
