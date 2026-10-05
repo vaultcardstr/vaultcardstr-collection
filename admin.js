@@ -35,12 +35,11 @@ async function loadCards(){
 function renderCollectorDirectory(){
   const box=$("#adminCollectorDirectory");
   if(!box)return;
-  const profileMap=new Map(profiles.map(p=>[String(p.id),p]));
   const counts={};
   cards.forEach(c=>{const id=String(c.owner_id||"");counts[id]=(counts[id]||0)+1;});
-  const visibleProfiles=profiles.filter(p=>counts[String(p.id)]>0);
+  const visibleProfiles=profiles;
   if(!visibleProfiles.length){
-    box.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><h3>Henüz yönetilecek koleksiyon yok</h3><p>Henüz kartı bulunan bir koleksiyoner yok.</p></div>';
+    box.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><h3>Henüz yönetilecek koleksiyon yok</h3><p>Henüz kayıtlı koleksiyoner yok.</p></div>';
     return;
   }
   box.innerHTML=visibleProfiles.map(p=>{
