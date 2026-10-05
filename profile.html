@@ -1607,20 +1607,63 @@ if (newCardActions) {
   newCardActions.style.zIndex = "5";
 }
     const aiEstimateBtn = addBox.querySelector("#ncAiEstimateBtn");
+
+    const prepareAiImage = (file) => new Promise((resolve, reject) => {
+      if (!file) return resolve("");
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const maxEdge = 1200;
+          const scale = Math.min(1, maxEdge / Math.max(img.naturalWidth, img.naturalHeight));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+          canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", 0.78));
+        };
+        img.onerror = () => reject(new Error("Kart fotoğrafı okunamadı."));
+        img.src = reader.result;
+      };
+      reader.onerror = () => reject(new Error("Kart fotoğrafı okunamadı."));
+      reader.readAsDataURL(file);
+    });
+
     aiEstimateBtn.addEventListener("click", async () => {
+      const frontFile = addBox.querySelector("#ncImageFront").files[0];
+      const backFile = addBox.querySelector("#ncImageBack").files[0];
+
+      if (!frontFile) {
+        alert("AI tahmini için önce kartın ön yüzü fotoğrafını yüklemelisin.");
+        addBox.querySelector("#ncImageFront").focus();
+        return;
+      }
+
       aiEstimateBtn.disabled = true;
-      aiEstimateBtn.textContent = "🤖 Hesaplanıyor...";
+      aiEstimateBtn.textContent = "🤖 Fotoğraf + Bilgiler analiz ediliyor...";
 
       try {
+        const [imageData, imageBackData] = await Promise.all([
+          prepareAiImage(frontFile),
+          prepareAiImage(backFile)
+        ]);
+
         const card = {
           player: addBox.querySelector("#ncPlayer").value.trim(),
+          team: addBox.querySelector("#ncTeam").value.trim(),
           category: addBox.querySelector("#ncCategory").value,
           year: addBox.querySelector("#ncYear").value.trim(),
           set: addBox.querySelector("#ncSetName").value.trim(),
           card_number: addBox.querySelector("#ncCardNumber").value.trim(),
           parallel: addBox.querySelector("#ncParallel").value.trim(),
           condition: addBox.querySelector("#ncCondition").value.trim(),
-          grade: addBox.querySelector("#ncGrade").value.trim()
+          grade: addBox.querySelector("#ncGrade").value.trim(),
+          rookie: addBox.querySelector("#ncRookie").checked,
+          numbered: addBox.querySelector("#ncNumbered").checked,
+          serial_number: addBox.querySelector("#ncSerialNumber").value.trim(),
+          autograph: addBox.querySelector("#ncAutograph").checked,
+          relic: addBox.querySelector("#ncRelic").checked
         };
 
         if (!card.player) {
@@ -1629,7 +1672,12 @@ if (newCardActions) {
         }
 
         const { data, error } = await supabaseClient.functions.invoke("vaultbot", {
-          body: { mode: "estimate", card }
+          body: {
+            mode: "estimate",
+            card,
+            image_data: imageData,
+            image_back_data: imageBackData
+          }
         });
 
         if (error) throw error;
@@ -1638,7 +1686,7 @@ if (newCardActions) {
         addBox.querySelector("#ncEstimatedValue").value = data.estimated_value;
       } catch (error) {
         console.error(error);
-        alert("AI tahmini hesaplanamadı. Lütfen kart bilgilerini kontrol edip tekrar dene.");
+        alert("AI tahmini hesaplanamadı. Lütfen fotoğrafı ve kart bilgilerini kontrol edip tekrar dene.");
       } finally {
         aiEstimateBtn.disabled = false;
         aiEstimateBtn.textContent = "🤖 AI Tahmini";
