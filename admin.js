@@ -2,6 +2,8 @@ const $ = (s) => document.querySelector(s);
 let supabaseClient = null;
 let currentUser = null;
 let cards = [];
+let profiles = [];
+let selectedOwnerId = null;
 let editingId = null;
 const ADMIN_EMAIL = "okrproduct@gmail.com";
 
@@ -28,24 +30,53 @@ async function uploadCardImage(file){
 async function loadCards(){
   const {data,error}=await supabaseClient.from("cards").select("*").order("created_at",{ascending:false});
   if(error){toast(error.message,true);return;}
-  cards=(data||[]).map(normalizeCard); renderList();
+  cards=(data||[]).map(normalizeCard); renderCollectorDirectory(); if(selectedOwnerId)renderList();
 }
-function renderList(){
-  const box=$("#adminList");
+function renderCollectorDirectory(){
+  const box=$("#adminCollectorDirectory");
   if(!box)return;
-  if(!cards.length){box.innerHTML='<div class="empty-state"><div class="empty-icon">📦</div><h3>Henüz kart yok</h3><p>Yeni kart ekleyerek başlayabilirsin.</p></div>';return;}
-  box.innerHTML=cards.map(c=>`<div class="admin-row">
-    <img src="${escapeHtml(c.image)}" alt="">
-    <div><strong>${escapeHtml(c.player)}</strong><small>${escapeHtml(c.set||"")} · ${escapeHtml(c.year||"")}</small></div>
-    <div class="admin-actions"><button class="small-btn edit-btn" data-id="${c.id}">Düzenle</button><button class="small-btn danger delete-btn" data-id="${c.id}">Sil</button></div>
-  </div>`).join("");
-  box.querySelectorAll(".edit-btn").forEach(b=>b.onclick=()=>openForm(cards.find(c=>String(c.id)===String(b.dataset.id))));
-  box.querySelectorAll(".delete-btn").forEach(b=>b.onclick=()=>deleteCard(b.dataset.id));
+  const profileMap=new Map(profiles.map(p=>[String(p.id),p]));
+  const counts={};
+  cards.forEach(c=>{const id=String(c.owner_id||"");counts[id]=(counts[id]||0)+1;});
+  const visibleProfiles=profiles.filter(p=>counts[String(p.id)]>0);
+  if(!visibleProfiles.length){
+    box.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><h3>Henüz yönetilecek koleksiyon yok</h3><p>Henüz kartı bulunan bir koleksiyoner yok.</p></div>';
+    return;
+  }
+  box.innerHTML=visibleProfiles.map(p=>{
+    const count=counts[String(p.id)]||0;
+    const avatar=p.avatar_url?'<img src="'+escapeHtml(p.avatar_url)+'" alt="">':'<span>👤</span>';
+    return '<button class="admin-collector-card" type="button" data-owner-id="'+escapeHtml(p.id)+'">'+
+      '<div class="admin-collector-avatar">'+avatar+'</div>'+
+      '<div class="admin-collector-card-info"><strong>'+escapeHtml(p.username||"Kullanıcı")+'</strong><small>'+count+' kart</small></div>'+
+    '</button>';
+  }).join("");
+  box.querySelectorAll("[data-owner-id]").forEach(btn=>btn.onclick=()=>openCollectorCards(btn.dataset.ownerId));
+}
+function openCollectorCards(ownerId){
+  selectedOwnerId=ownerId;
+  const profile=profiles.find(p=>String(p.id)===String(ownerId));
+  if(!profile)return;
+  $("#adminCollectorDirectory").classList.add("hidden");
+  $("#adminCardView").classList.remove("hidden");
+  $("#selectedCollectorName").textContent=profile.username||"Kullanıcı";
+  $("#selectedCollectorMeta").textContent=(cards.filter(c=>String(c.owner_id)===String(ownerId)).length)+" kart";
+  const avatar=$("#selectedCollectorAvatar");
+  avatar.innerHTML=profile.avatar_url?'<img src="'+escapeHtml(profile.avatar_url)+'" alt="">':'<span>👤</span>';
+  renderList();
+}
+function showCollectorDirectory(){
+  selectedOwnerId=null;
+  $("#adminCardView").classList.add("hidden");
+  $("#adminCollectorDirectory").classList.remove("hidden");
+  closeForm();
+  renderCollectorDirectory();
 }
 function openForm(card=null){
   editingId=card?.id??null;
   $("#adminFormTitle").textContent=card?"Kartı Düzenle":"Yeni Kart Ekle";
-  const fields=["player","team","category","year","set_name","card_number","parallel","condition","grade","purchase_price","estimated_value","acquired_date","note"];
+  populateOwnerSelect(card?.owner_id??selectedOwnerId);
+  const fields=["owner_id","player","team","category","year","set_name","card_number","parallel","condition","grade","purchase_price","estimated_value","acquired_date","note"];
   fields.forEach(f=>{if($("#"+f))$("#"+f).value=card?.[f]??"";});
   $("#category").value=card?.category||"Football";
   $("#parallel").value=card?.parallel||"Base";
@@ -65,6 +96,12 @@ function openForm(card=null){
   $("#adminForm").classList.remove("hidden");
   window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
 }
+function populateOwnerSelect(selectedId=""){
+  const select=$("#owner_id");
+  if(!select)return;
+  select.innerHTML='<option value="">Koleksiyoner seç...</option>'+profiles.map(p=>'<option value="'+escapeHtml(p.id)+'">'+escapeHtml(p.username||"Kullanıcı")+"</option>").join("");
+  select.value=selectedId?String(selectedId):"";
+}
 function closeForm(){editingId=null;$("#adminForm").classList.add("hidden");}
 async function saveCard(e){
   e.preventDefault();
@@ -78,7 +115,7 @@ async function saveCard(e){
   }catch(err){toast(err.message||"Görsel yüklenemedi.",true);return;}
   const purchaseRaw=$("#purchase_price").value.trim(), estimatedRaw=$("#estimated_value").value.trim();
   const payload={
-    player:$("#player").value.trim(),team:$("#team").value.trim(),category:$("#category").value,
+    owner_id:$("#owner_id").value,player:$("#player").value.trim(),team:$("#team").value.trim(),category:$("#category").value,
     year:$("#year").value.trim(),set_name:$("#set_name").value.trim(),card_number:$("#card_number").value.trim(),
     parallel:$("#parallel").value.trim()||"Base",condition:$("#condition").value.trim()||"Raw",grade:$("#grade").value.trim()||"—",
     purchase_price:purchaseRaw?Number(purchaseRaw):null,estimated_value:estimatedRaw?Number(estimatedRaw):null,
@@ -90,7 +127,7 @@ async function saveCard(e){
     image_url:frontUrl,image_front_url:frontUrl,image_back_url:backUrl,note:$("#note").value.trim(),
     for_sale:$("#forSale").checked,for_trade:$("#forTrade").checked,dolap_url:$("#dolapUrl").value.trim(),status:"Collection"
   };
-  if(!payload.player||!payload.image_front_url){toast("Oyuncu ve ön yüz fotoğrafı gerekli.",true);return;}
+  if(!payload.owner_id||!payload.player||!payload.image_front_url){toast("Koleksiyoner, oyuncu ve ön yüz fotoğrafı gerekli.",true);return;}
   if(Number.isNaN(payload.purchase_price)||Number.isNaN(payload.estimated_value)){toast("Fiyat alanlarını sayı olarak gir.",true);return;}
   const result=editingId?await supabaseClient.from("cards").update(payload).eq("id",editingId):await supabaseClient.from("cards").insert(payload);
   if(result.error){toast(result.error.message,true);return;}
@@ -113,7 +150,9 @@ async function importDemo(){
 async function loadCollectorAdmin(){
   const {data,error}=await supabaseClient.from("profiles").select("id,username,avatar_url,created_at,is_verified").order("created_at",{ascending:false});
   if(error){toast(error.message,true);return;}
-  const profiles=data||[];
+  profiles=data||[];
+  populateOwnerSelect(selectedOwnerId||"");
+  renderCollectorDirectory();
   const pending=profiles.filter(p=>!p.is_verified);
   $("#pendingCollectorCount").textContent=`${pending.length} bekleyen`;
   $("#controlCollectorCount").textContent=profiles.length;
@@ -149,6 +188,7 @@ function initAdminTabs(){
 function initForm(){
   $("#is_numbered").addEventListener("change",()=>{$("#numberingWrap").style.display=$("#is_numbered").checked?"":"none";if(!$("#is_numbered").checked)$("#numbering").value="";});
   $("#addCardBtn").onclick=()=>openForm();
+  $("#backToCollectors").onclick=showCollectorDirectory;
   $("#cancelAdminForm").onclick=closeForm; $("#cancelAdminForm2").onclick=closeForm;
   $("#cardEditorForm").onsubmit=saveCard; $("#importDemoBtn").onclick=importDemo;
   $("#logoutBtn").onclick=async()=>{await supabaseClient.auth.signOut();location.href="index.html";};
@@ -181,7 +221,7 @@ async function boot(){
   $("#adminLoading").classList.add("hidden");$("#adminSection").classList.remove("hidden");
   $("#adminEmail").textContent=currentUser.email||"Admin";
   $("#adminEmail2").textContent=currentUser.email||"";
-  initForm(); initAdminTabs(); await loadCards(); await loadCollectorAdmin();
+  initForm(); initAdminTabs(); await loadCards(); await loadCollectorAdmin(); renderCollectorDirectory();
   supabaseClient.auth.onAuthStateChange((_event,session)=>{if(!session?.user){location.href="index.html";}});
 }
 document.addEventListener("DOMContentLoaded",boot);
