@@ -3522,3 +3522,36 @@ code { color:#d7ff3f; }
     min-height:60px;
   }
 }
+
+
+.footer-disclaimer{
+  margin-top:26px;
+  padding:18px 20px;
+  border:1px solid rgba(255,157,46,.14);
+  border-radius:14px;
+  background:rgba(255,157,46,.035);
+}
+.footer-disclaimer strong{
+  display:block;
+  margin-bottom:7px;
+  color:#fff;
+  font-size:12px;
+  letter-spacing:.04em;
+}
+.footer-disclaimer p{
+  margin:0;
+  max-width:1000px;
+  color:#858c99;
+  font-size:11px;
+  line-height:1.7;
+}
+@media(max-width:560px){
+  .footer-disclaimer{
+    margin-top:20px;
+    padding:15px;
+  }
+  .footer-disclaimer p{
+    font-size:10.5px;
+    line-height:1.65;
+  }
+}
