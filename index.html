@@ -30,7 +30,7 @@
   <a href="#collectors">👥 Koleksiyoncular</a>
   <a href="vault-feed.html">🃏 Vault Feed</a>
   <a href="community-tools.html">🛠️ Community Tools</a>
-  <a href="#admin" id="adminLink" class="hidden">Admin Panel</a>
+  <a href="admin.html" id="adminLink" class="hidden">Admin Panel</a>
 </nav>
      <button class="nav-login hidden" id="loginBtn">Giriş Yap</button>
    <div id="accountMenu" class="account-menu hidden">
@@ -228,91 +228,6 @@
         <h3>Kart bulunamadı</h3>
         <p>Arama veya filtre seçimini değiştirip tekrar dene.</p>
       </div>
-    </section>
-
-    <section class="section admin-section hidden" id="adminSection">
-      <div class="section-heading">
-        <div><div class="eyebrow">PRIVATE VAULT</div><h2>Admin Panel</h2><p class="section-note" id="adminEmail"></p></div>
-        <div class="admin-top-actions"><button class="btn btn-primary" id="addCardBtn">+ Yeni Kart</button><button class="btn btn-ghost" id="importDemoBtn">Demo Kartları Aktar</button><button class="btn btn-ghost" id="logoutBtn">Çıkış</button></div>
-      </div>
-      <div class="admin-form hidden" id="adminForm">
-        <div class="admin-form-head"><h3 id="adminFormTitle">Yeni Kart Ekle</h3><button class="modal-close" id="cancelAdminForm">×</button></div>
-        <form id="cardEditorForm" class="form-grid">
-          <label>Oyuncu *<input id="player" required></label>
-          <label>Takım<input id="team"></label>
-          <label>
-  Kategori
-  <select id="category">
-    <option value="Football">Football</option>
-    <option value="Basketball">Basketball</option>
-    <option value="Baseball">Baseball</option>
-    <option value="American Football">American Football</option>
-    <option value="Hockey">Hockey</option>
-    <option value="Tennis">Tennis</option>
-    <option value="F1 / Motorsport">F1 / Motorsport</option>
-    <option value="Other">Other</option>
-  </select>
-</label>
-          <label>Yıl<input id="year"></label>
-          <label>Set<input id="set_name"></label>
-          <label>Card No.<input id="card_number"></label>
-          <label>Parallel<input id="parallel" value="Base"></label>
-         <label class="check">
-  <input id="is_numbered" type="checkbox">
-  Numbered
-</label>
-
-<label id="numberingWrap" style="display:none;">
-  Seri Numarası
-  <input id="numbering" placeholder="Örn. 05/25 veya 12/99">
-</label>
-
-<label class="check">
-  <input id="is_autograph" type="checkbox">
-  Autograph
-</label>
-
-<label class="check">
-  <input id="is_relic" type="checkbox">
-  Relic
-</label>
-          <label>Condition<input id="condition" value="Raw"></label>
-          <label>Grade<input id="grade" value="—"></label>
-          <label>Alış fiyatı (TL)<input id="purchase_price" type="number" min="0" step="0.01" placeholder="600"></label>
-         <label>
-  Tahmini değer (USD)
-  <div style="display:flex; gap:8px; align-items:center;">
-    <input id="estimated_value" type="number" min="0" step="0.01" placeholder="Otomatik hesaplanabilir">
-    <button type="button" class="btn btn-ghost" id="aiEstimateBtn">
-      🤖 AI Value
-    </button>
-  </div>
-           <small id="aiEstimateRange" style="display:block; margin-top:6px; opacity:.7;"></small>
-</label>
-          <label class="check">
-  <input id="forSale" type="checkbox">
-  Satılık
-</label>
-
-<label class="check">
-  <input id="forTrade" type="checkbox">
-  Takas
-</label>
-
-<label>
-  Dolap İlan Linki
-  <input id="dolapUrl" type="url" placeholder="https://dolap.com/...">
-</label>
-          <label>Alındığı tarih<input id="acquired_date" type="date"></label>
-          <label class="file-field">Kart ön yüzü *<input id="imageFront" type="file" accept="image/*" required></label>
-<label class="file-field">Kart arka yüzü<input id="imageBack" type="file" accept="image/*"></label>
-          <label class="wide">Not<textarea id="note" rows="3"></textarea></label>
-          <label class="check"><input id="rookie" type="checkbox"> Rookie</label>
-          <label class="check"><input id="featured" type="checkbox"> Öne çıkar</label>
-          <div class="wide form-actions"><button class="btn btn-primary" type="submit">Kaydet</button><button class="btn btn-ghost" type="button" id="cancelAdminForm2">İptal</button></div>
-        </form>
-      </div>
-      <div class="admin-list" id="adminList"></div>
     </section>
 
     <section class="about-strip">
