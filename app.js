@@ -121,6 +121,7 @@ async function initSupabase() {
   supabaseClient.auth.onAuthStateChange((_event, session) => {
     currentUser = session?.user || null;
     updateAuthUI();
+    setupNotifications();
   });
   await cardsPromise;
   // Supabase hazır olduktan sonra koleksiyoner listesini ilk kez yükle.
@@ -982,6 +983,8 @@ function updateAuthUI() {
       (currentUser.email || "").toLowerCase() === ADMIN_EMAIL;
 
     adminLink.classList.toggle("hidden", !isAdmin);
+    const notificationsToggle = $("#notificationsToggle");
+    if (notificationsToggle) notificationsToggle.classList.remove("hidden");
 
     if (isAdmin) {
       if ($("#adminEmail")) {
@@ -992,8 +995,192 @@ function updateAuthUI() {
     loginBtn.classList.remove("hidden");
     loginBtn.textContent = "Giriş Yap";
     adminLink.classList.add("hidden");
+    const notificationsToggle = $("#notificationsToggle");
+    if (notificationsToggle) notificationsToggle.classList.add("hidden");
+    closeNotifications();
+    teardownNotificationsChannel();
   }
   renderTradeMatch();
+}
+
+let notificationsChannel = null;
+let notificationsRows = [];
+
+function notificationTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("tr-TR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function setNotificationsBadge(rows) {
+  const badge = $("#notificationsBadge");
+  if (!badge) return;
+  const unread = rows.filter(row => !row.read_at).length;
+  badge.textContent = unread > 99 ? "99+" : String(unread);
+  badge.classList.toggle("hidden", unread === 0);
+}
+
+function notificationMessage(row, actorName, cardPlayer) {
+  const name = actorName || "Bir koleksiyoner";
+  const player = cardPlayer ? ` · ${cardPlayer}` : "";
+  if (row.type === "like") return `<strong>${escapeHtml(name)}</strong> kartını beğendi${player}.`;
+  return `<strong>${escapeHtml(name)}</strong> kartına yorum yaptı${player}.`;
+}
+
+async function loadNotifications() {
+  if (!supabaseClient || !currentUser) {
+    notificationsRows = [];
+    setNotificationsBadge([]);
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("notifications")
+    .select("id,recipient_id,actor_id,card_id,comment_id,type,created_at,read_at")
+    .eq("recipient_id", currentUser.id)
+    .order("created_at", { ascending: false })
+    .limit(40);
+
+  if (error) {
+    console.error("Notifications load error:", error);
+    return;
+  }
+
+  const rows = data || [];
+  const actorIds = [...new Set(rows.map(row => row.actor_id).filter(Boolean))];
+  const cardIds = [...new Set(rows.map(row => row.card_id).filter(Boolean))];
+
+  const [profilesResult, cardsResult] = await Promise.all([
+    actorIds.length
+      ? supabaseClient.from("profiles").select("id,username,avatar_url").in("id", actorIds)
+      : Promise.resolve({ data: [], error: null }),
+    cardIds.length
+      ? supabaseClient.from("cards").select("id,player").in("id", cardIds)
+      : Promise.resolve({ data: [], error: null })
+  ]);
+
+  const profiles = new Map((profilesResult.data || []).map(profile => [profile.id, profile]));
+  const cardMap = new Map((cardsResult.data || []).map(card => [card.id, card]));
+
+  notificationsRows = rows.map(row => ({
+    ...row,
+    actor: profiles.get(row.actor_id) || null,
+    card: cardMap.get(row.card_id) || null
+  }));
+
+  setNotificationsBadge(notificationsRows);
+
+  const list = $("#notificationsList");
+  if (!list) return;
+
+  if (!notificationsRows.length) {
+    list.innerHTML = `<div class="notifications-empty">Henüz bildirimin yok.</div>`;
+    return;
+  }
+
+  list.innerHTML = notificationsRows.map(row => `
+    <button class="notification-item ${row.read_at ? "" : "unread"}" type="button" data-notification-id="${row.id}">
+      <span class="notification-icon">${row.type === "like" ? "❤️" : "💬"}</span>
+      <span class="notification-copy">
+        <span class="notification-text">${notificationMessage(row, row.actor?.username, row.card?.player)}</span>
+        <small>${notificationTime(row.created_at)}</small>
+      </span>
+    </button>
+  `).join("");
+
+  list.querySelectorAll("[data-notification-id]").forEach(item => {
+    item.addEventListener("click", async () => {
+      const id = Number(item.dataset.notificationId);
+      await supabaseClient
+        .from("notifications")
+        .update({ read_at: new Date().toISOString() })
+        .eq("id", id)
+        .eq("recipient_id", currentUser.id);
+      item.classList.remove("unread");
+      const row = notificationsRows.find(x => Number(x.id) === id);
+      if (row) row.read_at = new Date().toISOString();
+      setNotificationsBadge(notificationsRows);
+    });
+  });
+}
+
+async function markNotificationsRead() {
+  if (!supabaseClient || !currentUser) return;
+  const { error } = await supabaseClient
+    .from("notifications")
+    .update({ read_at: new Date().toISOString() })
+    .eq("recipient_id", currentUser.id)
+    .is("read_at", null);
+  if (error) console.error("Notifications mark-read error:", error);
+  notificationsRows.forEach(row => { if (!row.read_at) row.read_at = new Date().toISOString(); });
+  setNotificationsBadge(notificationsRows);
+}
+
+async function openNotifications() {
+  const panel = $("#notificationsPanel");
+  const toggle = $("#notificationsToggle");
+  if (!panel || !toggle) return;
+  const willOpen = panel.classList.contains("hidden");
+  panel.classList.toggle("hidden", !willOpen);
+  toggle.setAttribute("aria-expanded", String(willOpen));
+  if (willOpen) {
+    await loadNotifications();
+    await markNotificationsRead();
+    setNotificationsBadge(notificationsRows);
+  }
+}
+
+function closeNotifications() {
+  const panel = $("#notificationsPanel");
+  const toggle = $("#notificationsToggle");
+  if (panel) panel.classList.add("hidden");
+  if (toggle) toggle.setAttribute("aria-expanded", "false");
+}
+
+function teardownNotificationsChannel() {
+  if (notificationsChannel && supabaseClient) {
+    supabaseClient.removeChannel(notificationsChannel);
+  }
+  notificationsChannel = null;
+}
+
+function setupNotifications() {
+  const toggle = $("#notificationsToggle");
+  const close = $("#notificationsClose");
+  if (toggle) toggle.onclick = openNotifications;
+  if (close) close.onclick = closeNotifications;
+
+  if (!supabaseClient || !currentUser) {
+    closeNotifications();
+    if (toggle) toggle.classList.add("hidden");
+    return;
+  }
+
+  if (toggle) toggle.classList.remove("hidden");
+  teardownNotificationsChannel();
+
+  notificationsChannel = supabaseClient
+    .channel(`notifications:${currentUser.id}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "notifications",
+        filter: `recipient_id=eq.${currentUser.id}`
+      },
+      () => {
+        loadNotifications();
+      }
+    )
+    .subscribe();
+
+  loadNotifications();
 }
 
 function showToast(message, error = false) {
@@ -1433,7 +1620,8 @@ if (collectorSearch) {
 }
   $$("#categoryFilters .filter").forEach(b => b.onclick = () => { $$("#categoryFilters .filter").forEach(x => x.classList.remove("active")); b.classList.add("active"); state.category = b.dataset.category; renderCollection(); });
   $("#modalClose").onclick = closeModal; $$('[data-close-modal]').forEach(x => x.onclick = closeModal);
-  $("#navToggle").onclick = () => $(".main-nav").classList.toggle("open");\n  setupNotifications();
+  $("#navToggle").onclick = () => $(".main-nav").classList.toggle("open");
+  setupNotifications();
   $$(".main-nav a").forEach(x => x.onclick = () => $(".main-nav").classList.remove("open"));
   $("#loginBtn").onclick = openLogin; $("#loginForm").onsubmit = login; $("#loginCloseBtn").onclick = closeLogin; $$('[data-login-close]').forEach(x => x.onclick = closeLogin);
   $("#signupBtn").onclick = openSignup;
