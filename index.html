@@ -428,6 +428,8 @@
         >
       </label>
 
+      <div id="loginCaptcha" class="auth-captcha" aria-label="Güvenlik doğrulaması"></div>
+
       <button class="btn btn-primary" type="submit">
         Giriş Yap
       </button>
@@ -507,6 +509,8 @@
           autocomplete="new-password"
         >
       </label>
+
+      <div id="signupCaptcha" class="auth-captcha" aria-label="Güvenlik doğrulaması"></div>
 
       <button class="btn btn-primary" type="submit">
         Kayıt Ol
@@ -657,6 +661,7 @@
   </div>
 
   <div class="toast hidden" id="toast"></div>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script src="cards.js"></script>
