@@ -16,6 +16,8 @@ let loginCaptchaToken = "";
 let signupCaptchaToken = "";
 let loginCaptchaWidget = null;
 let signupCaptchaWidget = null;
+let deleteCaptchaToken = "";
+let deleteCaptchaWidget = null;
 
 function initAuthCaptcha() {
   if (!window.turnstile) {
@@ -1888,6 +1890,8 @@ document.addEventListener("DOMContentLoaded", () => {
           >
         </label>
 
+        <div id="deleteAccountCaptcha" class="auth-captcha" aria-label="Güvenlik doğrulaması"></div>
+
         <div style="
           display:flex;
           justify-content:flex-end;
@@ -1936,6 +1940,21 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
     document.body.appendChild(deleteBox);
+
+    if (window.turnstile) {
+      deleteCaptchaToken = "";
+      deleteCaptchaWidget = window.turnstile.render(
+        deleteBox.querySelector("#deleteAccountCaptcha"),
+        {
+          sitekey: TURNSTILE_SITE_KEY,
+          theme: "dark",
+          appearance: "always",
+          callback: (token) => { deleteCaptchaToken = token; },
+          "expired-callback": () => { deleteCaptchaToken = ""; },
+          "error-callback": () => { deleteCaptchaToken = ""; }
+        }
+      );
+    }
 
     const passwordInput =
       deleteBox.querySelector("#deleteAccountPassword");
@@ -1988,10 +2007,21 @@ document.addEventListener("DOMContentLoaded", () => {
         /*
          * 1. Şifreyi tekrar doğrula
          */
+        if (!deleteCaptchaToken) {
+          throw new Error("Lütfen güvenlik doğrulamasını tamamla.");
+        }
+
+        const captchaToken = deleteCaptchaToken;
+        deleteCaptchaToken = "";
+        if (deleteCaptchaWidget !== null && window.turnstile) {
+          window.turnstile.reset(deleteCaptchaWidget);
+        }
+
         const { data: authData, error: authError } =
           await supabaseClient.auth.signInWithPassword({
             email: currentUser.email,
-            password
+            password,
+            options: { captchaToken }
           });
 
         if (authError) {
