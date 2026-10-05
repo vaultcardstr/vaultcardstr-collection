@@ -1496,9 +1496,13 @@ if (addCardBtn) {
       <input id="ncPurchasePrice" type="number" min="0" step="0.01" placeholder="600">
     </label>
 
-    <label>
+    <label class="nc-estimate-field">
       Tahmini değer (USD)
-      <input id="ncEstimatedValue" type="number" min="0" step="0.01" placeholder="150">
+      <div class="nc-estimate-row">
+        <input id="ncEstimatedValue" type="number" min="0" step="0.01" placeholder="150">
+        <button type="button" class="btn btn-ghost nc-ai-estimate-btn" id="ncAiEstimateBtn">🤖 AI Tahmini</button>
+      </div>
+      <small class="ai-estimate-note">AI sadece tahmini değer yapar. Bu değerler %100 gerçeği yansıtmaz.</small>
     </label>
 
     <label>
@@ -1602,6 +1606,45 @@ if (newCardActions) {
   newCardActions.style.background = "transparent";
   newCardActions.style.zIndex = "5";
 }
+    const aiEstimateBtn = addBox.querySelector("#ncAiEstimateBtn");
+    aiEstimateBtn.addEventListener("click", async () => {
+      aiEstimateBtn.disabled = true;
+      aiEstimateBtn.textContent = "🤖 Hesaplanıyor...";
+
+      try {
+        const card = {
+          player: addBox.querySelector("#ncPlayer").value.trim(),
+          category: addBox.querySelector("#ncCategory").value,
+          year: addBox.querySelector("#ncYear").value.trim(),
+          set: addBox.querySelector("#ncSetName").value.trim(),
+          card_number: addBox.querySelector("#ncCardNumber").value.trim(),
+          parallel: addBox.querySelector("#ncParallel").value.trim(),
+          condition: addBox.querySelector("#ncCondition").value.trim(),
+          grade: addBox.querySelector("#ncGrade").value.trim()
+        };
+
+        if (!card.player) {
+          alert("Önce oyuncu adını gir.");
+          return;
+        }
+
+        const { data, error } = await supabaseClient.functions.invoke("vaultbot", {
+          body: { mode: "estimate", card }
+        });
+
+        if (error) throw error;
+        if (!data?.estimated_value) throw new Error("AI tahmini alınamadı.");
+
+        addBox.querySelector("#ncEstimatedValue").value = data.estimated_value;
+      } catch (error) {
+        console.error(error);
+        alert("AI tahmini hesaplanamadı. Lütfen kart bilgilerini kontrol edip tekrar dene.");
+      } finally {
+        aiEstimateBtn.disabled = false;
+        aiEstimateBtn.textContent = "🤖 AI Tahmini";
+      }
+    });
+
     addBox.querySelector("#newCardForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
