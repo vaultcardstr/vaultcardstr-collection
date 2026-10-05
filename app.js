@@ -11,6 +11,59 @@ let collectorCards = [];
 
 const state = { query: "", category: "all", editingId: null };
 
+const TURNSTILE_SITE_KEY = "0x4AAAAAAFOJwibt0FmJpD5C";
+let loginCaptchaToken = "";
+let signupCaptchaToken = "";
+let loginCaptchaWidget = null;
+let signupCaptchaWidget = null;
+
+function initAuthCaptcha() {
+  if (!window.turnstile) {
+    setTimeout(initAuthCaptcha, 250);
+    return;
+  }
+
+  const loginContainer = $("#loginCaptcha");
+  const signupContainer = $("#signupCaptcha");
+  if (!loginContainer || !signupContainer) return;
+
+  const commonOptions = {
+    sitekey: TURNSTILE_SITE_KEY,
+    theme: "dark",
+    appearance: "always"
+  };
+
+  if (!loginCaptchaWidget) {
+    loginCaptchaWidget = window.turnstile.render(loginContainer, {
+      ...commonOptions,
+      callback: (token) => { loginCaptchaToken = token; },
+      "expired-callback": () => { loginCaptchaToken = ""; },
+      "error-callback": () => { loginCaptchaToken = ""; }
+    });
+  }
+
+  if (!signupCaptchaWidget) {
+    signupCaptchaWidget = window.turnstile.render(signupContainer, {
+      ...commonOptions,
+      callback: (token) => { signupCaptchaToken = token; },
+      "expired-callback": () => { signupCaptchaToken = ""; },
+      "error-callback": () => { signupCaptchaToken = ""; }
+    });
+  }
+}
+
+function resetAuthCaptcha(type) {
+  if (!window.turnstile) return;
+
+  if (type === "login") {
+    loginCaptchaToken = "";
+    if (loginCaptchaWidget !== null) window.turnstile.reset(loginCaptchaWidget);
+  } else {
+    signupCaptchaToken = "";
+    if (signupCaptchaWidget !== null) window.turnstile.reset(signupCaptchaWidget);
+  }
+}
+
 
 function configured() {
   return window.FG_CONFIG &&
@@ -1085,10 +1138,19 @@ const username = $("#signupUsername").value.trim();
     return;
   }
 
+  if (!signupCaptchaToken) {
+    showToast("Lütfen güvenlik doğrulamasını tamamla.", true);
+    return;
+  }
+
+  const captchaToken = signupCaptchaToken;
+  resetAuthCaptcha("signup");
+
   const { data, error } = await supabaseClient.auth.signUp({
     email,
     password,
     options: {
+      captchaToken,
       data: {
         username
       }
@@ -1119,7 +1181,19 @@ async function login(e) {
   e.preventDefault();
   const email = $("#loginEmail").value.trim(), password = $("#loginPassword").value;
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (!loginCaptchaToken) {
+    showToast("Lütfen güvenlik doğrulamasını tamamla.", true);
+    return;
+  }
+
+  const captchaToken = loginCaptchaToken;
+  resetAuthCaptcha("login");
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password,
+    options: { captchaToken }
+  });
 
   if (error) {
     if (/email not confirmed/i.test(error.message || "")) {
@@ -1335,6 +1409,7 @@ function init() {
   $("#year").textContent = new Date().getFullYear();
   cards = demoCards.map(normalizeCard);
   renderAll();
+  initAuthCaptcha();
   initSupabase();
 
   $("#searchInput").oninput = e => { state.query = e.target.value; renderCollection(); };
