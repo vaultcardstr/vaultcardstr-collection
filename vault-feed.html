@@ -165,7 +165,7 @@
           const cp = feedProfile(comment.user_id);
           const username = cp?.username || "Koleksiyoner";
           const avatar = avatarUrl(cp?.avatar_url)
-            ? `<img src="${escapeHtml(cp.avatar_url)}" alt="${escapeHtml(username)}" data-comment-avatar-fallback="${escapeHtml(String(username).charAt(0).toUpperCase())}">`
+            ? `<img src="${escapeHtml(cp.avatar_url)}" alt="${escapeHtml(username)}" loading="lazy" decoding="async" data-comment-avatar-fallback="${escapeHtml(String(username).charAt(0).toUpperCase())}">`
             : `<span class="comment-avatar-fallback">${escapeHtml(String(username).charAt(0).toUpperCase())}</span>`;
           const isOwner = currentUser && String(comment.user_id) === String(currentUser.id);
           const children = renderLevel(String(comment.id), depth + 1);
@@ -225,7 +225,7 @@
         const avatarInitial = escapeHtml(String(username).charAt(0).toUpperCase() || "👤");
         const resolvedAvatar = avatarUrl(profile?.avatar_url);
         const avatar = resolvedAvatar
-          ? `<span class="vault-feed-avatar-fallback">${avatarInitial}</span><img class="vault-feed-avatar-image" src="${escapeHtml(resolvedAvatar)}" alt="${escapeHtml(username)}" onload="this.previousElementSibling.classList.add('hidden')" onerror="this.remove();this.previousElementSibling.classList.remove('hidden')">`
+          ? `<span class="vault-feed-avatar-fallback">${avatarInitial}</span><img class="vault-feed-avatar-image" src="${escapeHtml(resolvedAvatar)}" alt="${escapeHtml(username)}" loading="lazy" decoding="async" onload="this.previousElementSibling.classList.add('hidden')" onerror="this.remove();this.previousElementSibling.classList.remove('hidden')">`
           : `<span class="vault-feed-avatar-fallback">${avatarInitial}</span>`;
 
         return `
