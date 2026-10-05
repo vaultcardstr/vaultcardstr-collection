@@ -351,7 +351,7 @@ async function renderUsers(searchTerm = "") {
 
     const { data: profiles, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("id, username, avatar_url, created_at")
+      .select("id, username, avatar_url, created_at, is_verified")
       .order("created_at", { ascending: false });
 
     if (profileError) {
