@@ -12,6 +12,7 @@ let collectorCards = [];
 const state = { query: "", category: "all", editingId: null };
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAAFOJwibt0FmJpD5C";
+const ADMIN_EMAIL = "okrproduct@gmail.com";
 let loginCaptchaToken = "";
 let signupCaptchaToken = "";
 let loginCaptchaWidget = null;
@@ -972,7 +973,8 @@ function updateAuthUI() {
     loginBtn.textContent = "Hesabım";
 
     const isAdmin =
-      currentUser.app_metadata?.role === "admin";
+      currentUser.app_metadata?.role === "admin" &&
+      (currentUser.email || "").toLowerCase() === ADMIN_EMAIL;
 
     adminLink.classList.toggle("hidden", !isAdmin);
 
