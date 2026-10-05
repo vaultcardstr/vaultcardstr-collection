@@ -3744,6 +3744,13 @@ code { color:#d7ff3f; }
     color: #aeb5c2 !important;
     padding: 11px 12px !important;
   }
+
+  /* Hidden navigation items must stay hidden on mobile too. */
+  .main-nav.open a.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
 }
 
 
