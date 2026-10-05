@@ -110,6 +110,42 @@ async function importDemo(){
   if(error){toast(error.message,true);return;}
   await loadCards(); toast("Demo kartlar veritabanına aktarıldı.");
 }
+async function loadCollectorAdmin(){
+  const {data,error}=await supabaseClient.from("profiles").select("id,username,avatar_url,created_at,is_verified").order("created_at",{ascending:false});
+  if(error){toast(error.message,true);return;}
+  const profiles=data||[];
+  const pending=profiles.filter(p=>!p.is_verified);
+  $("#pendingCollectorCount").textContent=`${pending.length} bekleyen`;
+  $("#controlCollectorCount").textContent=profiles.length;
+  $("#controlVerifiedCount").textContent=profiles.filter(p=>p.is_verified).length;
+  $("#controlPendingCount").textContent=pending.length;
+  const box=$("#collectorAdminList");
+  if(!profiles.length){box.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><h3>Henüz koleksiyoner yok</h3></div>';return;}
+  box.innerHTML=profiles.map(p=>`<div class="collector-admin-row">
+    <div class="collector-admin-avatar">${p.avatar_url?`<img src="${escapeHtml(p.avatar_url)}" alt="">`:"<span>👤</span>"}</div>
+    <div class="collector-admin-info"><strong>${escapeHtml(p.username||"Kullanıcı")}</strong><small>${new Date(p.created_at).toLocaleDateString("tr-TR")}</small></div>
+    <span class="collector-admin-status ${p.is_verified?"verified":"pending"}">${p.is_verified?"✓ ONAYLI":"BEKLEYEN"}</span>
+    <div class="collector-admin-actions"><button class="${p.is_verified?"unverify-btn":"verify-btn"}" data-verify-id="${p.id}" data-verify-value="${p.is_verified?"false":"true"}">${p.is_verified?"Onayı Kaldır":"✓ Onayla"}</button></div>
+  </div>`).join("");
+  box.querySelectorAll("[data-verify-id]").forEach(btn=>btn.onclick=()=>setCollectorVerified(btn.dataset.verifyId,btn.dataset.verifyValue==="true"));
+}
+async function setCollectorVerified(id,value){
+  const {error}=await supabaseClient.from("profiles").update({is_verified:value}).eq("id",id);
+  if(error){toast(error.message,true);return;}
+  toast(value?"Koleksiyoner onaylandı.":"Onay kaldırıldı.");
+  await loadCollectorAdmin();
+}
+function initAdminTabs(){
+  document.querySelectorAll("[data-admin-tab]").forEach(btn=>btn.onclick=()=>{
+    document.querySelectorAll("[data-admin-tab]").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll("[data-admin-panel]").forEach(x=>x.classList.add("hidden"));
+    btn.classList.add("active");
+    const panel=btn.dataset.adminTab;
+    const target=document.querySelector(`[data-admin-panel="${panel}"]`);
+    if(target)target.classList.remove("hidden");
+    if(panel==="collectors"||panel==="control")loadCollectorAdmin();
+  });
+}
 function initForm(){
   $("#is_numbered").addEventListener("change",()=>{$("#numberingWrap").style.display=$("#is_numbered").checked?"":"none";if(!$("#is_numbered").checked)$("#numbering").value="";});
   $("#addCardBtn").onclick=()=>openForm();
@@ -145,7 +181,7 @@ async function boot(){
   $("#adminLoading").classList.add("hidden");$("#adminSection").classList.remove("hidden");
   $("#adminEmail").textContent=currentUser.email||"Admin";
   $("#adminEmail2").textContent=currentUser.email||"";
-  initForm(); await loadCards();
+  initForm(); initAdminTabs(); await loadCards(); await loadCollectorAdmin();
   supabaseClient.auth.onAuthStateChange((_event,session)=>{if(!session?.user){location.href="index.html";}});
 }
 document.addEventListener("DOMContentLoaded",boot);
