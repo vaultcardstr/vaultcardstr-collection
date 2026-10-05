@@ -936,7 +936,8 @@ if (c.for_sale && c.dolap_url) {
 function closeModal() { $("#cardModal").classList.add("hidden"); document.body.style.overflow = ""; }
 let showingBackImage = false;
 
-$("#modalImageNext").addEventListener("click", () => {
+const modalImageNext = $("#modalImageNext");
+if (modalImageNext) modalImageNext.addEventListener("click", () => {
   const frontImage = $("#modalImage");
   const backImage = $("#modalBackImage");
   const nextButton = $("#modalImageNext");
@@ -976,8 +977,9 @@ function updateAuthUI() {
     adminLink.classList.toggle("hidden", !isAdmin);
 
     if (isAdmin) {
-      $("#adminEmail").textContent =
-        currentUser.email || "Admin";
+      if ($("#adminEmail")) {
+        $("#adminEmail").textContent = currentUser.email || "Admin";
+      }
     }
   } else {
     loginBtn.classList.remove("hidden");
@@ -1456,7 +1458,23 @@ $("#backToLoginBtn").onclick = () => {
   closeSignup();
   openLogin();
 };
-  $("#logoutBtn").onclick = logout; $("#addCardBtn").onclick = () => openAdminForm(); $("#cancelAdminForm").onclick = closeAdminForm; $("#cancelAdminForm2").onclick = closeAdminForm; $("#cardEditorForm").onsubmit = saveCard; $("#importDemoBtn").onclick = importDemo; $("#setupCloseBtn").onclick = closeSetup; $("#setupCloseAction").onclick = closeSetup; $$('[data-setup-close]').forEach(x => x.onclick = closeSetup);
+  const adminLogoutBtn = $("#logoutBtn");
+  if (adminLogoutBtn) adminLogoutBtn.onclick = logout;
+  const addCardBtn = $("#addCardBtn");
+  if (addCardBtn) addCardBtn.onclick = () => openAdminForm();
+  const cancelAdminForm = $("#cancelAdminForm");
+  if (cancelAdminForm) cancelAdminForm.onclick = closeAdminForm;
+  const cancelAdminForm2 = $("#cancelAdminForm2");
+  if (cancelAdminForm2) cancelAdminForm2.onclick = closeAdminForm;
+  const cardEditorForm = $("#cardEditorForm");
+  if (cardEditorForm) cardEditorForm.onsubmit = saveCard;
+  const importDemoBtn = $("#importDemoBtn");
+  if (importDemoBtn) importDemoBtn.onclick = importDemo;
+  const setupCloseBtn = $("#setupCloseBtn");
+  if (setupCloseBtn) setupCloseBtn.onclick = closeSetup;
+  const setupCloseAction = $("#setupCloseAction");
+  if (setupCloseAction) setupCloseAction.onclick = closeSetup;
+  $('[data-setup-close]').forEach(x => x.onclick = closeSetup);
  document.addEventListener("click", (e) => {
   if (e.target.closest("#accountLogoutBtn")) {
     $("#accountMenu").classList.add("hidden");
@@ -1493,9 +1511,11 @@ function handleHash() {
 
   return;
 }
-  if (h === "admin" && currentUser && currentUser.app_metadata?.role === "admin") { $("#adminSection").classList.remove("hidden"); setTimeout(() => $("#adminSection").scrollIntoView({ behavior: "smooth" }), 50); }
+  if (h === "admin") {
+    window.location.href = "admin.html";
+    return;
+  }
   else if (h === "setup" && !liveMode) showSetup();
-  else if (h === "home" || h === "collection" || h === "featured" || !h) { $("#adminSection").classList.add("hidden"); }
 }
 
 document.addEventListener("DOMContentLoaded", init);
