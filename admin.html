@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin Panel | VaultCardsTR</title><link rel="icon" href="logo.png" type="image/png"><link rel="stylesheet" href="style.css">
+<style>
+.admin-page{min-height:100vh;padding:34px 0 90px}.admin-page-header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px}.admin-page-header h1{margin:6px 0 0}.admin-back{color:#aeb5c2;font-size:13px}.admin-access{min-height:50vh;display:grid;place-items:center;text-align:center}.admin-access-card{max-width:520px;padding:38px;border:1px solid rgba(255,157,46,.16);border-radius:20px;background:rgba(20,16,13,.72)}.admin-access-card h2{margin:10px 0}.admin-page .admin-section{display:block}.admin-page .admin-section.hidden{display:none}@media(max-width:560px){.admin-page{padding:22px 0 60px}.admin-page-header{align-items:flex-start}.admin-page-header .btn{padding:0 12px}}
+</style></head>
+<body>
+<div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div>
+<main class="admin-page container">
+<div class="admin-page-header"><div><a class="admin-back" href="index.html">← Ana Sayfaya Dön</a><div class="eyebrow" style="margin-top:18px">PRIVATE VAULT</div><h1>Admin Panel</h1><p class="section-note" id="adminEmail">Yetkilendirme kontrol ediliyor...</p></div><button class="btn btn-ghost" id="logoutBtn" type="button">Çıkış</button></div>
+<div id="adminLoading" class="admin-access"><div class="admin-access-card"><div class="eyebrow">SECURITY CHECK</div><h2>Admin erişimi kontrol ediliyor...</h2><p class="section-note">Lütfen bekle.</p></div></div>
+<div id="adminDenied" class="admin-access hidden"><div class="admin-access-card"><div class="eyebrow">ACCESS DENIED</div><h2>Bu sayfaya erişim iznin yok.</h2><p class="section-note">Admin hesabıyla giriş yapman gerekiyor.</p><a class="btn btn-primary" href="index.html">Ana Sayfaya Dön</a></div></div>
+<section class="section admin-section hidden" id="adminSection">
+<div class="section-heading"><div><div class="eyebrow">PRIVATE VAULT</div><h2>Kart Yönetimi</h2><p class="section-note" id="adminEmail2"></p></div><div class="admin-top-actions"><button class="btn btn-primary" id="addCardBtn" type="button">+ Yeni Kart</button><button class="btn btn-ghost" id="importDemoBtn" type="button">Demo Kartları Aktar</button></div></div>
+<div class="admin-form hidden" id="adminForm"><div class="admin-form-head"><h3 id="adminFormTitle">Yeni Kart Ekle</h3><button class="modal-close" id="cancelAdminForm" type="button">×</button></div>
+<form id="cardEditorForm" class="form-grid">
+<label>Oyuncu *<input id="player" required></label><label>Takım<input id="team"></label>
+<label>Kategori<select id="category"><option value="Football">Football</option><option value="Basketball">Basketball</option><option value="Baseball">Baseball</option><option value="American Football">American Football</option><option value="Hockey">Hockey</option><option value="Tennis">Tennis</option><option value="F1 / Motorsport">F1 / Motorsport</option><option value="Other">Other</option></select></label>
+<label>Yıl<input id="year"></label><label>Set<input id="set_name"></label><label>Card No.<input id="card_number"></label><label>Parallel<input id="parallel" value="Base"></label>
+<label class="check"><input id="is_numbered" type="checkbox"> Numbered</label><label id="numberingWrap" style="display:none">Seri Numarası<input id="numbering" placeholder="Örn. 05/25 veya 12/99"></label>
+<label class="check"><input id="is_autograph" type="checkbox"> Autograph</label><label class="check"><input id="is_relic" type="checkbox"> Relic</label>
+<label>Condition<input id="condition" value="Raw"></label><label>Grade<input id="grade" value="—"></label><label>Alış fiyatı (TL)<input id="purchase_price" type="number" min="0" step="0.01" placeholder="600"></label>
+<label>Tahmini değer (USD)<div style="display:flex;gap:8px;align-items:center"><input id="estimated_value" type="number" min="0" step="0.01"><button type="button" class="btn btn-ghost" id="aiEstimateBtn">🤖 AI Value</button></div></label>
+<label class="check"><input id="forSale" type="checkbox"> Satılık</label><label class="check"><input id="forTrade" type="checkbox"> Takas</label>
+<label>Dolap İlan Linki<input id="dolapUrl" type="url" placeholder="https://dolap.com/..."></label><label>Alındığı tarih<input id="acquired_date" type="date"></label>
+<label class="file-field">Kart ön yüzü *<input id="imageFront" type="file" accept="image/*"></label><label class="file-field">Kart arka yüzü<input id="imageBack" type="file" accept="image/*"></label>
+<label class="wide">Not<textarea id="note" rows="3"></textarea></label><label class="check"><input id="rookie" type="checkbox"> Rookie</label><label class="check"><input id="featured" type="checkbox"> Öne çıkar</label>
+<div class="wide form-actions"><button class="btn btn-primary" type="submit">Kaydet</button><button class="btn btn-ghost" type="button" id="cancelAdminForm2">İptal</button></div>
+</form></div><div class="admin-list" id="adminList"></div>
+</section></main>
+<div class="toast hidden" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="cards.js"></script><script src="admin.js"></script>
+</body></html>
