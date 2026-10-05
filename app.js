@@ -273,7 +273,7 @@ async function renderUserCollection(userId) {
         <div class="collector-profile-avatar">
           ${
             profile.avatar_url
-              ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(profile.username || "Kullanıcı")}">`
+              ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${escapeHtml(profile.username || "Kullanıcı")}" loading="lazy" decoding="async">`
               : `<span>👤</span>`
           }
         </div>
