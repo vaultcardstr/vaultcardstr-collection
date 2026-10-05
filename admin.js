@@ -3,6 +3,7 @@ let supabaseClient = null;
 let currentUser = null;
 let cards = [];
 let editingId = null;
+const ADMIN_EMAIL = "okrproduct@gmail.com";
 
 function escapeHtml(v){
   return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
@@ -135,7 +136,8 @@ async function boot(){
   supabaseClient=window.supabase.createClient(window.FG_CONFIG.SUPABASE_URL,window.FG_CONFIG.SUPABASE_KEY);
   const {data,error}=await supabaseClient.auth.getUser();
   currentUser=data?.user||null;
-  if(error||!currentUser||currentUser.app_metadata?.role!=="admin"){
+  const isAdmin = !!currentUser && currentUser.app_metadata?.role === "admin" && (currentUser.email || "").toLowerCase() === ADMIN_EMAIL;
+  if(error||!isAdmin){
     $("#adminLoading").classList.add("hidden");$("#adminDenied").classList.remove("hidden");
     if(!currentUser) $("#adminDenied h2").textContent="Admin paneline erişmek için giriş yapmalısın.";
     return;
