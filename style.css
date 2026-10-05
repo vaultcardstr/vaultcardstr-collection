@@ -3646,3 +3646,17 @@ code { color:#d7ff3f; }
   .admin-page .admin-page-header .btn-ghost{min-width:76px}
   .admin-page .admin-card-view-head .btn{width:100%;min-width:0}
 }
+
+
+/* AI estimated value control in collector card form */
+.nc-estimate-field{min-width:0}
+.nc-estimate-row{display:flex;align-items:center;gap:8px;margin-top:6px}
+.nc-estimate-row input{flex:1;min-width:0}
+.nc-ai-estimate-btn{flex:0 0 auto;min-height:48px!important;white-space:nowrap;padding:0 14px!important;border-color:rgba(255,157,46,.28)!important;background:rgba(255,157,46,.055)!important;color:#ffb45f!important;font-size:11px!important;font-weight:850!important}
+.nc-ai-estimate-btn:hover:not(:disabled){background:rgba(255,157,46,.11)!important;border-color:rgba(255,157,46,.5)!important;color:#fff!important}
+.nc-ai-estimate-btn:disabled{opacity:.6;cursor:wait;transform:none!important}
+.ai-estimate-note{display:block;margin-top:7px;color:#777f8d;font-size:10px;line-height:1.5;font-weight:600}
+@media(max-width:700px){
+  .nc-estimate-row{flex-direction:column;align-items:stretch}
+  .nc-ai-estimate-btn{width:100%}
+}
