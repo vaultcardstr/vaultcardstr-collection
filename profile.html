@@ -894,7 +894,7 @@ supabaseClient.auth.getUser().then(({ data }) => {
       const { data: profile, error: profileError } =
         await supabaseClient
           .from("profiles")
-          .select("id, username, avatar_url, created_at")
+          .select("id, username, avatar_url, created_at, is_verified")
           .eq("id", userId)
           .single();
 
@@ -1064,7 +1064,7 @@ supabaseClient.auth.getUser().then(({ data }) => {
             </div>
 
             <h1>
-              ${escapeHtml(profile.username || "Koleksiyoner")}
+              ${escapeHtml(profile.username || "Koleksiyoner")} ${profile.is_verified ? '<span class="verified-badge" title="Doğrulanmış koleksiyoner" aria-label="Doğrulanmış koleksiyoner">✓</span>' : ""}
             </h1>
 
             <p>
