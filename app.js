@@ -1627,6 +1627,26 @@ if (collectorSearch) {
   $("#signupBtn").onclick = openSignup;
 $("#signupForm").onsubmit = signup;
   $("#profileSettingsBtn").onclick = openProfileSettings;
+
+  $("#myCollectionBtn").onclick = async () => {
+    $("#accountMenu").classList.add("hidden");
+
+    let user = currentUser;
+
+    if (!user && supabaseClient) {
+      const { data } = await supabaseClient.auth.getUser();
+      user = data?.user || null;
+      currentUser = user;
+    }
+
+    if (!user) {
+      openLogin();
+      return;
+    }
+
+    window.location.href =
+      `profile.html?user=${encodeURIComponent(user.id)}`;
+  };
   $("#profilePhotoInput").addEventListener("change", e => {
   const file = e.target.files[0];
 
@@ -1674,17 +1694,7 @@ $("#backToLoginBtn").onclick = () => {
   if (e.target.closest("#accountLogoutBtn")) {
     $("#accountMenu").classList.add("hidden");
     logout();
-    return;
   }
-
-  if (e.target.closest("#myCollectionBtn")) {
-  $("#accountMenu").classList.add("hidden");
-
-  if (!currentUser) return;
-
-  window.location.href =
-    `profile.html?user=${encodeURIComponent(currentUser.id)}`;
-}
 });
   window.addEventListener("hashchange", handleHash); handleHash();
   document.addEventListener("keydown", e => { if (e.key === "Escape") { closeModal(); closeLogin(); closeSetup(); } });
