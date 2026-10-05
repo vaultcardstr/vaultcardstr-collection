@@ -71,6 +71,22 @@ function showCollectorDirectory(){
   closeForm();
   renderCollectorDirectory();
 }
+function renderList(){
+  const box=$("#adminList");
+  if(!box)return;
+  const visibleCards=selectedOwnerId?cards.filter(c=>String(c.owner_id)===String(selectedOwnerId)):cards;
+  if(!visibleCards.length){
+    box.innerHTML='<div class="empty-state"><div class="empty-icon">📦</div><h3>Bu koleksiyonda kart yok</h3><p>Bu koleksiyoner için henüz kart bulunmuyor.</p></div>';
+    return;
+  }
+  box.innerHTML=visibleCards.map(c=>'<div class="admin-row">'+
+    '<img src="'+escapeHtml(c.image)+'" alt="">'+
+    '<div><strong>'+escapeHtml(c.player)+'</strong><small>'+escapeHtml(c.set||"")+' · '+escapeHtml(c.year||"")+'</small></div>'+
+    '<div class="admin-actions"><button class="small-btn edit-btn" data-id="'+c.id+'">Düzenle</button><button class="small-btn danger delete-btn" data-id="'+c.id+'">Sil</button></div>'+
+  '</div>').join("");
+  box.querySelectorAll(".edit-btn").forEach(b=>b.onclick=()=>openForm(cards.find(c=>String(c.id)===String(b.dataset.id))));
+  box.querySelectorAll(".delete-btn").forEach(b=>b.onclick=()=>deleteCard(b.dataset.id));
+}
 function openForm(card=null){
   editingId=card?.id??null;
   $("#adminFormTitle").textContent=card?"Kartı Düzenle":"Yeni Kart Ekle";
