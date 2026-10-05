@@ -123,6 +123,10 @@ async function initSupabase() {
     updateAuthUI();
   });
   await cardsPromise;
+  // Supabase hazır olduktan sonra koleksiyoner listesini ilk kez yükle.
+  // İlk render sırasında supabaseClient henüz hazır olmadığı için renderUsers() erken dönüyor.
+  renderUsers();
+  renderStats();
 }
 
 async function loadCards() {
