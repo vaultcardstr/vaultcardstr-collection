@@ -2200,6 +2200,15 @@ newNumberedCheckbox.addEventListener("change", () => {
   Numbered
 </label>
 
+                <label class="check">
+  <input
+    id="peRelic"
+    type="checkbox"
+    ${card.is_relic ? "checked" : ""}
+  >
+  Relic
+</label>
+
 <label id="peSerialWrap" style="${card.serial_number ? "" : "display:none;"}">
   Seri Numarası
   <input
@@ -2303,7 +2312,8 @@ numberedCheckbox.addEventListener("change", () => {
               note: editBox.querySelector("#peNote").value.trim(),
              rookie: editBox.querySelector("#peRookie").checked,
 autograph: editBox.querySelector("#peAutograph").checked,
-serial_number: editBox.querySelector("#peSerialNumber").value.trim(),
+              is_relic: editBox.querySelector("#peRelic").checked,
+              serial_number: editBox.querySelector("#peSerialNumber").value.trim(),
 for_sale: editBox.querySelector("#peForSale").checked,
               for_trade: editBox.querySelector("#peForTrade").checked,
               dolap_url: editBox.querySelector("#peDolapUrl").value.trim()
